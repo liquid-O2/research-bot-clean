@@ -1,0 +1,29 @@
+{
+  "age_seconds": 2400,
+  "exit_overlay_started": false,
+  "expected_wall_seconds": 600.0,
+  "fit_started": false,
+  "judge_started": false,
+  "late_label_shard_opens": 0,
+  "locked_asset_days": {
+    "HG": 197,
+    "NKD": 194,
+    "SI": 191
+  },
+  "schema": "QRE2THRESHOLDB3COMMONCLOCK1",
+  "status": "STOP",
+  "stop_reason": "cell identity differs: HG/20221107/0",
+  "stored_teacher_opens": 0,
+  "touched_2025": false,
+  "tripwire_seconds": 1800.0,
+  "unit": "B3_COMMON_CLOCK_2400",
+  "verdict": "STOP",
+  "wall_clock_seconds": 1134.5472412090749,
+  "worker_budget": 13,
+  "workers_by_asset": {
+    "HG": 5,
+    "NKD": 4,
+    "SI": 4
+  },
+  "year_2021_started": false
+}

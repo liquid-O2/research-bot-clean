@@ -1,0 +1,19 @@
+{
+  "cells": 6646,
+  "clear_rows": 624887,
+  "collisions": 249,
+  "collisions_by_asset": {
+    "HG": 109,
+    "NKD": 36,
+    "SI": 104
+  },
+  "compliance_status": "CLEAR",
+  "files": 2817,
+  "note": "Two or more (phase_open, phase_close) pairs in one (asset,d8,phase). No cash columns read.",
+  "schema": "QRE2B3CELLIDENTITYCENSUS1",
+  "skipped_2025_files": 465,
+  "window": [
+    20220101,
+    20241231
+  ]
+}

@@ -1,0 +1,5371 @@
+{
+ "asset_days": {
+  "HG": 66,
+  "NKD": 65,
+  "SI": 64
+ },
+ "cells": {
+  "HG": 204,
+  "NKD": 198,
+  "SI": 198
+ },
+ "cells_without_context": 9,
+ "claim": "EXPLORE-day sweep 3 DEEP-FADE; can kill, cannot promote",
+ "code_sha": "916612d81ef2f1efc0d61f465711587d4063557422702d0fafe83cc5b2196ad4",
+ "context_counts": {
+  "forecast": 708,
+  "levels": 582,
+  "priors": 582
+ },
+ "log": {
+  "first_id": "sweep3-001",
+  "last_id": "sweep3-052",
+  "registered_utc": "2026-08-27T18:32:24+00:00",
+  "rows_appended": 52
+ },
+ "mutant": "",
+ "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+ "parent_trial": "sweep2-039",
+ "schema": "QRE2MILLSWEEP3",
+ "spec_sha": "953ef032cade7526e8ef654d85c1f5ea71bc887802448d5db93cdbe59cdfa849",
+ "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+ "stage_a": {
+  "configs": {
+   "A1m+0.00/t1800/r0": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.34642163684925137,
+       0.5422890304026875
+      ],
+      "coverage": 0.5196078431372549,
+      "depth_atr_median": 0.1303148444831509,
+      "entered": 106,
+      "entry_seconds_median": 4650.0,
+      "error": 0.4421052631578947,
+      "error_hits": 42,
+      "error_n": 95,
+      "illegal": 20,
+      "long_fraction": 0.4339622641509434,
+      "no_context": 3,
+      "no_event": 75,
+      "triggered": 126,
+      "unavailable": 20,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.41624765387740176,
+       0.6326273302399217
+      ],
+      "coverage": 0.47474747474747475,
+      "depth_atr_median": 0.09465120784714605,
+      "entered": 94,
+      "entry_seconds_median": 7590.0,
+      "error": 0.5256410256410257,
+      "error_hits": 41,
+      "error_n": 78,
+      "illegal": 35,
+      "long_fraction": 0.43617021276595747,
+      "no_context": 3,
+      "no_event": 66,
+      "triggered": 129,
+      "unavailable": 35,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.36677523911181087,
+       0.5931400264739731
+      ],
+      "coverage": 0.3939393939393939,
+      "depth_atr_median": 0.11848784950948615,
+      "entered": 78,
+      "entry_seconds_median": 6090.0,
+      "error": 0.4788732394366197,
+      "error_hits": 34,
+      "error_n": 71,
+      "illegal": 32,
+      "long_fraction": 0.5256410256410257,
+      "no_context": 3,
+      "no_event": 85,
+      "triggered": 110,
+      "unavailable": 32,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.4633333333333333,
+    "entered_pooled": 278,
+    "entry_seconds_median_pooled": 6030.0,
+    "params": [
+     "A1",
+     0.0,
+     1800,
+     0
+    ],
+    "simplicity": [
+     0,
+     0.0,
+     0,
+     1800
+    ]
+   },
+   "A1m+0.00/t1800/r4": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.34429385129378526,
+       0.5421184339613663
+      ],
+      "coverage": 0.5147058823529411,
+      "depth_atr_median": 0.12254098979763686,
+      "entered": 105,
+      "entry_seconds_median": 4980.0,
+      "error": 0.44086021505376344,
+      "error_hits": 41,
+      "error_n": 93,
+      "illegal": 20,
+      "long_fraction": 0.4380952380952381,
+      "no_context": 3,
+      "no_event": 76,
+      "triggered": 125,
+      "unavailable": 20,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.45361986570375756,
+       0.6685675945895508
+      ],
+      "coverage": 0.494949494949495,
+      "depth_atr_median": 0.09347257270695028,
+      "entered": 98,
+      "entry_seconds_median": 7470.0,
+      "error": 0.5641025641025641,
+      "error_hits": 44,
+      "error_n": 78,
+      "illegal": 30,
+      "long_fraction": 0.4489795918367347,
+      "no_context": 3,
+      "no_event": 67,
+      "triggered": 128,
+      "unavailable": 30,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.39954383919009234,
+       0.6275412161696143
+      ],
+      "coverage": 0.40404040404040403,
+      "depth_atr_median": 0.13888777630559215,
+      "entered": 80,
+      "entry_seconds_median": 6630.0,
+      "error": 0.5142857142857142,
+      "error_hits": 36,
+      "error_n": 70,
+      "illegal": 30,
+      "long_fraction": 0.525,
+      "no_context": 3,
+      "no_event": 85,
+      "triggered": 110,
+      "unavailable": 30,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.4716666666666667,
+    "entered_pooled": 283,
+    "entry_seconds_median_pooled": 6360.0,
+    "params": [
+     "A1",
+     0.0,
+     1800,
+     4
+    ],
+    "simplicity": [
+     0,
+     0.0,
+     4,
+     1800
+    ]
+   },
+   "A1m+0.00/t1800/r8": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.34038166214603166,
+       0.5369709433379954
+      ],
+      "coverage": 0.5245098039215687,
+      "depth_atr_median": 0.12494375430347288,
+      "entered": 107,
+      "entry_seconds_median": 5880.0,
+      "error": 0.43617021276595747,
+      "error_hits": 41,
+      "error_n": 94,
+      "illegal": 17,
+      "long_fraction": 0.4485981308411215,
+      "no_context": 3,
+      "no_event": 77,
+      "triggered": 124,
+      "unavailable": 17,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.4472757377643103,
+       0.6588044749654215
+      ],
+      "coverage": 0.51010101010101,
+      "depth_atr_median": 0.09097402276185242,
+      "entered": 101,
+      "entry_seconds_median": 7740.0,
+      "error": 0.5555555555555556,
+      "error_hits": 45,
+      "error_n": 81,
+      "illegal": 23,
+      "long_fraction": 0.44554455445544555,
+      "no_context": 3,
+      "no_event": 71,
+      "triggered": 124,
+      "unavailable": 23,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.41624765387740176,
+       0.6326273302399217
+      ],
+      "coverage": 0.46464646464646464,
+      "depth_atr_median": 0.10011116364389033,
+      "entered": 92,
+      "entry_seconds_median": 7350.0,
+      "error": 0.5256410256410257,
+      "error_hits": 41,
+      "error_n": 78,
+      "illegal": 17,
+      "long_fraction": 0.532608695652174,
+      "no_context": 3,
+      "no_event": 86,
+      "triggered": 109,
+      "unavailable": 17,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.5,
+    "entered_pooled": 300,
+    "entry_seconds_median_pooled": 7380.0,
+    "params": [
+     "A1",
+     0.0,
+     1800,
+     8
+    ],
+    "simplicity": [
+     0,
+     0.0,
+     8,
+     1800
+    ]
+   },
+   "A1m+0.00/t900/r0": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.3254240646742608,
+       0.5253881437468566
+      ],
+      "coverage": 0.4950980392156863,
+      "depth_atr_median": 0.11710798886214152,
+      "entered": 101,
+      "entry_seconds_median": 4200.0,
+      "error": 0.4222222222222222,
+      "error_hits": 38,
+      "error_n": 90,
+      "illegal": 31,
+      "long_fraction": 0.44554455445544555,
+      "no_context": 3,
+      "no_event": 69,
+      "triggered": 132,
+      "unavailable": 31,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.4538575306835998,
+       0.6713906818078296
+      ],
+      "coverage": 0.46464646464646464,
+      "depth_atr_median": 0.08177167320546974,
+      "entered": 92,
+      "entry_seconds_median": 6150.0,
+      "error": 0.5657894736842105,
+      "error_hits": 43,
+      "error_n": 76,
+      "illegal": 40,
+      "long_fraction": 0.43478260869565216,
+      "no_context": 3,
+      "no_event": 63,
+      "triggered": 132,
+      "unavailable": 40,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.36677523911181087,
+       0.5931400264739731
+      ],
+      "coverage": 0.3787878787878788,
+      "depth_atr_median": 0.07814682021306855,
+      "entered": 75,
+      "entry_seconds_median": 5700.0,
+      "error": 0.4788732394366197,
+      "error_hits": 34,
+      "error_n": 71,
+      "illegal": 36,
+      "long_fraction": 0.5333333333333333,
+      "no_context": 3,
+      "no_event": 84,
+      "triggered": 111,
+      "unavailable": 36,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.44666666666666666,
+    "entered_pooled": 268,
+    "entry_seconds_median_pooled": 5340.0,
+    "params": [
+     "A1",
+     0.0,
+     900,
+     0
+    ],
+    "simplicity": [
+     0,
+     0.0,
+     0,
+     900
+    ]
+   },
+   "A1m+0.00/t900/r4": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.3227709232506629,
+       0.5247924737187518
+      ],
+      "coverage": 0.49019607843137253,
+      "depth_atr_median": 0.11905092475484538,
+      "entered": 100,
+      "entry_seconds_median": 4440.0,
+      "error": 0.42045454545454547,
+      "error_hits": 37,
+      "error_n": 88,
+      "illegal": 31,
+      "long_fraction": 0.45,
+      "no_context": 3,
+      "no_event": 70,
+      "triggered": 131,
+      "unavailable": 31,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.4904546500516039,
+       0.7003817240412906
+      ],
+      "coverage": 0.4898989898989899,
+      "depth_atr_median": 0.0897819814777541,
+      "entered": 97,
+      "entry_seconds_median": 6360.0,
+      "error": 0.6,
+      "error_hits": 48,
+      "error_n": 80,
+      "illegal": 34,
+      "long_fraction": 0.4536082474226804,
+      "no_context": 3,
+      "no_event": 64,
+      "triggered": 131,
+      "unavailable": 34,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.3874709230948976,
+       0.6125290769051024
+      ],
+      "coverage": 0.3939393939393939,
+      "depth_atr_median": 0.12337704507470672,
+      "entered": 78,
+      "entry_seconds_median": 5790.0,
+      "error": 0.5,
+      "error_hits": 36,
+      "error_n": 72,
+      "illegal": 33,
+      "long_fraction": 0.5384615384615384,
+      "no_context": 3,
+      "no_event": 84,
+      "triggered": 111,
+      "unavailable": 33,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.4583333333333333,
+    "entered_pooled": 275,
+    "entry_seconds_median_pooled": 5580.0,
+    "params": [
+     "A1",
+     0.0,
+     900,
+     4
+    ],
+    "simplicity": [
+     0,
+     0.0,
+     4,
+     900
+    ]
+   },
+   "A1m+0.00/t900/r8": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.3365583329880693,
+       0.5319179101278586
+      ],
+      "coverage": 0.5245098039215687,
+      "depth_atr_median": 0.11347039648888298,
+      "entered": 107,
+      "entry_seconds_median": 4800.0,
+      "error": 0.43157894736842106,
+      "error_hits": 41,
+      "error_n": 95,
+      "illegal": 23,
+      "long_fraction": 0.4485981308411215,
+      "no_context": 3,
+      "no_event": 71,
+      "triggered": 130,
+      "unavailable": 23,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.4587738410724954,
+       0.6650422257280392
+      ],
+      "coverage": 0.5202020202020202,
+      "depth_atr_median": 0.07987132312213467,
+      "entered": 103,
+      "entry_seconds_median": 7500.0,
+      "error": 0.5647058823529412,
+      "error_hits": 48,
+      "error_n": 85,
+      "illegal": 26,
+      "long_fraction": 0.42718446601941745,
+      "no_context": 3,
+      "no_event": 66,
+      "triggered": 129,
+      "unavailable": 26,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.4039270123076001,
+       0.6205104797510615
+      ],
+      "coverage": 0.4494949494949495,
+      "depth_atr_median": 0.09366139949919103,
+      "entered": 89,
+      "entry_seconds_median": 6780.0,
+      "error": 0.5128205128205128,
+      "error_hits": 40,
+      "error_n": 78,
+      "illegal": 21,
+      "long_fraction": 0.5393258426966292,
+      "no_context": 3,
+      "no_event": 85,
+      "triggered": 110,
+      "unavailable": 21,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.49833333333333335,
+    "entered_pooled": 299,
+    "entry_seconds_median_pooled": 6720.0,
+    "params": [
+     "A1",
+     0.0,
+     900,
+     8
+    ],
+    "simplicity": [
+     0,
+     0.0,
+     8,
+     900
+    ]
+   },
+   "A1m+0.25/t1800/r0": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.3856851352698476,
+       0.5700049093976445
+      ],
+      "coverage": 0.5784313725490197,
+      "depth_atr_median": 0.08742686339293175,
+      "entered": 118,
+      "entry_seconds_median": 3900.0,
+      "error": 0.47706422018348627,
+      "error_hits": 52,
+      "error_n": 109,
+      "illegal": 44,
+      "long_fraction": 0.4576271186440678,
+      "no_context": 3,
+      "no_event": 39,
+      "triggered": 162,
+      "unavailable": 44,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.39774166700838975,
+       0.6022583329916102
+      ],
+      "coverage": 0.5353535353535354,
+      "depth_atr_median": 0.07432306446103584,
+      "entered": 106,
+      "entry_seconds_median": 4740.0,
+      "error": 0.5,
+      "error_hits": 44,
+      "error_n": 88,
+      "illegal": 57,
+      "long_fraction": 0.4339622641509434,
+      "no_context": 3,
+      "no_event": 32,
+      "triggered": 163,
+      "unavailable": 57,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.3565961690755778,
+       0.5581536643079179
+      ],
+      "coverage": 0.5202020202020202,
+      "depth_atr_median": 0.06839699176847522,
+      "entered": 103,
+      "entry_seconds_median": 4740.0,
+      "error": 0.45555555555555555,
+      "error_hits": 41,
+      "error_n": 90,
+      "illegal": 57,
+      "long_fraction": 0.5436893203883495,
+      "no_context": 3,
+      "no_event": 35,
+      "triggered": 160,
+      "unavailable": 57,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.545,
+    "entered_pooled": 327,
+    "entry_seconds_median_pooled": 4260.0,
+    "params": [
+     "A1",
+     0.25,
+     1800,
+     0
+    ],
+    "simplicity": [
+     0,
+     0.25,
+     0,
+     1800
+    ]
+   },
+   "A1m+0.25/t1800/r4": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.38064930523089247,
+       0.5657033258661384
+      ],
+      "coverage": 0.5735294117647058,
+      "depth_atr_median": 0.08900467053286094,
+      "entered": 117,
+      "entry_seconds_median": 4140.0,
+      "error": 0.4722222222222222,
+      "error_hits": 51,
+      "error_n": 108,
+      "illegal": 44,
+      "long_fraction": 0.46153846153846156,
+      "no_context": 3,
+      "no_event": 40,
+      "triggered": 161,
+      "unavailable": 44,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.4253754742950576,
+       0.6284797759725685
+      ],
+      "coverage": 0.5707070707070707,
+      "depth_atr_median": 0.07174919883902169,
+      "entered": 113,
+      "entry_seconds_median": 5820.0,
+      "error": 0.5280898876404494,
+      "error_hits": 47,
+      "error_n": 89,
+      "illegal": 50,
+      "long_fraction": 0.4336283185840708,
+      "no_context": 3,
+      "no_event": 32,
+      "triggered": 163,
+      "unavailable": 50,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.37152022402743146,
+       0.5746245257049423
+      ],
+      "coverage": 0.5303030303030303,
+      "depth_atr_median": 0.08216832418489882,
+      "entered": 105,
+      "entry_seconds_median": 5280.0,
+      "error": 0.47191011235955055,
+      "error_hits": 42,
+      "error_n": 89,
+      "illegal": 55,
+      "long_fraction": 0.5428571428571428,
+      "no_context": 3,
+      "no_event": 35,
+      "triggered": 160,
+      "unavailable": 55,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.5583333333333333,
+    "entered_pooled": 335,
+    "entry_seconds_median_pooled": 4920.0,
+    "params": [
+     "A1",
+     0.25,
+     1800,
+     4
+    ],
+    "simplicity": [
+     0,
+     0.25,
+     4,
+     1800
+    ]
+   },
+   "A1m+0.25/t1800/r8": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.3795524551888723,
+       0.5605373034408769
+      ],
+      "coverage": 0.5931372549019608,
+      "depth_atr_median": 0.09778284091816256,
+      "entered": 121,
+      "entry_seconds_median": 4980.0,
+      "error": 0.4690265486725664,
+      "error_hits": 53,
+      "error_n": 113,
+      "illegal": 38,
+      "long_fraction": 0.47107438016528924,
+      "no_context": 3,
+      "no_event": 42,
+      "triggered": 159,
+      "unavailable": 38,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.4273277034969924,
+       0.6222550778161032
+      ],
+      "coverage": 0.6161616161616161,
+      "depth_atr_median": 0.07165744544214993,
+      "entered": 122,
+      "entry_seconds_median": 7470.0,
+      "error": 0.5257731958762887,
+      "error_hits": 51,
+      "error_n": 97,
+      "illegal": 38,
+      "long_fraction": 0.4344262295081967,
+      "no_context": 3,
+      "no_event": 35,
+      "triggered": 160,
+      "unavailable": 38,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.39342020925846743,
+       0.5795141058261705
+      ],
+      "coverage": 0.6313131313131313,
+      "depth_atr_median": 0.0666301853535679,
+      "entered": 125,
+      "entry_seconds_median": 6720.0,
+      "error": 0.48598130841121495,
+      "error_hits": 52,
+      "error_n": 107,
+      "illegal": 32,
+      "long_fraction": 0.528,
+      "no_context": 3,
+      "no_event": 38,
+      "triggered": 157,
+      "unavailable": 32,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.6133333333333333,
+    "entered_pooled": 368,
+    "entry_seconds_median_pooled": 6840.0,
+    "params": [
+     "A1",
+     0.25,
+     1800,
+     8
+    ],
+    "simplicity": [
+     0,
+     0.25,
+     8,
+     1800
+    ]
+   },
+   "A1m+0.25/t900/r0": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.376559145059517,
+       0.5667522938902748
+      ],
+      "coverage": 0.5343137254901961,
+      "depth_atr_median": 0.06565166593123384,
+      "entered": 109,
+      "entry_seconds_median": 2400.0,
+      "error": 0.47058823529411764,
+      "error_hits": 48,
+      "error_n": 102,
+      "illegal": 59,
+      "long_fraction": 0.48623853211009177,
+      "no_context": 3,
+      "no_event": 33,
+      "triggered": 168,
+      "unavailable": 59,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.4349833293376871,
+       0.6495154240600667
+      ],
+      "coverage": 0.4797979797979798,
+      "depth_atr_median": 0.061268458517103934,
+      "entered": 95,
+      "entry_seconds_median": 3480.0,
+      "error": 0.5443037974683544,
+      "error_hits": 43,
+      "error_n": 79,
+      "illegal": 73,
+      "long_fraction": 0.42105263157894735,
+      "no_context": 3,
+      "no_event": 27,
+      "triggered": 168,
+      "unavailable": 73,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.35459403744214907,
+       0.5582993322546592
+      ],
+      "coverage": 0.4898989898989899,
+      "depth_atr_median": 0.05761074432773996,
+      "entered": 97,
+      "entry_seconds_median": 3360.0,
+      "error": 0.45454545454545453,
+      "error_hits": 40,
+      "error_n": 88,
+      "illegal": 65,
+      "long_fraction": 0.5463917525773195,
+      "no_context": 3,
+      "no_event": 33,
+      "triggered": 162,
+      "unavailable": 65,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.5016666666666667,
+    "entered_pooled": 301,
+    "entry_seconds_median_pooled": 3060.0,
+    "params": [
+     "A1",
+     0.25,
+     900,
+     0
+    ],
+    "simplicity": [
+     0,
+     0.25,
+     0,
+     900
+    ]
+   },
+   "A1m+0.25/t900/r4": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.376559145059517,
+       0.5667522938902748
+      ],
+      "coverage": 0.5343137254901961,
+      "depth_atr_median": 0.07373232320025097,
+      "entered": 109,
+      "entry_seconds_median": 2880.0,
+      "error": 0.47058823529411764,
+      "error_hits": 48,
+      "error_n": 102,
+      "illegal": 58,
+      "long_fraction": 0.48623853211009177,
+      "no_context": 3,
+      "no_event": 34,
+      "triggered": 167,
+      "unavailable": 58,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.4587738410724954,
+       0.6650422257280392
+      ],
+      "coverage": 0.5252525252525253,
+      "depth_atr_median": 0.05666065081155737,
+      "entered": 104,
+      "entry_seconds_median": 5220.0,
+      "error": 0.5647058823529412,
+      "error_hits": 48,
+      "error_n": 85,
+      "illegal": 64,
+      "long_fraction": 0.4326923076923077,
+      "no_context": 3,
+      "no_event": 27,
+      "triggered": 168,
+      "unavailable": 64,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.36530468030457786,
+       0.5693653469680284
+      ],
+      "coverage": 0.5,
+      "depth_atr_median": 0.06003925830202142,
+      "entered": 99,
+      "entry_seconds_median": 3540.0,
+      "error": 0.4659090909090909,
+      "error_hits": 41,
+      "error_n": 88,
+      "illegal": 63,
+      "long_fraction": 0.5454545454545454,
+      "no_context": 3,
+      "no_event": 33,
+      "triggered": 162,
+      "unavailable": 63,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.52,
+    "entered_pooled": 312,
+    "entry_seconds_median_pooled": 3840.0,
+    "params": [
+     "A1",
+     0.25,
+     900,
+     4
+    ],
+    "simplicity": [
+     0,
+     0.25,
+     4,
+     900
+    ]
+   },
+   "A1m+0.25/t900/r8": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.38915112373528865,
+       0.5687760167625076
+      ],
+      "coverage": 0.5931372549019608,
+      "depth_atr_median": 0.06535198975812659,
+      "entered": 121,
+      "entry_seconds_median": 3480.0,
+      "error": 0.4782608695652174,
+      "error_hits": 55,
+      "error_n": 115,
+      "illegal": 44,
+      "long_fraction": 0.47107438016528924,
+      "no_context": 3,
+      "no_event": 36,
+      "triggered": 165,
+      "unavailable": 44,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.44757998088881473,
+       0.6382639219072378
+      ],
+      "coverage": 0.6212121212121212,
+      "depth_atr_median": 0.06040740831996439,
+      "entered": 123,
+      "entry_seconds_median": 7020.0,
+      "error": 0.5445544554455446,
+      "error_hits": 55,
+      "error_n": 101,
+      "illegal": 44,
+      "long_fraction": 0.42276422764227645,
+      "no_context": 3,
+      "no_event": 28,
+      "triggered": 167,
+      "unavailable": 44,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.39342020925846743,
+       0.5795141058261705
+      ],
+      "coverage": 0.6111111111111112,
+      "depth_atr_median": 0.037635713010835445,
+      "entered": 121,
+      "entry_seconds_median": 5340.0,
+      "error": 0.48598130841121495,
+      "error_hits": 52,
+      "error_n": 107,
+      "illegal": 38,
+      "long_fraction": 0.5289256198347108,
+      "no_context": 3,
+      "no_event": 36,
+      "triggered": 159,
+      "unavailable": 38,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.6083333333333333,
+    "entered_pooled": 365,
+    "entry_seconds_median_pooled": 5160.0,
+    "params": [
+     "A1",
+     0.25,
+     900,
+     8
+    ],
+    "simplicity": [
+     0,
+     0.25,
+     8,
+     900
+    ]
+   },
+   "A1m-0.10/t1800/r0": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.36338706920848024,
+       0.5852264323805136
+      ],
+      "coverage": 0.4264705882352941,
+      "depth_atr_median": 0.12653515109769617,
+      "entered": 87,
+      "entry_seconds_median": 4380.0,
+      "error": 0.47297297297297297,
+      "error_hits": 35,
+      "error_n": 74,
+      "illegal": 13,
+      "long_fraction": 0.4367816091954023,
+      "no_context": 3,
+      "no_event": 101,
+      "triggered": 100,
+      "unavailable": 13,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.39032595445464624,
+       0.6096740455453538
+      ],
+      "coverage": 0.4494949494949495,
+      "depth_atr_median": 0.1309123398701554,
+      "entered": 89,
+      "entry_seconds_median": 8040.0,
+      "error": 0.5,
+      "error_hits": 38,
+      "error_n": 76,
+      "illegal": 23,
+      "long_fraction": 0.4606741573033708,
+      "no_context": 3,
+      "no_event": 83,
+      "triggered": 112,
+      "unavailable": 23,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.39447459605660673,
+       0.6359014016175426
+      ],
+      "coverage": 0.3484848484848485,
+      "depth_atr_median": 0.13222225073659552,
+      "entered": 69,
+      "entry_seconds_median": 6180.0,
+      "error": 0.5161290322580645,
+      "error_hits": 32,
+      "error_n": 62,
+      "illegal": 27,
+      "long_fraction": 0.5942028985507246,
+      "no_context": 3,
+      "no_event": 99,
+      "triggered": 96,
+      "unavailable": 27,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.4083333333333333,
+    "entered_pooled": 245,
+    "entry_seconds_median_pooled": 6420.0,
+    "params": [
+     "A1",
+     -0.1,
+     1800,
+     0
+    ],
+    "simplicity": [
+     0,
+     0.1,
+     0,
+     1800
+    ]
+   },
+   "A1m-0.10/t1800/r4": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.36677523911181087,
+       0.5931400264739731
+      ],
+      "coverage": 0.4215686274509804,
+      "depth_atr_median": 0.12305309044480567,
+      "entered": 86,
+      "entry_seconds_median": 4800.0,
+      "error": 0.4788732394366197,
+      "error_hits": 34,
+      "error_n": 71,
+      "illegal": 13,
+      "long_fraction": 0.4418604651162791,
+      "no_context": 3,
+      "no_event": 102,
+      "triggered": 99,
+      "unavailable": 13,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.4039270123076001,
+       0.6205104797510615
+      ],
+      "coverage": 0.4696969696969697,
+      "depth_atr_median": 0.13663242308491436,
+      "entered": 93,
+      "entry_seconds_median": 8400.0,
+      "error": 0.5128205128205128,
+      "error_hits": 40,
+      "error_n": 78,
+      "illegal": 19,
+      "long_fraction": 0.46236559139784944,
+      "no_context": 3,
+      "no_event": 83,
+      "triggered": 112,
+      "unavailable": 19,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.43319638238682345,
+       0.671529039881082
+      ],
+      "coverage": 0.35858585858585856,
+      "depth_atr_median": 0.15446152150077894,
+      "entered": 71,
+      "entry_seconds_median": 6600.0,
+      "error": 0.5555555555555556,
+      "error_hits": 35,
+      "error_n": 63,
+      "illegal": 25,
+      "long_fraction": 0.5915492957746479,
+      "no_context": 3,
+      "no_event": 99,
+      "triggered": 96,
+      "unavailable": 25,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.4166666666666667,
+    "entered_pooled": 250,
+    "entry_seconds_median_pooled": 6810.0,
+    "params": [
+     "A1",
+     -0.1,
+     1800,
+     4
+    ],
+    "simplicity": [
+     0,
+     0.1,
+     4,
+     1800
+    ]
+   },
+   "A1m-0.10/t1800/r8": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.3706911114274907,
+       0.5912578422718215
+      ],
+      "coverage": 0.4264705882352941,
+      "depth_atr_median": 0.11574176814635924,
+      "entered": 87,
+      "entry_seconds_median": 5520.0,
+      "error": 0.48,
+      "error_hits": 36,
+      "error_n": 75,
+      "illegal": 11,
+      "long_fraction": 0.45977011494252873,
+      "no_context": 3,
+      "no_event": 103,
+      "triggered": 98,
+      "unavailable": 11,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.4105110559940594,
+       0.6257026954621209
+      ],
+      "coverage": 0.47474747474747475,
+      "depth_atr_median": 0.1332598090362483,
+      "entered": 94,
+      "entry_seconds_median": 9150.0,
+      "error": 0.5189873417721519,
+      "error_hits": 41,
+      "error_n": 79,
+      "illegal": 14,
+      "long_fraction": 0.4574468085106383,
+      "no_context": 3,
+      "no_event": 87,
+      "triggered": 108,
+      "unavailable": 14,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.4273986728598905,
+       0.651713729423738
+      ],
+      "coverage": 0.41414141414141414,
+      "depth_atr_median": 0.1178314539726874,
+      "entered": 82,
+      "entry_seconds_median": 7530.0,
+      "error": 0.5416666666666666,
+      "error_hits": 39,
+      "error_n": 72,
+      "illegal": 13,
+      "long_fraction": 0.5975609756097561,
+      "no_context": 3,
+      "no_event": 100,
+      "triggered": 95,
+      "unavailable": 13,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.43833333333333335,
+    "entered_pooled": 263,
+    "entry_seconds_median_pooled": 7560.0,
+    "params": [
+     "A1",
+     -0.1,
+     1800,
+     8
+    ],
+    "simplicity": [
+     0,
+     0.1,
+     8,
+     1800
+    ]
+   },
+   "A1m-0.10/t900/r0": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.34828627057626194,
+       0.5726013271401095
+      ],
+      "coverage": 0.4166666666666667,
+      "depth_atr_median": 0.12653515109769617,
+      "entered": 85,
+      "entry_seconds_median": 4020.0,
+      "error": 0.4583333333333333,
+      "error_hits": 33,
+      "error_n": 72,
+      "illegal": 21,
+      "long_fraction": 0.4470588235294118,
+      "no_context": 3,
+      "no_event": 95,
+      "triggered": 106,
+      "unavailable": 21,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.4278134568803063,
+       0.649266290736203
+      ],
+      "coverage": 0.4393939393939394,
+      "depth_atr_median": 0.1309123398701554,
+      "entered": 87,
+      "entry_seconds_median": 7920.0,
+      "error": 0.5405405405405406,
+      "error_hits": 40,
+      "error_n": 74,
+      "illegal": 28,
+      "long_fraction": 0.45977011494252873,
+      "no_context": 3,
+      "no_event": 80,
+      "triggered": 115,
+      "unavailable": 28,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.40157156924985693,
+       0.6446951257715474
+      ],
+      "coverage": 0.3282828282828283,
+      "depth_atr_median": 0.12285709409009835,
+      "entered": 65,
+      "entry_seconds_median": 6060.0,
+      "error": 0.5245901639344263,
+      "error_hits": 32,
+      "error_n": 61,
+      "illegal": 31,
+      "long_fraction": 0.6,
+      "no_context": 3,
+      "no_event": 99,
+      "triggered": 96,
+      "unavailable": 31,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.395,
+    "entered_pooled": 237,
+    "entry_seconds_median_pooled": 5700.0,
+    "params": [
+     "A1",
+     -0.1,
+     900,
+     0
+    ],
+    "simplicity": [
+     0,
+     0.1,
+     0,
+     900
+    ]
+   },
+   "A1m-0.10/t900/r4": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.3511418406967511,
+       0.580215931635789
+      ],
+      "coverage": 0.4117647058823529,
+      "depth_atr_median": 0.12496799791363111,
+      "entered": 84,
+      "entry_seconds_median": 4410.0,
+      "error": 0.463768115942029,
+      "error_hits": 32,
+      "error_n": 69,
+      "illegal": 21,
+      "long_fraction": 0.4523809523809524,
+      "no_context": 3,
+      "no_event": 96,
+      "triggered": 105,
+      "unavailable": 21,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.4349833293376871,
+       0.6495154240600667
+      ],
+      "coverage": 0.46464646464646464,
+      "depth_atr_median": 0.13962989290150601,
+      "entered": 92,
+      "entry_seconds_median": 8070.0,
+      "error": 0.5443037974683544,
+      "error_hits": 43,
+      "error_n": 79,
+      "illegal": 23,
+      "long_fraction": 0.4673913043478261,
+      "no_context": 3,
+      "no_event": 80,
+      "triggered": 115,
+      "unavailable": 23,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.4257359722005412,
+       0.6627055221938833
+      ],
+      "coverage": 0.3434343434343434,
+      "depth_atr_median": 0.1269490071072782,
+      "entered": 68,
+      "entry_seconds_median": 6090.0,
+      "error": 0.546875,
+      "error_hits": 35,
+      "error_n": 64,
+      "illegal": 28,
+      "long_fraction": 0.6029411764705882,
+      "no_context": 3,
+      "no_event": 99,
+      "triggered": 96,
+      "unavailable": 28,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.4066666666666667,
+    "entered_pooled": 244,
+    "entry_seconds_median_pooled": 5940.0,
+    "params": [
+     "A1",
+     -0.1,
+     900,
+     4
+    ],
+    "simplicity": [
+     0,
+     0.1,
+     4,
+     900
+    ]
+   },
+   "A1m-0.10/t900/r8": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.35307731232622985,
+       0.5717737601789127
+      ],
+      "coverage": 0.43137254901960786,
+      "depth_atr_median": 0.11484841974851578,
+      "entered": 88,
+      "entry_seconds_median": 4710.0,
+      "error": 0.4605263157894737,
+      "error_hits": 35,
+      "error_n": 76,
+      "illegal": 16,
+      "long_fraction": 0.4659090909090909,
+      "no_context": 3,
+      "no_event": 97,
+      "triggered": 104,
+      "unavailable": 16,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.4176473297995616,
+       0.6289502007521409
+      ],
+      "coverage": 0.48484848484848486,
+      "depth_atr_median": 0.10907039852617315,
+      "entered": 96,
+      "entry_seconds_median": 8790.0,
+      "error": 0.524390243902439,
+      "error_hits": 43,
+      "error_n": 82,
+      "illegal": 17,
+      "long_fraction": 0.4375,
+      "no_context": 3,
+      "no_event": 82,
+      "triggered": 113,
+      "unavailable": 17,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.42039236914515843,
+       0.6464155215452013
+      ],
+      "coverage": 0.3939393939393939,
+      "depth_atr_median": 0.09872509437498127,
+      "entered": 78,
+      "entry_seconds_median": 6720.0,
+      "error": 0.5352112676056338,
+      "error_hits": 38,
+      "error_n": 71,
+      "illegal": 17,
+      "long_fraction": 0.6025641025641025,
+      "no_context": 3,
+      "no_event": 100,
+      "triggered": 95,
+      "unavailable": 17,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.43666666666666665,
+    "entered_pooled": 262,
+    "entry_seconds_median_pooled": 6840.0,
+    "params": [
+     "A1",
+     -0.1,
+     900,
+     8
+    ],
+    "simplicity": [
+     0,
+     0.1,
+     8,
+     900
+    ]
+   },
+   "A2D0.50/t1800/r0": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.26470463780216213,
+       0.5204012628418061
+      ],
+      "coverage": 0.28921568627450983,
+      "depth_atr_median": 0.5149547800086655,
+      "entered": 59,
+      "entry_seconds_median": 14700.0,
+      "error": 0.38461538461538464,
+      "error_hits": 20,
+      "error_n": 52,
+      "illegal": 0,
+      "long_fraction": 0.5423728813559322,
+      "no_context": 3,
+      "no_event": 142,
+      "triggered": 59,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.29166774287846203,
+       0.541224031535603
+      ],
+      "coverage": 0.3282828282828283,
+      "depth_atr_median": 0.5117106405768297,
+      "entered": 65,
+      "entry_seconds_median": 14520.0,
+      "error": 0.4107142857142857,
+      "error_hits": 23,
+      "error_n": 56,
+      "illegal": 4,
+      "long_fraction": 0.5076923076923077,
+      "no_context": 3,
+      "no_event": 126,
+      "triggered": 69,
+      "unavailable": 4,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.414539754871058,
+       0.6734242084707774
+      ],
+      "coverage": 0.2878787878787879,
+      "depth_atr_median": 0.5184966989496597,
+      "entered": 57,
+      "entry_seconds_median": 14520.0,
+      "error": 0.5471698113207547,
+      "error_hits": 29,
+      "error_n": 53,
+      "illegal": 1,
+      "long_fraction": 0.5263157894736842,
+      "no_context": 3,
+      "no_event": 137,
+      "triggered": 58,
+      "unavailable": 1,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.3016666666666667,
+    "entered_pooled": 181,
+    "entry_seconds_median_pooled": 14520.0,
+    "params": [
+     "A2",
+     0.5,
+     1800,
+     0
+    ],
+    "simplicity": [
+     1,
+     0.5,
+     0,
+     1800
+    ]
+   },
+   "A2D0.50/t1800/r4": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.26470463780216213,
+       0.5204012628418061
+      ],
+      "coverage": 0.28921568627450983,
+      "depth_atr_median": 0.5011370597055831,
+      "entered": 59,
+      "entry_seconds_median": 15180.0,
+      "error": 0.38461538461538464,
+      "error_hits": 20,
+      "error_n": 52,
+      "illegal": 0,
+      "long_fraction": 0.5423728813559322,
+      "no_context": 3,
+      "no_event": 142,
+      "triggered": 59,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.265159542588938,
+       0.5139077976751008
+      ],
+      "coverage": 0.3333333333333333,
+      "depth_atr_median": 0.5034102133063619,
+      "entered": 66,
+      "entry_seconds_median": 14670.0,
+      "error": 0.38181818181818183,
+      "error_hits": 21,
+      "error_n": 55,
+      "illegal": 2,
+      "long_fraction": 0.5,
+      "no_context": 3,
+      "no_event": 127,
+      "triggered": 68,
+      "unavailable": 2,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.43269816346414447,
+       0.6862655763936809
+      ],
+      "coverage": 0.2878787878787879,
+      "depth_atr_median": 0.5040718370226441,
+      "entered": 57,
+      "entry_seconds_median": 14640.0,
+      "error": 0.5636363636363636,
+      "error_hits": 31,
+      "error_n": 55,
+      "illegal": 1,
+      "long_fraction": 0.5263157894736842,
+      "no_context": 3,
+      "no_event": 137,
+      "triggered": 58,
+      "unavailable": 1,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.30333333333333334,
+    "entered_pooled": 182,
+    "entry_seconds_median_pooled": 14850.0,
+    "params": [
+     "A2",
+     0.5,
+     1800,
+     4
+    ],
+    "simplicity": [
+     1,
+     0.5,
+     4,
+     1800
+    ]
+   },
+   "A2D0.50/t1800/r8": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.28215238520386865,
+       0.5475268060815286
+      ],
+      "coverage": 0.27941176470588236,
+      "depth_atr_median": 0.48486368450706796,
+      "entered": 57,
+      "entry_seconds_median": 15540.0,
+      "error": 0.40816326530612246,
+      "error_hits": 20,
+      "error_n": 49,
+      "illegal": 0,
+      "long_fraction": 0.5614035087719298,
+      "no_context": 3,
+      "no_event": 144,
+      "triggered": 57,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.2593626547287611,
+       0.5119310405824662
+      ],
+      "coverage": 0.31313131313131315,
+      "depth_atr_median": 0.49221093188717474,
+      "entered": 62,
+      "entry_seconds_median": 14520.0,
+      "error": 0.37735849056603776,
+      "error_hits": 20,
+      "error_n": 53,
+      "illegal": 2,
+      "long_fraction": 0.5,
+      "no_context": 3,
+      "no_event": 131,
+      "triggered": 64,
+      "unavailable": 2,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.42339761787202884,
+       0.6840494318059871
+      ],
+      "coverage": 0.2777777777777778,
+      "depth_atr_median": 0.49484611896502084,
+      "entered": 55,
+      "entry_seconds_median": 15240.0,
+      "error": 0.5576923076923077,
+      "error_hits": 29,
+      "error_n": 52,
+      "illegal": 1,
+      "long_fraction": 0.5454545454545454,
+      "no_context": 3,
+      "no_event": 139,
+      "triggered": 56,
+      "unavailable": 1,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.29,
+    "entered_pooled": 174,
+    "entry_seconds_median_pooled": 15030.0,
+    "params": [
+     "A2",
+     0.5,
+     1800,
+     8
+    ],
+    "simplicity": [
+     1,
+     0.5,
+     8,
+     1800
+    ]
+   },
+   "A2D0.50/t900/r0": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.26470463780216213,
+       0.5204012628418061
+      ],
+      "coverage": 0.28921568627450983,
+      "depth_atr_median": 0.5149547800086655,
+      "entered": 59,
+      "entry_seconds_median": 14700.0,
+      "error": 0.38461538461538464,
+      "error_hits": 20,
+      "error_n": 52,
+      "illegal": 0,
+      "long_fraction": 0.5423728813559322,
+      "no_context": 3,
+      "no_event": 142,
+      "triggered": 59,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.29166774287846203,
+       0.541224031535603
+      ],
+      "coverage": 0.3282828282828283,
+      "depth_atr_median": 0.5117106405768297,
+      "entered": 65,
+      "entry_seconds_median": 14520.0,
+      "error": 0.4107142857142857,
+      "error_hits": 23,
+      "error_n": 56,
+      "illegal": 4,
+      "long_fraction": 0.5076923076923077,
+      "no_context": 3,
+      "no_event": 126,
+      "triggered": 69,
+      "unavailable": 4,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.414539754871058,
+       0.6734242084707774
+      ],
+      "coverage": 0.2878787878787879,
+      "depth_atr_median": 0.5184966989496597,
+      "entered": 57,
+      "entry_seconds_median": 14520.0,
+      "error": 0.5471698113207547,
+      "error_hits": 29,
+      "error_n": 53,
+      "illegal": 1,
+      "long_fraction": 0.5263157894736842,
+      "no_context": 3,
+      "no_event": 137,
+      "triggered": 58,
+      "unavailable": 1,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.3016666666666667,
+    "entered_pooled": 181,
+    "entry_seconds_median_pooled": 14520.0,
+    "params": [
+     "A2",
+     0.5,
+     900,
+     0
+    ],
+    "simplicity": [
+     1,
+     0.5,
+     0,
+     900
+    ]
+   },
+   "A2D0.50/t900/r4": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.26470463780216213,
+       0.5204012628418061
+      ],
+      "coverage": 0.28921568627450983,
+      "depth_atr_median": 0.5011370597055831,
+      "entered": 59,
+      "entry_seconds_median": 15180.0,
+      "error": 0.38461538461538464,
+      "error_hits": 20,
+      "error_n": 52,
+      "illegal": 0,
+      "long_fraction": 0.5423728813559322,
+      "no_context": 3,
+      "no_event": 142,
+      "triggered": 59,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.265159542588938,
+       0.5139077976751008
+      ],
+      "coverage": 0.3333333333333333,
+      "depth_atr_median": 0.5034102133063619,
+      "entered": 66,
+      "entry_seconds_median": 14670.0,
+      "error": 0.38181818181818183,
+      "error_hits": 21,
+      "error_n": 55,
+      "illegal": 2,
+      "long_fraction": 0.5,
+      "no_context": 3,
+      "no_event": 127,
+      "triggered": 68,
+      "unavailable": 2,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.43269816346414447,
+       0.6862655763936809
+      ],
+      "coverage": 0.2878787878787879,
+      "depth_atr_median": 0.5040718370226441,
+      "entered": 57,
+      "entry_seconds_median": 14640.0,
+      "error": 0.5636363636363636,
+      "error_hits": 31,
+      "error_n": 55,
+      "illegal": 1,
+      "long_fraction": 0.5263157894736842,
+      "no_context": 3,
+      "no_event": 137,
+      "triggered": 58,
+      "unavailable": 1,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.30333333333333334,
+    "entered_pooled": 182,
+    "entry_seconds_median_pooled": 14850.0,
+    "params": [
+     "A2",
+     0.5,
+     900,
+     4
+    ],
+    "simplicity": [
+     1,
+     0.5,
+     4,
+     900
+    ]
+   },
+   "A2D0.50/t900/r8": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.27608389730256544,
+       0.5381856225241064
+      ],
+      "coverage": 0.27941176470588236,
+      "depth_atr_median": 0.48486368450706796,
+      "entered": 57,
+      "entry_seconds_median": 15540.0,
+      "error": 0.4,
+      "error_hits": 20,
+      "error_n": 50,
+      "illegal": 0,
+      "long_fraction": 0.5614035087719298,
+      "no_context": 3,
+      "no_event": 144,
+      "triggered": 57,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.2593626547287611,
+       0.5119310405824662
+      ],
+      "coverage": 0.31313131313131315,
+      "depth_atr_median": 0.49221093188717474,
+      "entered": 62,
+      "entry_seconds_median": 14520.0,
+      "error": 0.37735849056603776,
+      "error_hits": 20,
+      "error_n": 53,
+      "illegal": 2,
+      "long_fraction": 0.5,
+      "no_context": 3,
+      "no_event": 131,
+      "triggered": 64,
+      "unavailable": 2,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.42339761787202884,
+       0.6840494318059871
+      ],
+      "coverage": 0.2777777777777778,
+      "depth_atr_median": 0.49484611896502084,
+      "entered": 55,
+      "entry_seconds_median": 15240.0,
+      "error": 0.5576923076923077,
+      "error_hits": 29,
+      "error_n": 52,
+      "illegal": 1,
+      "long_fraction": 0.5454545454545454,
+      "no_context": 3,
+      "no_event": 139,
+      "triggered": 56,
+      "unavailable": 1,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.29,
+    "entered_pooled": 174,
+    "entry_seconds_median_pooled": 15030.0,
+    "params": [
+     "A2",
+     0.5,
+     900,
+     8
+    ],
+    "simplicity": [
+     1,
+     0.5,
+     8,
+     900
+    ]
+   },
+   "A2D0.75/t1800/r0": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.16818032970623614,
+       0.6873262302663417
+      ],
+      "coverage": 0.06862745098039216,
+      "depth_atr_median": 0.7612902926743227,
+      "entered": 14,
+      "entry_seconds_median": 20040.0,
+      "error": 0.4,
+      "error_hits": 4,
+      "error_n": 10,
+      "illegal": 0,
+      "long_fraction": 0.6428571428571429,
+      "no_context": 3,
+      "no_event": 187,
+      "triggered": 14,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.27585858177023004,
+       0.6268697548677552
+      ],
+      "coverage": 0.15656565656565657,
+      "depth_atr_median": 0.7619279718377774,
+      "entered": 31,
+      "entry_seconds_median": 11820.0,
+      "error": 0.4444444444444444,
+      "error_hits": 12,
+      "error_n": 27,
+      "illegal": 0,
+      "long_fraction": 0.6129032258064516,
+      "no_context": 3,
+      "no_event": 164,
+      "triggered": 31,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.4072670096806468,
+       0.7548524292560443
+      ],
+      "coverage": 0.13636363636363635,
+      "depth_atr_median": 0.766724945516464,
+      "entered": 27,
+      "entry_seconds_median": 17640.0,
+      "error": 0.5925925925925926,
+      "error_hits": 16,
+      "error_n": 27,
+      "illegal": 0,
+      "long_fraction": 0.48148148148148145,
+      "no_context": 3,
+      "no_event": 168,
+      "triggered": 27,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.12,
+    "entered_pooled": 72,
+    "entry_seconds_median_pooled": 15810.0,
+    "params": [
+     "A2",
+     0.75,
+     1800,
+     0
+    ],
+    "simplicity": [
+     1,
+     0.75,
+     0,
+     1800
+    ]
+   },
+   "A2D0.75/t1800/r4": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.16818032970623614,
+       0.6873262302663417
+      ],
+      "coverage": 0.06862745098039216,
+      "depth_atr_median": 0.7495418115986068,
+      "entered": 14,
+      "entry_seconds_median": 20340.0,
+      "error": 0.4,
+      "error_hits": 4,
+      "error_n": 10,
+      "illegal": 0,
+      "long_fraction": 0.6428571428571429,
+      "no_context": 3,
+      "no_event": 187,
+      "triggered": 14,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.26665638881067344,
+       0.6293266813020123
+      ],
+      "coverage": 0.14646464646464646,
+      "depth_atr_median": 0.7302142106230591,
+      "entered": 29,
+      "entry_seconds_median": 11520.0,
+      "error": 0.44,
+      "error_hits": 11,
+      "error_n": 25,
+      "illegal": 0,
+      "long_fraction": 0.6551724137931034,
+      "no_context": 3,
+      "no_event": 166,
+      "triggered": 29,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.4072670096806468,
+       0.7548524292560443
+      ],
+      "coverage": 0.13636363636363635,
+      "depth_atr_median": 0.7425899741325869,
+      "entered": 27,
+      "entry_seconds_median": 17760.0,
+      "error": 0.5925925925925926,
+      "error_hits": 16,
+      "error_n": 27,
+      "illegal": 0,
+      "long_fraction": 0.48148148148148145,
+      "no_context": 3,
+      "no_event": 168,
+      "triggered": 27,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.11666666666666667,
+    "entered_pooled": 70,
+    "entry_seconds_median_pooled": 15780.0,
+    "params": [
+     "A2",
+     0.75,
+     1800,
+     4
+    ],
+    "simplicity": [
+     1,
+     0.75,
+     4,
+     1800
+    ]
+   },
+   "A2D0.75/t1800/r8": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.15166471095367573,
+       0.6461988254921511
+      ],
+      "coverage": 0.06862745098039216,
+      "depth_atr_median": 0.7388599338288613,
+      "entered": 14,
+      "entry_seconds_median": 21000.0,
+      "error": 0.36363636363636365,
+      "error_hits": 4,
+      "error_n": 11,
+      "illegal": 0,
+      "long_fraction": 0.6428571428571429,
+      "no_context": 3,
+      "no_event": 187,
+      "triggered": 14,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.26665638881067344,
+       0.6293266813020123
+      ],
+      "coverage": 0.13636363636363635,
+      "depth_atr_median": 0.7126531505176582,
+      "entered": 27,
+      "entry_seconds_median": 11820.0,
+      "error": 0.44,
+      "error_hits": 11,
+      "error_n": 25,
+      "illegal": 0,
+      "long_fraction": 0.6296296296296297,
+      "no_context": 3,
+      "no_event": 168,
+      "triggered": 27,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.3894861374659171,
+       0.7445555668634343
+      ],
+      "coverage": 0.13131313131313133,
+      "depth_atr_median": 0.7406017259089481,
+      "entered": 26,
+      "entry_seconds_median": 17760.0,
+      "error": 0.5769230769230769,
+      "error_hits": 15,
+      "error_n": 26,
+      "illegal": 0,
+      "long_fraction": 0.5,
+      "no_context": 3,
+      "no_event": 169,
+      "triggered": 26,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.11166666666666666,
+    "entered_pooled": 67,
+    "entry_seconds_median_pooled": 15420.0,
+    "params": [
+     "A2",
+     0.75,
+     1800,
+     8
+    ],
+    "simplicity": [
+     1,
+     0.75,
+     8,
+     1800
+    ]
+   },
+   "A2D0.75/t900/r0": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.16818032970623614,
+       0.6873262302663417
+      ],
+      "coverage": 0.06862745098039216,
+      "depth_atr_median": 0.7612902926743227,
+      "entered": 14,
+      "entry_seconds_median": 20040.0,
+      "error": 0.4,
+      "error_hits": 4,
+      "error_n": 10,
+      "illegal": 0,
+      "long_fraction": 0.6428571428571429,
+      "no_context": 3,
+      "no_event": 187,
+      "triggered": 14,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.27585858177023004,
+       0.6268697548677552
+      ],
+      "coverage": 0.15656565656565657,
+      "depth_atr_median": 0.7619279718377774,
+      "entered": 31,
+      "entry_seconds_median": 11820.0,
+      "error": 0.4444444444444444,
+      "error_hits": 12,
+      "error_n": 27,
+      "illegal": 0,
+      "long_fraction": 0.6129032258064516,
+      "no_context": 3,
+      "no_event": 164,
+      "triggered": 31,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.4072670096806468,
+       0.7548524292560443
+      ],
+      "coverage": 0.13636363636363635,
+      "depth_atr_median": 0.766724945516464,
+      "entered": 27,
+      "entry_seconds_median": 17640.0,
+      "error": 0.5925925925925926,
+      "error_hits": 16,
+      "error_n": 27,
+      "illegal": 0,
+      "long_fraction": 0.48148148148148145,
+      "no_context": 3,
+      "no_event": 168,
+      "triggered": 27,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.12,
+    "entered_pooled": 72,
+    "entry_seconds_median_pooled": 15810.0,
+    "params": [
+     "A2",
+     0.75,
+     900,
+     0
+    ],
+    "simplicity": [
+     1,
+     0.75,
+     0,
+     900
+    ]
+   },
+   "A2D0.75/t900/r4": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.16818032970623614,
+       0.6873262302663417
+      ],
+      "coverage": 0.06862745098039216,
+      "depth_atr_median": 0.7495418115986068,
+      "entered": 14,
+      "entry_seconds_median": 20340.0,
+      "error": 0.4,
+      "error_hits": 4,
+      "error_n": 10,
+      "illegal": 0,
+      "long_fraction": 0.6428571428571429,
+      "no_context": 3,
+      "no_event": 187,
+      "triggered": 14,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.26665638881067344,
+       0.6293266813020123
+      ],
+      "coverage": 0.14646464646464646,
+      "depth_atr_median": 0.7302142106230591,
+      "entered": 29,
+      "entry_seconds_median": 11520.0,
+      "error": 0.44,
+      "error_hits": 11,
+      "error_n": 25,
+      "illegal": 0,
+      "long_fraction": 0.6551724137931034,
+      "no_context": 3,
+      "no_event": 166,
+      "triggered": 29,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.4072670096806468,
+       0.7548524292560443
+      ],
+      "coverage": 0.13636363636363635,
+      "depth_atr_median": 0.7425899741325869,
+      "entered": 27,
+      "entry_seconds_median": 17760.0,
+      "error": 0.5925925925925926,
+      "error_hits": 16,
+      "error_n": 27,
+      "illegal": 0,
+      "long_fraction": 0.48148148148148145,
+      "no_context": 3,
+      "no_event": 168,
+      "triggered": 27,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.11666666666666667,
+    "entered_pooled": 70,
+    "entry_seconds_median_pooled": 15780.0,
+    "params": [
+     "A2",
+     0.75,
+     900,
+     4
+    ],
+    "simplicity": [
+     1,
+     0.75,
+     4,
+     900
+    ]
+   },
+   "A2D0.75/t900/r8": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.15166471095367573,
+       0.6461988254921511
+      ],
+      "coverage": 0.06862745098039216,
+      "depth_atr_median": 0.7388599338288613,
+      "entered": 14,
+      "entry_seconds_median": 21000.0,
+      "error": 0.36363636363636365,
+      "error_hits": 4,
+      "error_n": 11,
+      "illegal": 0,
+      "long_fraction": 0.6428571428571429,
+      "no_context": 3,
+      "no_event": 187,
+      "triggered": 14,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.26665638881067344,
+       0.6293266813020123
+      ],
+      "coverage": 0.13636363636363635,
+      "depth_atr_median": 0.7126531505176582,
+      "entered": 27,
+      "entry_seconds_median": 11820.0,
+      "error": 0.44,
+      "error_hits": 11,
+      "error_n": 25,
+      "illegal": 0,
+      "long_fraction": 0.6296296296296297,
+      "no_context": 3,
+      "no_event": 168,
+      "triggered": 27,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.3894861374659171,
+       0.7445555668634343
+      ],
+      "coverage": 0.13131313131313133,
+      "depth_atr_median": 0.7406017259089481,
+      "entered": 26,
+      "entry_seconds_median": 17760.0,
+      "error": 0.5769230769230769,
+      "error_hits": 15,
+      "error_n": 26,
+      "illegal": 0,
+      "long_fraction": 0.5,
+      "no_context": 3,
+      "no_event": 169,
+      "triggered": 26,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.11166666666666666,
+    "entered_pooled": 67,
+    "entry_seconds_median_pooled": 15420.0,
+    "params": [
+     "A2",
+     0.75,
+     900,
+     8
+    ],
+    "simplicity": [
+     1,
+     0.75,
+     8,
+     900
+    ]
+   },
+   "A2D1.00/t1800/r0": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.09453120573423074,
+       0.9054687942657693
+      ],
+      "coverage": 0.00980392156862745,
+      "depth_atr_median": 1.01160949571442,
+      "entered": 2,
+      "entry_seconds_median": 25230.0,
+      "error": 0.5,
+      "error_hits": 1,
+      "error_n": 2,
+      "illegal": 0,
+      "long_fraction": 0.0,
+      "no_context": 3,
+      "no_event": 199,
+      "triggered": 2,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.09746059290024889,
+       0.5656453011761291
+      ],
+      "coverage": 0.06060606060606061,
+      "depth_atr_median": 1.0130030118832412,
+      "entered": 12,
+      "entry_seconds_median": 11550.0,
+      "error": 0.2727272727272727,
+      "error_hits": 3,
+      "error_n": 11,
+      "illegal": 0,
+      "long_fraction": 0.75,
+      "no_context": 3,
+      "no_event": 183,
+      "triggered": 12,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.29143795714506004,
+       0.7679393219046169
+      ],
+      "coverage": 0.0707070707070707,
+      "depth_atr_median": 1.0170005182337514,
+      "entered": 14,
+      "entry_seconds_median": 17850.0,
+      "error": 0.5384615384615384,
+      "error_hits": 7,
+      "error_n": 13,
+      "illegal": 0,
+      "long_fraction": 0.42857142857142855,
+      "no_context": 3,
+      "no_event": 181,
+      "triggered": 14,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.04666666666666667,
+    "entered_pooled": 28,
+    "entry_seconds_median_pooled": 15240.0,
+    "params": [
+     "A2",
+     1.0,
+     1800,
+     0
+    ],
+    "simplicity": [
+     1,
+     1.0,
+     0,
+     1800
+    ]
+   },
+   "A2D1.00/t1800/r4": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.09453120573423074,
+       0.9054687942657693
+      ],
+      "coverage": 0.00980392156862745,
+      "depth_atr_median": 1.015152779840053,
+      "entered": 2,
+      "entry_seconds_median": 25500.0,
+      "error": 0.5,
+      "error_hits": 1,
+      "error_n": 2,
+      "illegal": 0,
+      "long_fraction": 0.0,
+      "no_context": 3,
+      "no_event": 199,
+      "triggered": 2,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.09746059290024889,
+       0.5656453011761291
+      ],
+      "coverage": 0.06060606060606061,
+      "depth_atr_median": 0.9782926852468369,
+      "entered": 12,
+      "entry_seconds_median": 11730.0,
+      "error": 0.2727272727272727,
+      "error_hits": 3,
+      "error_n": 11,
+      "illegal": 0,
+      "long_fraction": 0.75,
+      "no_context": 3,
+      "no_event": 183,
+      "triggered": 12,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.2537815976337061,
+       0.7462184023662939
+      ],
+      "coverage": 0.0707070707070707,
+      "depth_atr_median": 1.013427537165063,
+      "entered": 14,
+      "entry_seconds_median": 18000.0,
+      "error": 0.5,
+      "error_hits": 6,
+      "error_n": 12,
+      "illegal": 0,
+      "long_fraction": 0.42857142857142855,
+      "no_context": 3,
+      "no_event": 181,
+      "triggered": 14,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.04666666666666667,
+    "entered_pooled": 28,
+    "entry_seconds_median_pooled": 15360.0,
+    "params": [
+     "A2",
+     1.0,
+     1800,
+     4
+    ],
+    "simplicity": [
+     1,
+     1.0,
+     4,
+     1800
+    ]
+   },
+   "A2D1.00/t1800/r8": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.09453120573423074,
+       0.9054687942657693
+      ],
+      "coverage": 0.00980392156862745,
+      "depth_atr_median": 0.987106514689837,
+      "entered": 2,
+      "entry_seconds_median": 25740.0,
+      "error": 0.5,
+      "error_hits": 1,
+      "error_n": 2,
+      "illegal": 0,
+      "long_fraction": 0.0,
+      "no_context": 3,
+      "no_event": 199,
+      "triggered": 2,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.09746059290024889,
+       0.5656453011761291
+      ],
+      "coverage": 0.06060606060606061,
+      "depth_atr_median": 0.9716543080862937,
+      "entered": 12,
+      "entry_seconds_median": 11730.0,
+      "error": 0.2727272727272727,
+      "error_hits": 3,
+      "error_n": 11,
+      "illegal": 0,
+      "long_fraction": 0.75,
+      "no_context": 3,
+      "no_event": 183,
+      "triggered": 12,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.2537815976337061,
+       0.7462184023662939
+      ],
+      "coverage": 0.06565656565656566,
+      "depth_atr_median": 1.0106662701599405,
+      "entered": 13,
+      "entry_seconds_median": 17160.0,
+      "error": 0.5,
+      "error_hits": 6,
+      "error_n": 12,
+      "illegal": 0,
+      "long_fraction": 0.38461538461538464,
+      "no_context": 3,
+      "no_event": 182,
+      "triggered": 13,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.045,
+    "entered_pooled": 27,
+    "entry_seconds_median_pooled": 15480.0,
+    "params": [
+     "A2",
+     1.0,
+     1800,
+     8
+    ],
+    "simplicity": [
+     1,
+     1.0,
+     8,
+     1800
+    ]
+   },
+   "A2D1.00/t900/r0": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.09453120573423074,
+       0.9054687942657693
+      ],
+      "coverage": 0.00980392156862745,
+      "depth_atr_median": 1.01160949571442,
+      "entered": 2,
+      "entry_seconds_median": 25230.0,
+      "error": 0.5,
+      "error_hits": 1,
+      "error_n": 2,
+      "illegal": 0,
+      "long_fraction": 0.0,
+      "no_context": 3,
+      "no_event": 199,
+      "triggered": 2,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.09746059290024889,
+       0.5656453011761291
+      ],
+      "coverage": 0.06060606060606061,
+      "depth_atr_median": 1.0130030118832412,
+      "entered": 12,
+      "entry_seconds_median": 11550.0,
+      "error": 0.2727272727272727,
+      "error_hits": 3,
+      "error_n": 11,
+      "illegal": 0,
+      "long_fraction": 0.75,
+      "no_context": 3,
+      "no_event": 183,
+      "triggered": 12,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.29143795714506004,
+       0.7679393219046169
+      ],
+      "coverage": 0.0707070707070707,
+      "depth_atr_median": 1.0170005182337514,
+      "entered": 14,
+      "entry_seconds_median": 17850.0,
+      "error": 0.5384615384615384,
+      "error_hits": 7,
+      "error_n": 13,
+      "illegal": 0,
+      "long_fraction": 0.42857142857142855,
+      "no_context": 3,
+      "no_event": 181,
+      "triggered": 14,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.04666666666666667,
+    "entered_pooled": 28,
+    "entry_seconds_median_pooled": 15240.0,
+    "params": [
+     "A2",
+     1.0,
+     900,
+     0
+    ],
+    "simplicity": [
+     1,
+     1.0,
+     0,
+     900
+    ]
+   },
+   "A2D1.00/t900/r4": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.09453120573423074,
+       0.9054687942657693
+      ],
+      "coverage": 0.00980392156862745,
+      "depth_atr_median": 1.015152779840053,
+      "entered": 2,
+      "entry_seconds_median": 25500.0,
+      "error": 0.5,
+      "error_hits": 1,
+      "error_n": 2,
+      "illegal": 0,
+      "long_fraction": 0.0,
+      "no_context": 3,
+      "no_event": 199,
+      "triggered": 2,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.09746059290024889,
+       0.5656453011761291
+      ],
+      "coverage": 0.06060606060606061,
+      "depth_atr_median": 0.9782926852468369,
+      "entered": 12,
+      "entry_seconds_median": 11730.0,
+      "error": 0.2727272727272727,
+      "error_hits": 3,
+      "error_n": 11,
+      "illegal": 0,
+      "long_fraction": 0.75,
+      "no_context": 3,
+      "no_event": 183,
+      "triggered": 12,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.2537815976337061,
+       0.7462184023662939
+      ],
+      "coverage": 0.0707070707070707,
+      "depth_atr_median": 1.013427537165063,
+      "entered": 14,
+      "entry_seconds_median": 18000.0,
+      "error": 0.5,
+      "error_hits": 6,
+      "error_n": 12,
+      "illegal": 0,
+      "long_fraction": 0.42857142857142855,
+      "no_context": 3,
+      "no_event": 181,
+      "triggered": 14,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.04666666666666667,
+    "entered_pooled": 28,
+    "entry_seconds_median_pooled": 15360.0,
+    "params": [
+     "A2",
+     1.0,
+     900,
+     4
+    ],
+    "simplicity": [
+     1,
+     1.0,
+     4,
+     900
+    ]
+   },
+   "A2D1.00/t900/r8": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.09453120573423074,
+       0.9054687942657693
+      ],
+      "coverage": 0.00980392156862745,
+      "depth_atr_median": 0.987106514689837,
+      "entered": 2,
+      "entry_seconds_median": 25740.0,
+      "error": 0.5,
+      "error_hits": 1,
+      "error_n": 2,
+      "illegal": 0,
+      "long_fraction": 0.0,
+      "no_context": 3,
+      "no_event": 199,
+      "triggered": 2,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.09746059290024889,
+       0.5656453011761291
+      ],
+      "coverage": 0.06060606060606061,
+      "depth_atr_median": 0.9716543080862937,
+      "entered": 12,
+      "entry_seconds_median": 11730.0,
+      "error": 0.2727272727272727,
+      "error_hits": 3,
+      "error_n": 11,
+      "illegal": 0,
+      "long_fraction": 0.75,
+      "no_context": 3,
+      "no_event": 183,
+      "triggered": 12,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.2537815976337061,
+       0.7462184023662939
+      ],
+      "coverage": 0.06565656565656566,
+      "depth_atr_median": 1.0106662701599405,
+      "entered": 13,
+      "entry_seconds_median": 17160.0,
+      "error": 0.5,
+      "error_hits": 6,
+      "error_n": 12,
+      "illegal": 0,
+      "long_fraction": 0.38461538461538464,
+      "no_context": 3,
+      "no_event": 182,
+      "triggered": 13,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.045,
+    "entered_pooled": 27,
+    "entry_seconds_median_pooled": 15480.0,
+    "params": [
+     "A2",
+     1.0,
+     900,
+     8
+    ],
+    "simplicity": [
+     1,
+     1.0,
+     8,
+     900
+    ]
+   },
+   "A2D1.25/t1800/r0": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.0,
+       1.0
+      ],
+      "coverage": 0.0,
+      "depth_atr_median": null,
+      "entered": 0,
+      "entry_seconds_median": null,
+      "error": null,
+      "error_hits": 0,
+      "error_n": 0,
+      "illegal": 0,
+      "long_fraction": null,
+      "no_context": 3,
+      "no_event": 201,
+      "triggered": 0,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.09677141110578041,
+       0.700006684861608
+      ],
+      "coverage": 0.03535353535353535,
+      "depth_atr_median": 1.27121738458877,
+      "entered": 7,
+      "entry_seconds_median": 12960.0,
+      "error": 0.3333333333333333,
+      "error_hits": 2,
+      "error_n": 6,
+      "illegal": 0,
+      "long_fraction": 0.7142857142857143,
+      "no_context": 3,
+      "no_event": 188,
+      "triggered": 7,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.1876163064826506,
+       0.8123836935173494
+      ],
+      "coverage": 0.04040404040404041,
+      "depth_atr_median": 1.2639890761063213,
+      "entered": 8,
+      "entry_seconds_median": 22680.0,
+      "error": 0.5,
+      "error_hits": 3,
+      "error_n": 6,
+      "illegal": 0,
+      "long_fraction": 0.375,
+      "no_context": 3,
+      "no_event": 187,
+      "triggered": 8,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.025,
+    "entered_pooled": 15,
+    "entry_seconds_median_pooled": 19980.0,
+    "params": [
+     "A2",
+     1.25,
+     1800,
+     0
+    ],
+    "simplicity": [
+     1,
+     1.25,
+     0,
+     1800
+    ]
+   },
+   "A2D1.25/t1800/r4": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.0,
+       1.0
+      ],
+      "coverage": 0.0,
+      "depth_atr_median": null,
+      "entered": 0,
+      "entry_seconds_median": null,
+      "error": null,
+      "error_hits": 0,
+      "error_n": 0,
+      "illegal": 0,
+      "long_fraction": null,
+      "no_context": 3,
+      "no_event": 201,
+      "triggered": 0,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.09677141110578041,
+       0.700006684861608
+      ],
+      "coverage": 0.03535353535353535,
+      "depth_atr_median": 1.2200752524311722,
+      "entered": 7,
+      "entry_seconds_median": 13500.0,
+      "error": 0.3333333333333333,
+      "error_hits": 2,
+      "error_n": 6,
+      "illegal": 0,
+      "long_fraction": 0.7142857142857143,
+      "no_context": 3,
+      "no_event": 188,
+      "triggered": 7,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.1876163064826506,
+       0.8123836935173494
+      ],
+      "coverage": 0.04040404040404041,
+      "depth_atr_median": 1.2287393017144996,
+      "entered": 8,
+      "entry_seconds_median": 23040.0,
+      "error": 0.5,
+      "error_hits": 3,
+      "error_n": 6,
+      "illegal": 0,
+      "long_fraction": 0.375,
+      "no_context": 3,
+      "no_event": 187,
+      "triggered": 8,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.025,
+    "entered_pooled": 15,
+    "entry_seconds_median_pooled": 20520.0,
+    "params": [
+     "A2",
+     1.25,
+     1800,
+     4
+    ],
+    "simplicity": [
+     1,
+     1.25,
+     4,
+     1800
+    ]
+   },
+   "A2D1.25/t1800/r8": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.0,
+       1.0
+      ],
+      "coverage": 0.0,
+      "depth_atr_median": null,
+      "entered": 0,
+      "entry_seconds_median": null,
+      "error": null,
+      "error_hits": 0,
+      "error_n": 0,
+      "illegal": 0,
+      "long_fraction": null,
+      "no_context": 3,
+      "no_event": 201,
+      "triggered": 0,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.03622410863243014,
+       0.6244653702374747
+      ],
+      "coverage": 0.030303030303030304,
+      "depth_atr_median": 1.2241796108018907,
+      "entered": 6,
+      "entry_seconds_median": 13230.0,
+      "error": 0.2,
+      "error_hits": 1,
+      "error_n": 5,
+      "illegal": 0,
+      "long_fraction": 0.8333333333333334,
+      "no_context": 3,
+      "no_event": 189,
+      "triggered": 6,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.1876163064826506,
+       0.8123836935173494
+      ],
+      "coverage": 0.03535353535353535,
+      "depth_atr_median": 1.220786530747068,
+      "entered": 7,
+      "entry_seconds_median": 20580.0,
+      "error": 0.5,
+      "error_hits": 3,
+      "error_n": 6,
+      "illegal": 0,
+      "long_fraction": 0.2857142857142857,
+      "no_context": 3,
+      "no_event": 188,
+      "triggered": 7,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.021666666666666667,
+    "entered_pooled": 13,
+    "entry_seconds_median_pooled": 19440.0,
+    "params": [
+     "A2",
+     1.25,
+     1800,
+     8
+    ],
+    "simplicity": [
+     1,
+     1.25,
+     8,
+     1800
+    ]
+   },
+   "A2D1.25/t900/r0": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.0,
+       1.0
+      ],
+      "coverage": 0.0,
+      "depth_atr_median": null,
+      "entered": 0,
+      "entry_seconds_median": null,
+      "error": null,
+      "error_hits": 0,
+      "error_n": 0,
+      "illegal": 0,
+      "long_fraction": null,
+      "no_context": 3,
+      "no_event": 201,
+      "triggered": 0,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.09677141110578041,
+       0.700006684861608
+      ],
+      "coverage": 0.03535353535353535,
+      "depth_atr_median": 1.27121738458877,
+      "entered": 7,
+      "entry_seconds_median": 12960.0,
+      "error": 0.3333333333333333,
+      "error_hits": 2,
+      "error_n": 6,
+      "illegal": 0,
+      "long_fraction": 0.7142857142857143,
+      "no_context": 3,
+      "no_event": 188,
+      "triggered": 7,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.1876163064826506,
+       0.8123836935173494
+      ],
+      "coverage": 0.04040404040404041,
+      "depth_atr_median": 1.2639890761063213,
+      "entered": 8,
+      "entry_seconds_median": 22680.0,
+      "error": 0.5,
+      "error_hits": 3,
+      "error_n": 6,
+      "illegal": 0,
+      "long_fraction": 0.375,
+      "no_context": 3,
+      "no_event": 187,
+      "triggered": 8,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.025,
+    "entered_pooled": 15,
+    "entry_seconds_median_pooled": 19980.0,
+    "params": [
+     "A2",
+     1.25,
+     900,
+     0
+    ],
+    "simplicity": [
+     1,
+     1.25,
+     0,
+     900
+    ]
+   },
+   "A2D1.25/t900/r4": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.0,
+       1.0
+      ],
+      "coverage": 0.0,
+      "depth_atr_median": null,
+      "entered": 0,
+      "entry_seconds_median": null,
+      "error": null,
+      "error_hits": 0,
+      "error_n": 0,
+      "illegal": 0,
+      "long_fraction": null,
+      "no_context": 3,
+      "no_event": 201,
+      "triggered": 0,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.09677141110578041,
+       0.700006684861608
+      ],
+      "coverage": 0.03535353535353535,
+      "depth_atr_median": 1.2200752524311722,
+      "entered": 7,
+      "entry_seconds_median": 13500.0,
+      "error": 0.3333333333333333,
+      "error_hits": 2,
+      "error_n": 6,
+      "illegal": 0,
+      "long_fraction": 0.7142857142857143,
+      "no_context": 3,
+      "no_event": 188,
+      "triggered": 7,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.1876163064826506,
+       0.8123836935173494
+      ],
+      "coverage": 0.04040404040404041,
+      "depth_atr_median": 1.2287393017144996,
+      "entered": 8,
+      "entry_seconds_median": 23040.0,
+      "error": 0.5,
+      "error_hits": 3,
+      "error_n": 6,
+      "illegal": 0,
+      "long_fraction": 0.375,
+      "no_context": 3,
+      "no_event": 187,
+      "triggered": 8,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.025,
+    "entered_pooled": 15,
+    "entry_seconds_median_pooled": 20520.0,
+    "params": [
+     "A2",
+     1.25,
+     900,
+     4
+    ],
+    "simplicity": [
+     1,
+     1.25,
+     4,
+     900
+    ]
+   },
+   "A2D1.25/t900/r8": {
+    "by_asset": {
+     "HG": {
+      "cells": 204,
+      "ci95": [
+       0.0,
+       1.0
+      ],
+      "coverage": 0.0,
+      "depth_atr_median": null,
+      "entered": 0,
+      "entry_seconds_median": null,
+      "error": null,
+      "error_hits": 0,
+      "error_n": 0,
+      "illegal": 0,
+      "long_fraction": null,
+      "no_context": 3,
+      "no_event": 201,
+      "triggered": 0,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "NKD": {
+      "cells": 198,
+      "ci95": [
+       0.03622410863243014,
+       0.6244653702374747
+      ],
+      "coverage": 0.030303030303030304,
+      "depth_atr_median": 1.2241796108018907,
+      "entered": 6,
+      "entry_seconds_median": 13230.0,
+      "error": 0.2,
+      "error_hits": 1,
+      "error_n": 5,
+      "illegal": 0,
+      "long_fraction": 0.8333333333333334,
+      "no_context": 3,
+      "no_event": 189,
+      "triggered": 6,
+      "unavailable": 0,
+      "uncertifiable": 0
+     },
+     "SI": {
+      "cells": 198,
+      "ci95": [
+       0.1876163064826506,
+       0.8123836935173494
+      ],
+      "coverage": 0.03535353535353535,
+      "depth_atr_median": 1.220786530747068,
+      "entered": 7,
+      "entry_seconds_median": 20580.0,
+      "error": 0.5,
+      "error_hits": 3,
+      "error_n": 6,
+      "illegal": 0,
+      "long_fraction": 0.2857142857142857,
+      "no_context": 3,
+      "no_event": 188,
+      "triggered": 7,
+      "unavailable": 0,
+      "uncertifiable": 0
+     }
+    },
+    "coverage_pooled": 0.021666666666666667,
+    "entered_pooled": 13,
+    "entry_seconds_median_pooled": 19440.0,
+    "params": [
+     "A2",
+     1.25,
+     900,
+     8
+    ],
+    "simplicity": [
+     1,
+     1.25,
+     8,
+     900
+    ]
+   }
+  },
+  "coverage_floor": 0.3,
+  "selection": {
+   "HG": {
+    "best": "A1m+0.00/t900/r4",
+    "flags": [
+     "NO_CROSS_ANCHOR_RUNNERUP"
+    ],
+    "n_pass_coverage": 18,
+    "ordered": [
+     "A1m+0.00/t900/r4",
+     "A1m+0.00/t900/r0",
+     "A1m+0.00/t900/r8",
+     "A1m+0.00/t1800/r8",
+     "A1m+0.00/t1800/r4",
+     "A1m+0.00/t1800/r0",
+     "A1m+0.25/t1800/r8",
+     "A1m+0.25/t1800/r4"
+    ],
+    "runner_up": "A1m+0.00/t900/r0"
+   },
+   "NKD": {
+    "best": "A2D0.50/t900/r8",
+    "flags": [],
+    "n_pass_coverage": 24,
+    "ordered": [
+     "A2D0.50/t900/r8",
+     "A2D0.50/t1800/r8",
+     "A2D0.50/t900/r4",
+     "A2D0.50/t1800/r4",
+     "A2D0.50/t900/r0",
+     "A2D0.50/t1800/r0",
+     "A1m+0.25/t1800/r0",
+     "A1m-0.10/t1800/r0"
+    ],
+    "runner_up": "A1m+0.25/t1800/r0"
+   },
+   "SI": {
+    "best": "A1m+0.25/t1800/r0",
+    "flags": [
+     "NO_CROSS_ANCHOR_RUNNERUP"
+    ],
+    "n_pass_coverage": 18,
+    "ordered": [
+     "A1m+0.25/t1800/r0",
+     "A1m+0.25/t900/r0",
+     "A1m+0.25/t900/r4",
+     "A1m+0.25/t1800/r4",
+     "A1m+0.25/t900/r8",
+     "A1m+0.25/t1800/r8",
+     "A1m+0.00/t900/r0",
+     "A1m+0.00/t1800/r0"
+    ],
+    "runner_up": "A1m+0.25/t900/r0"
+   }
+  }
+ },
+ "stage_b": {
+  "lines": {
+   "HG/BEST": {
+    "clears_rung": false,
+    "config": "A1m+0.00/t900/r4",
+    "coverage": 0.49019607843137253,
+    "depth_atr_median": 0.11905092475484538,
+    "entry_seconds_median": 4440.0,
+    "gate": null,
+    "line_name": "HG/BEST",
+    "mdd_day_usd": 3078.75,
+    "mdd_trade_usd": 3181.25,
+    "params": [
+     "A1",
+     0.0,
+     900,
+     4
+    ],
+    "role": "BEST",
+    "rung_usd": 2000.0,
+    "skips": {
+     "cells": 204,
+     "gated": 0,
+     "illegal": 31,
+     "no_context": 3,
+     "no_event": 70,
+     "triggered": 131,
+     "uncertifiable": 0
+    },
+    "total_usd": 3612.5,
+    "trades": 100,
+    "usd_per_asset_day": 54.734848484848484,
+    "usd_per_trade": 36.125,
+    "wall_rate": 0.19,
+    "walls": 19,
+    "win_rate": 0.5
+   },
+   "HG/BEST+F4": {
+    "clears_rung": false,
+    "config": "A1m+0.00/t900/r4",
+    "coverage": 0.4803921568627451,
+    "depth_atr_median": 0.11975388215505414,
+    "entry_seconds_median": 4500.0,
+    "gate": 10000000.0,
+    "line_name": "HG/BEST+F4",
+    "mdd_day_usd": 3078.75,
+    "mdd_trade_usd": 3181.25,
+    "params": [
+     "A1",
+     0.0,
+     900,
+     4
+    ],
+    "role": "BEST+F4",
+    "rung_usd": 2000.0,
+    "skips": {
+     "cells": 204,
+     "gated": 12,
+     "illegal": 21,
+     "no_context": 3,
+     "no_event": 70,
+     "triggered": 131,
+     "uncertifiable": 0
+    },
+    "total_usd": 3197.5,
+    "trades": 98,
+    "usd_per_asset_day": 48.446969696969695,
+    "usd_per_trade": 32.62755102040816,
+    "wall_rate": 0.19387755102040816,
+    "walls": 19,
+    "win_rate": 0.4897959183673469
+   },
+   "HG/RUNNERUP": {
+    "clears_rung": false,
+    "config": "A1m+0.00/t900/r0",
+    "coverage": 0.4950980392156863,
+    "depth_atr_median": 0.11710798886214152,
+    "entry_seconds_median": 4200.0,
+    "gate": null,
+    "line_name": "HG/RUNNERUP",
+    "mdd_day_usd": 2878.75,
+    "mdd_trade_usd": 3081.25,
+    "params": [
+     "A1",
+     0.0,
+     900,
+     0
+    ],
+    "role": "RUNNERUP",
+    "rung_usd": 2000.0,
+    "skips": {
+     "cells": 204,
+     "gated": 0,
+     "illegal": 31,
+     "no_context": 3,
+     "no_event": 69,
+     "triggered": 132,
+     "uncertifiable": 0
+    },
+    "total_usd": 4520.0,
+    "trades": 101,
+    "usd_per_asset_day": 68.48484848484848,
+    "usd_per_trade": 44.75247524752475,
+    "wall_rate": 0.1782178217821782,
+    "walls": 18,
+    "win_rate": 0.504950495049505
+   },
+   "NKD/BEST": {
+    "clears_rung": false,
+    "config": "A2D0.50/t900/r8",
+    "coverage": 0.31313131313131315,
+    "depth_atr_median": 0.49221093188717474,
+    "entry_seconds_median": 14520.0,
+    "gate": null,
+    "line_name": "NKD/BEST",
+    "mdd_day_usd": 3512.5,
+    "mdd_trade_usd": 3885.0,
+    "params": [
+     "A2",
+     0.5,
+     900,
+     8
+    ],
+    "role": "BEST",
+    "rung_usd": 1500.0,
+    "skips": {
+     "cells": 198,
+     "gated": 0,
+     "illegal": 2,
+     "no_context": 3,
+     "no_event": 131,
+     "triggered": 64,
+     "uncertifiable": 0
+    },
+    "total_usd": 4190.0,
+    "trades": 62,
+    "usd_per_asset_day": 64.46153846153847,
+    "usd_per_trade": 67.58064516129032,
+    "wall_rate": 0.2903225806451613,
+    "walls": 18,
+    "win_rate": 0.45161290322580644
+   },
+   "NKD/BEST+F4": {
+    "clears_rung": false,
+    "config": "A2D0.50/t900/r8",
+    "coverage": 0.31313131313131315,
+    "depth_atr_median": 0.49221093188717474,
+    "entry_seconds_median": 14520.0,
+    "gate": 80000000000.0,
+    "line_name": "NKD/BEST+F4",
+    "mdd_day_usd": 3512.5,
+    "mdd_trade_usd": 3885.0,
+    "params": [
+     "A2",
+     0.5,
+     900,
+     8
+    ],
+    "role": "BEST+F4",
+    "rung_usd": 1500.0,
+    "skips": {
+     "cells": 198,
+     "gated": 0,
+     "illegal": 2,
+     "no_context": 3,
+     "no_event": 131,
+     "triggered": 64,
+     "uncertifiable": 0
+    },
+    "total_usd": 4190.0,
+    "trades": 62,
+    "usd_per_asset_day": 64.46153846153847,
+    "usd_per_trade": 67.58064516129032,
+    "wall_rate": 0.2903225806451613,
+    "walls": 18,
+    "win_rate": 0.45161290322580644
+   },
+   "NKD/RUNNERUP": {
+    "clears_rung": false,
+    "config": "A1m+0.25/t1800/r0",
+    "coverage": 0.5353535353535354,
+    "depth_atr_median": 0.07432306446103584,
+    "entry_seconds_median": 4740.0,
+    "gate": null,
+    "line_name": "NKD/RUNNERUP",
+    "mdd_day_usd": 12795.0,
+    "mdd_trade_usd": 12795.0,
+    "params": [
+     "A1",
+     0.25,
+     1800,
+     0
+    ],
+    "role": "RUNNERUP",
+    "rung_usd": 1500.0,
+    "skips": {
+     "cells": 198,
+     "gated": 0,
+     "illegal": 57,
+     "no_context": 3,
+     "no_event": 32,
+     "triggered": 163,
+     "uncertifiable": 0
+    },
+    "total_usd": -9380.0,
+    "trades": 106,
+    "usd_per_asset_day": -144.30769230769232,
+    "usd_per_trade": -88.49056603773585,
+    "wall_rate": 0.37735849056603776,
+    "walls": 40,
+    "win_rate": 0.4056603773584906
+   },
+   "SI/BEST": {
+    "clears_rung": false,
+    "config": "A1m+0.25/t1800/r0",
+    "coverage": 0.5202020202020202,
+    "depth_atr_median": 0.06839699176847522,
+    "entry_seconds_median": 4740.0,
+    "gate": null,
+    "line_name": "SI/BEST",
+    "mdd_day_usd": 9867.5,
+    "mdd_trade_usd": 9867.5,
+    "params": [
+     "A1",
+     0.25,
+     1800,
+     0
+    ],
+    "role": "BEST",
+    "rung_usd": 1500.0,
+    "skips": {
+     "cells": 198,
+     "gated": 0,
+     "illegal": 57,
+     "no_context": 3,
+     "no_event": 35,
+     "triggered": 160,
+     "uncertifiable": 0
+    },
+    "total_usd": 10435.0,
+    "trades": 103,
+    "usd_per_asset_day": 163.046875,
+    "usd_per_trade": 101.31067961165049,
+    "wall_rate": 0.3883495145631068,
+    "walls": 40,
+    "win_rate": 0.4563106796116505
+   },
+   "SI/BEST+F4": {
+    "clears_rung": false,
+    "config": "A1m+0.25/t1800/r0",
+    "coverage": 0.5050505050505051,
+    "depth_atr_median": 0.07385391555022354,
+    "entry_seconds_median": 4830.0,
+    "gate": 80000000.0,
+    "line_name": "SI/BEST+F4",
+    "mdd_day_usd": 9867.5,
+    "mdd_trade_usd": 9867.5,
+    "params": [
+     "A1",
+     0.25,
+     1800,
+     0
+    ],
+    "role": "BEST+F4",
+    "rung_usd": 1500.0,
+    "skips": {
+     "cells": 198,
+     "gated": 29,
+     "illegal": 31,
+     "no_context": 3,
+     "no_event": 35,
+     "triggered": 160,
+     "uncertifiable": 0
+    },
+    "total_usd": 11425.0,
+    "trades": 100,
+    "usd_per_asset_day": 178.515625,
+    "usd_per_trade": 114.25,
+    "wall_rate": 0.39,
+    "walls": 39,
+    "win_rate": 0.46
+   },
+   "SI/RUNNERUP": {
+    "clears_rung": false,
+    "config": "A1m+0.25/t900/r0",
+    "coverage": 0.4898989898989899,
+    "depth_atr_median": 0.05761074432773996,
+    "entry_seconds_median": 3360.0,
+    "gate": null,
+    "line_name": "SI/RUNNERUP",
+    "mdd_day_usd": 10585.000000000002,
+    "mdd_trade_usd": 10585.0,
+    "params": [
+     "A1",
+     0.25,
+     900,
+     0
+    ],
+    "role": "RUNNERUP",
+    "rung_usd": 1500.0,
+    "skips": {
+     "cells": 198,
+     "gated": 0,
+     "illegal": 65,
+     "no_context": 3,
+     "no_event": 33,
+     "triggered": 162,
+     "uncertifiable": 0
+    },
+    "total_usd": 6389.999999999998,
+    "trades": 97,
+    "usd_per_asset_day": 99.84374999999997,
+    "usd_per_trade": 65.8762886597938,
+    "wall_rate": 0.3711340206185567,
+    "walls": 36,
+    "win_rate": 0.4329896907216495
+   }
+  },
+  "nulls": {
+   "by_line": {
+    "HG/BEST": {
+     "null_asset_mdd_mean_usd": 5300.0125,
+     "null_asset_mdd_p05_usd": 3501.1875,
+     "null_pooled_mdd_mean_usd": 5300.0125,
+     "observed_max_asset_mdd_usd": 3078.75,
+     "observed_pooled_mdd_usd": 3078.75,
+     "p_max_adjusted": 0.05970149253731343,
+     "p_own": 0.029850746268656716,
+     "p_pooled_max_adjusted": 0.05970149253731343,
+     "p_pooled_own": 0.029850746268656716
+    },
+    "HG/BEST+F4": {
+     "null_asset_mdd_mean_usd": 5417.10625,
+     "null_asset_mdd_p05_usd": 3566.25,
+     "null_pooled_mdd_mean_usd": 5417.10625,
+     "observed_max_asset_mdd_usd": 3078.75,
+     "observed_pooled_mdd_usd": 3078.75,
+     "p_max_adjusted": 0.05970149253731343,
+     "p_own": 0.029850746268656716,
+     "p_pooled_max_adjusted": 0.05970149253731343,
+     "p_pooled_own": 0.029850746268656716
+    },
+    "HG/RUNNERUP": {
+     "null_asset_mdd_mean_usd": 4802.51875,
+     "null_asset_mdd_p05_usd": 3263.375,
+     "null_pooled_mdd_mean_usd": 4802.51875,
+     "observed_max_asset_mdd_usd": 2878.75,
+     "observed_pooled_mdd_usd": 2878.75,
+     "p_max_adjusted": 0.03482587064676617,
+     "p_own": 0.029850746268656716,
+     "p_pooled_max_adjusted": 0.03482587064676617,
+     "p_pooled_own": 0.029850746268656716
+    },
+    "NKD/BEST": {
+     "null_asset_mdd_mean_usd": 5424.8375,
+     "null_asset_mdd_p05_usd": 3529.875,
+     "null_pooled_mdd_mean_usd": 5424.8375,
+     "observed_max_asset_mdd_usd": 3512.5,
+     "observed_pooled_mdd_usd": 3512.5,
+     "p_max_adjusted": 0.17412935323383086,
+     "p_own": 0.04975124378109453,
+     "p_pooled_max_adjusted": 0.17412935323383086,
+     "p_pooled_own": 0.04975124378109453
+    },
+    "NKD/BEST+F4": {
+     "null_asset_mdd_mean_usd": 5424.8375,
+     "null_asset_mdd_p05_usd": 3529.875,
+     "null_pooled_mdd_mean_usd": 5424.8375,
+     "observed_max_asset_mdd_usd": 3512.5,
+     "observed_pooled_mdd_usd": 3512.5,
+     "p_max_adjusted": 0.17412935323383086,
+     "p_own": 0.04975124378109453,
+     "p_pooled_max_adjusted": 0.17412935323383086,
+     "p_pooled_own": 0.04975124378109453
+    },
+    "NKD/RUNNERUP": {
+     "null_asset_mdd_mean_usd": 14530.4,
+     "null_asset_mdd_p05_usd": 10387.5,
+     "null_pooled_mdd_mean_usd": 14530.4,
+     "observed_max_asset_mdd_usd": 12795.0,
+     "observed_pooled_mdd_usd": 12795.0,
+     "p_max_adjusted": 1.0,
+     "p_own": 0.2885572139303483,
+     "p_pooled_max_adjusted": 1.0,
+     "p_pooled_own": 0.2885572139303483
+    },
+    "PORTFOLIO/BEST": {
+     "null_asset_mdd_mean_usd": 10317.6875,
+     "null_asset_mdd_p05_usd": 6786.625,
+     "null_pooled_mdd_mean_usd": 11786.3375,
+     "observed_max_asset_mdd_usd": 9867.5,
+     "observed_pooled_mdd_usd": 11317.5,
+     "p_max_adjusted": 1.0,
+     "p_own": 0.5223880597014925,
+     "p_pooled_max_adjusted": 1.0,
+     "p_pooled_own": 0.5323383084577115
+    },
+    "SI/BEST": {
+     "null_asset_mdd_mean_usd": 10226.7,
+     "null_asset_mdd_p05_usd": 6469.5,
+     "null_pooled_mdd_mean_usd": 10226.7,
+     "observed_max_asset_mdd_usd": 9867.5,
+     "observed_pooled_mdd_usd": 9867.5,
+     "p_max_adjusted": 1.0,
+     "p_own": 0.527363184079602,
+     "p_pooled_max_adjusted": 1.0,
+     "p_pooled_own": 0.527363184079602
+    },
+    "SI/BEST+F4": {
+     "null_asset_mdd_mean_usd": 10045.9125,
+     "null_asset_mdd_p05_usd": 6469.5,
+     "null_pooled_mdd_mean_usd": 10045.9125,
+     "observed_max_asset_mdd_usd": 9867.5,
+     "observed_pooled_mdd_usd": 9867.5,
+     "p_max_adjusted": 1.0,
+     "p_own": 0.5522388059701493,
+     "p_pooled_max_adjusted": 1.0,
+     "p_pooled_own": 0.5522388059701493
+    },
+    "SI/RUNNERUP": {
+     "null_asset_mdd_mean_usd": 10177.875,
+     "null_asset_mdd_p05_usd": 6616.375,
+     "null_pooled_mdd_mean_usd": 10177.875,
+     "observed_max_asset_mdd_usd": 10585.000000000002,
+     "observed_pooled_mdd_usd": 10585.000000000002,
+     "p_max_adjusted": 1.0,
+     "p_own": 0.5970149253731343,
+     "p_pooled_max_adjusted": 1.0,
+     "p_pooled_own": 0.5970149253731343
+    }
+   },
+   "draws": 200,
+   "lines_held_out_empty": [],
+   "seed": 20260827,
+   "statistic": "-asset_day_ordered_mdd and -pooled_day_ordered_mdd",
+   "total_cash_invariant_under_this_null": true
+  },
+  "o3_gap": {
+   "HG": {
+    "config": "A1m+0.00/t900/r4",
+    "first_is_last_fraction": 0.045454545454545456,
+    "oracle_timing_line": "A1m+0.00/t900",
+    "trades": 128,
+    "usd_per_asset_day": 971.2689393939394,
+    "usd_per_trade": 500.810546875
+   },
+   "NKD": {
+    "config": "A2D0.50/t900/r8",
+    "first_is_last_fraction": 0.028985507246376812,
+    "oracle_timing_line": "A2D0.50/t900",
+    "trades": 69,
+    "usd_per_asset_day": 792.9615384615385,
+    "usd_per_trade": 746.9927536231884
+   },
+   "SI": {
+    "config": "A1m+0.25/t1800/r0",
+    "first_is_last_fraction": 0.0625,
+    "oracle_timing_line": "A1m+0.25/t1800",
+    "trades": 146,
+    "usd_per_asset_day": 1609.1015625,
+    "usd_per_trade": 705.3595890410959
+   }
+  },
+  "portfolio": {
+   "HG": {
+    "clears_rung": false,
+    "coverage": 0.49019607843137253,
+    "mdd_day_usd": 3078.75,
+    "mdd_trade_usd": 3181.25,
+    "total_usd": 3612.5,
+    "trades": 100,
+    "usd_per_asset_day": 54.734848484848484,
+    "usd_per_trade": 36.125,
+    "wall_rate": 0.19,
+    "walls": 19,
+    "win_rate": 0.5
+   },
+   "NKD": {
+    "clears_rung": false,
+    "coverage": 0.31313131313131315,
+    "mdd_day_usd": 3512.5,
+    "mdd_trade_usd": 3885.0,
+    "total_usd": 4190.0,
+    "trades": 62,
+    "usd_per_asset_day": 64.46153846153847,
+    "usd_per_trade": 67.58064516129032,
+    "wall_rate": 0.2903225806451613,
+    "walls": 18,
+    "win_rate": 0.45161290322580644
+   },
+   "SI": {
+    "clears_rung": false,
+    "coverage": 0.5202020202020202,
+    "mdd_day_usd": 9867.5,
+    "mdd_trade_usd": 9867.5,
+    "total_usd": 10435.0,
+    "trades": 103,
+    "usd_per_asset_day": 163.046875,
+    "usd_per_trade": 101.31067961165049,
+    "wall_rate": 0.3883495145631068,
+    "walls": 40,
+    "win_rate": 0.4563106796116505
+   }
+  },
+  "r0_gate_matches_sweep1": {
+   "HG": true,
+   "NKD": true,
+   "SI": true
+  },
+  "r0_median_gate_mid2": {
+   "HG": 10000000.0,
+   "NKD": 80000000000.0,
+   "SI": 80000000.0
+  },
+  "replays": {
+   "HG/BEST": {
+    "arrivals": 100,
+    "asset_days": 66,
+    "by_asset": {
+     "HG": {
+      "asset_days": 66,
+      "max_drawdown_usd": 3181.25,
+      "trades": 100,
+      "usd_per_asset_day": 54.734848484848484,
+      "usd_per_trade": 36.125
+     }
+    },
+    "drawdown_breach_rate": 0.13636363636363635,
+    "drawdown_p90_usd": 1116.25,
+    "label": "partial-day (split breaks portfolio days)",
+    "max_drawdown_usd": 3181.25,
+    "occupancy_or_cap_skips": 0,
+    "skipped_ids": [],
+    "status": "OK",
+    "total_usd": 3612.5,
+    "trades": 100,
+    "usd_per_asset_day": 54.734848484848484,
+    "usd_per_trade": 36.125,
+    "worst_asset_day_usd": -1822.5
+   },
+   "NKD/BEST": {
+    "arrivals": 62,
+    "asset_days": 65,
+    "by_asset": {
+     "NKD": {
+      "asset_days": 65,
+      "max_drawdown_usd": 3885.0,
+      "trades": 62,
+      "usd_per_asset_day": 64.46153846153847,
+      "usd_per_trade": 67.58064516129032
+     }
+    },
+    "drawdown_breach_rate": 0.015384615384615385,
+    "drawdown_p90_usd": 905.0,
+    "label": "partial-day (split breaks portfolio days)",
+    "max_drawdown_usd": 3885.0,
+    "occupancy_or_cap_skips": 0,
+    "skipped_ids": [],
+    "status": "OK",
+    "total_usd": 4190.0,
+    "trades": 62,
+    "usd_per_asset_day": 64.46153846153847,
+    "usd_per_trade": 67.58064516129032,
+    "worst_asset_day_usd": -1022.5
+   },
+   "PORTFOLIO/BEST": {
+    "arrivals": 265,
+    "asset_days": 195,
+    "by_asset": {
+     "HG": {
+      "asset_days": 66,
+      "max_drawdown_usd": 3181.25,
+      "trades": 100,
+      "usd_per_asset_day": 54.734848484848484,
+      "usd_per_trade": 36.125
+     },
+     "NKD": {
+      "asset_days": 65,
+      "max_drawdown_usd": 3885.0,
+      "trades": 62,
+      "usd_per_asset_day": 64.46153846153847,
+      "usd_per_trade": 67.58064516129032
+     },
+     "SI": {
+      "asset_days": 64,
+      "max_drawdown_usd": 9867.5,
+      "trades": 103,
+      "usd_per_asset_day": 163.04687499999997,
+      "usd_per_trade": 101.31067961165047
+     }
+    },
+    "drawdown_breach_rate": 0.10256410256410256,
+    "drawdown_p90_usd": 1022.5,
+    "label": "partial-day (split breaks portfolio days)",
+    "max_drawdown_usd": 9867.5,
+    "occupancy_or_cap_skips": 0,
+    "skipped_ids": [],
+    "status": "OK",
+    "total_usd": 18237.5,
+    "trades": 265,
+    "usd_per_asset_day": 93.52564102564102,
+    "usd_per_trade": 68.82075471698113,
+    "worst_asset_day_usd": -2227.5
+   },
+   "SI/BEST": {
+    "arrivals": 103,
+    "asset_days": 64,
+    "by_asset": {
+     "SI": {
+      "asset_days": 64,
+      "max_drawdown_usd": 9867.5,
+      "trades": 103,
+      "usd_per_asset_day": 163.04687499999997,
+      "usd_per_trade": 101.31067961165047
+     }
+    },
+    "drawdown_breach_rate": 0.15625,
+    "drawdown_p90_usd": 1810.0000000000002,
+    "label": "partial-day (split breaks portfolio days)",
+    "max_drawdown_usd": 9867.5,
+    "occupancy_or_cap_skips": 0,
+    "skipped_ids": [],
+    "status": "OK",
+    "total_usd": 10434.999999999998,
+    "trades": 103,
+    "usd_per_asset_day": 163.04687499999997,
+    "usd_per_trade": 101.31067961165047,
+    "worst_asset_day_usd": -2227.5
+   }
+  },
+  "stress": {
+   "HG/BEST": {
+    "clears_rung": false,
+    "coverage": 0.49019607843137253,
+    "damage_usd": 6075.0,
+    "flips_applied": 2,
+    "flips_available": 100,
+    "flips_requested": 2,
+    "mdd_day_usd": 4820.0,
+    "mdd_trade_usd": 4820.0,
+    "rate": 0.02,
+    "total_usd": -2462.5,
+    "trades": 100,
+    "usd_per_asset_day": -37.31060606060606,
+    "usd_per_trade": -24.625,
+    "wall_rate": 0.21,
+    "walls": 21,
+    "win_rate": 0.48
+   },
+   "NKD/BEST": {
+    "clears_rung": false,
+    "coverage": 0.31313131313131315,
+    "damage_usd": 7862.5,
+    "flips_applied": 1,
+    "flips_available": 62,
+    "flips_requested": 1,
+    "mdd_day_usd": 6227.5,
+    "mdd_trade_usd": 6227.5,
+    "rate": 0.02,
+    "total_usd": -3672.5,
+    "trades": 62,
+    "usd_per_asset_day": -56.5,
+    "usd_per_trade": -59.233870967741936,
+    "wall_rate": 0.3064516129032258,
+    "walls": 19,
+    "win_rate": 0.43548387096774194
+   },
+   "SI/BEST": {
+    "clears_rung": false,
+    "coverage": 0.5202020202020202,
+    "damage_usd": 12562.5,
+    "flips_applied": 2,
+    "flips_available": 102,
+    "flips_requested": 2,
+    "mdd_day_usd": 11782.5,
+    "mdd_trade_usd": 11782.500000000002,
+    "rate": 0.02,
+    "total_usd": -2127.500000000001,
+    "trades": 103,
+    "usd_per_asset_day": -33.242187500000014,
+    "usd_per_trade": -20.655339805825253,
+    "wall_rate": 0.4077669902912621,
+    "walls": 42,
+    "win_rate": 0.4368932038834951
+   }
+  }
+ },
+ "stage_o": {
+  "conversion_check": {
+   "ask": 4516000000,
+   "ask_minus_bid": 3000000,
+   "asset": "HG",
+   "bid": 4513000000,
+   "d8": 20220315,
+   "entry_spread_usd": 75.0,
+   "multiplier": 25000,
+   "ok": true,
+   "row": 0,
+   "spread_usd_in_mid2": 6000000.0,
+   "two_times_ask_minus_bid": 6000000.0,
+   "usd_to_mid2": 80000.0
+  },
+  "o1": {
+   "HG": {
+    "any_zone_count": 119,
+    "any_zone_fraction": 0.6197916666666666,
+    "cells_without_context": 3,
+    "cells_without_sharp_side": 9,
+    "eligible_cells": 192,
+    "in_tradeable_window_fraction": 0.8125,
+    "in_zone_counts": {
+     "A1m+0.00": 83,
+     "A1m+0.25": 112,
+     "A1m-0.10": 64,
+     "A2D0.50": 29,
+     "A2D0.75": 8,
+     "A2D1.00": 1,
+     "A2D1.25": 0
+    },
+    "in_zone_fraction": {
+     "A1m+0.00": 0.4322916666666667,
+     "A1m+0.25": 0.5833333333333334,
+     "A1m-0.10": 0.3333333333333333,
+     "A2D0.50": 0.15104166666666666,
+     "A2D0.75": 0.041666666666666664,
+     "A2D1.00": 0.005208333333333333,
+     "A2D1.25": 0.0
+    },
+    "terminal_depth_atr": {
+     "mean": 0.2721051436974898,
+     "n": 192,
+     "p25": 0.11658138976782723,
+     "p50": 0.21523677262795404,
+     "p75": 0.38391148180513723
+    },
+    "terminal_phase_fraction": {
+     "mean": 0.461603069034959,
+     "n": 192,
+     "p25": 0.18344155844155846,
+     "p50": 0.4530701754385965,
+     "p75": 0.7553968253968254
+    },
+    "terminal_seconds": {
+     "mean": 13033.125,
+     "n": 192,
+     "p25": 4200.0,
+     "p50": 10530.0,
+     "p75": 20205.0
+    }
+   },
+   "NKD": {
+    "any_zone_count": 124,
+    "any_zone_fraction": 0.6458333333333334,
+    "cells_without_context": 3,
+    "cells_without_sharp_side": 3,
+    "eligible_cells": 192,
+    "in_tradeable_window_fraction": 0.8020833333333334,
+    "in_zone_counts": {
+     "A1m+0.00": 80,
+     "A1m+0.25": 114,
+     "A1m-0.10": 72,
+     "A2D0.50": 42,
+     "A2D0.75": 19,
+     "A2D1.00": 8,
+     "A2D1.25": 4
+    },
+    "in_zone_fraction": {
+     "A1m+0.00": 0.4166666666666667,
+     "A1m+0.25": 0.59375,
+     "A1m-0.10": 0.375,
+     "A2D0.50": 0.21875,
+     "A2D0.75": 0.09895833333333333,
+     "A2D1.00": 0.041666666666666664,
+     "A2D1.25": 0.020833333333333332
+    },
+    "terminal_depth_atr": {
+     "mean": 0.31724656357110453,
+     "n": 192,
+     "p25": 0.09208942593653363,
+     "p50": 0.21601245211192469,
+     "p75": 0.4493180893367795
+    },
+    "terminal_phase_fraction": {
+     "mean": 0.42488198072675304,
+     "n": 192,
+     "p25": 0.2038888888888889,
+     "p50": 0.3648529411764706,
+     "p75": 0.6613289760348584
+    },
+    "terminal_seconds": {
+     "mean": 12221.5625,
+     "n": 192,
+     "p25": 4095.0,
+     "p50": 10350.0,
+     "p75": 17850.0
+    }
+   },
+   "SI": {
+    "any_zone_count": 104,
+    "any_zone_fraction": 0.5531914893617021,
+    "cells_without_context": 3,
+    "cells_without_sharp_side": 7,
+    "eligible_cells": 188,
+    "in_tradeable_window_fraction": 0.8085106382978723,
+    "in_zone_counts": {
+     "A1m+0.00": 61,
+     "A1m+0.25": 96,
+     "A1m-0.10": 53,
+     "A2D0.50": 30,
+     "A2D0.75": 12,
+     "A2D1.00": 7,
+     "A2D1.25": 3
+    },
+    "in_zone_fraction": {
+     "A1m+0.00": 0.324468085106383,
+     "A1m+0.25": 0.5106382978723404,
+     "A1m-0.10": 0.28191489361702127,
+     "A2D0.50": 0.1595744680851064,
+     "A2D0.75": 0.06382978723404255,
+     "A2D1.00": 0.03723404255319149,
+     "A2D1.25": 0.015957446808510637
+    },
+    "terminal_depth_atr": {
+     "mean": 0.2613279396194392,
+     "n": 188,
+     "p25": 0.06986697645831708,
+     "p50": 0.1773238177112131,
+     "p75": 0.342122313556768
+    },
+    "terminal_phase_fraction": {
+     "mean": 0.45592637735420977,
+     "n": 188,
+     "p25": 0.22318181818181818,
+     "p50": 0.42125603864734296,
+     "p75": 0.758804347826087
+    },
+    "terminal_seconds": {
+     "mean": 12840.63829787234,
+     "n": 188,
+     "p25": 4455.0,
+     "p50": 10530.0,
+     "p75": 17700.0
+    }
+   }
+  },
+  "o2": {
+   "ceiling_source": "mill-rem-ceiling.json",
+   "ceiling_tau": "1800",
+   "lines": {
+    "TERMINAL-ALL": {
+     "HG": {
+      "capture_of_ceiling": 0.6850203554694139,
+      "clears_rung": false,
+      "coverage": 0.8235294117647058,
+      "mdd_day_usd": 0.0,
+      "mdd_trade_usd": 0.0,
+      "rem_ceiling_coverage": 0.923,
+      "rem_ceiling_legal_usd_day": 2692.3,
+      "rem_ceiling_mean_usd_trade": 981.7,
+      "skips": {
+       "eligible": 192,
+       "illegal": 24,
+       "no_context": 3,
+       "no_side": 9,
+       "no_window": 0,
+       "uncertifiable": 0
+      },
+      "total_usd": 121722.5,
+      "trades": 168,
+      "usd_per_asset_day": 1844.280303030303,
+      "usd_per_trade": 724.5386904761905,
+      "wall_rate": 0.0,
+      "walls": 0,
+      "win_rate": 1.0
+     },
+     "NKD": {
+      "capture_of_ceiling": 0.613525641025641,
+      "clears_rung": true,
+      "coverage": 0.7929292929292929,
+      "mdd_day_usd": 0.0,
+      "mdd_trade_usd": 0.0,
+      "rem_ceiling_coverage": 0.882,
+      "rem_ceiling_legal_usd_day": 3600.0,
+      "rem_ceiling_mean_usd_trade": 1360.5,
+      "skips": {
+       "eligible": 192,
+       "illegal": 35,
+       "no_context": 3,
+       "no_side": 3,
+       "no_window": 0,
+       "uncertifiable": 0
+      },
+      "total_usd": 143565.0,
+      "trades": 157,
+      "usd_per_asset_day": 2208.6923076923076,
+      "usd_per_trade": 914.4267515923567,
+      "wall_rate": 0.0,
+      "walls": 0,
+      "win_rate": 1.0
+     },
+     "SI": {
+      "capture_of_ceiling": 0.5850648064966075,
+      "clears_rung": true,
+      "coverage": 0.7727272727272727,
+      "mdd_day_usd": 0.0,
+      "mdd_trade_usd": 0.0,
+      "rem_ceiling_coverage": 0.911,
+      "rem_ceiling_legal_usd_day": 4229.9,
+      "rem_ceiling_mean_usd_trade": 1546.9,
+      "skips": {
+       "eligible": 188,
+       "illegal": 35,
+       "no_context": 3,
+       "no_side": 7,
+       "no_window": 0,
+       "uncertifiable": 0
+      },
+      "total_usd": 158385.0,
+      "trades": 153,
+      "usd_per_asset_day": 2474.765625,
+      "usd_per_trade": 1035.1960784313726,
+      "wall_rate": 0.0,
+      "walls": 0,
+      "win_rate": 1.0
+     }
+    },
+    "TERMINAL-WINDOW": {
+     "HG": {
+      "capture_of_ceiling": 0.726813223795358,
+      "clears_rung": false,
+      "coverage": 0.8774509803921569,
+      "mdd_day_usd": 0.0,
+      "mdd_trade_usd": 142.5,
+      "rem_ceiling_coverage": 0.923,
+      "rem_ceiling_legal_usd_day": 2692.3,
+      "rem_ceiling_mean_usd_trade": 981.7,
+      "skips": {
+       "eligible": 192,
+       "illegal": 13,
+       "no_context": 3,
+       "no_side": 9,
+       "no_window": 0,
+       "uncertifiable": 0
+      },
+      "total_usd": 129148.75,
+      "trades": 179,
+      "usd_per_asset_day": 1956.7992424242425,
+      "usd_per_trade": 721.5013966480446,
+      "wall_rate": 0.0,
+      "walls": 0,
+      "win_rate": 0.9832402234636871
+     },
+     "NKD": {
+      "capture_of_ceiling": 0.6688247863247864,
+      "clears_rung": true,
+      "coverage": 0.8787878787878788,
+      "mdd_day_usd": 0.0,
+      "mdd_trade_usd": 255.0,
+      "rem_ceiling_coverage": 0.882,
+      "rem_ceiling_legal_usd_day": 3600.0,
+      "rem_ceiling_mean_usd_trade": 1360.5,
+      "skips": {
+       "eligible": 191,
+       "illegal": 17,
+       "no_context": 3,
+       "no_side": 3,
+       "no_window": 1,
+       "uncertifiable": 0
+      },
+      "total_usd": 156505.0,
+      "trades": 174,
+      "usd_per_asset_day": 2407.769230769231,
+      "usd_per_trade": 899.4540229885057,
+      "wall_rate": 0.0,
+      "walls": 0,
+      "win_rate": 0.9770114942528736
+     },
+     "SI": {
+      "capture_of_ceiling": 0.6306480354145488,
+      "clears_rung": true,
+      "coverage": 0.8333333333333334,
+      "mdd_day_usd": 0.0,
+      "mdd_trade_usd": 305.0,
+      "rem_ceiling_coverage": 0.911,
+      "rem_ceiling_legal_usd_day": 4229.9,
+      "rem_ceiling_mean_usd_trade": 1546.9,
+      "skips": {
+       "eligible": 188,
+       "illegal": 23,
+       "no_context": 3,
+       "no_side": 7,
+       "no_window": 0,
+       "uncertifiable": 0
+      },
+      "total_usd": 170725.0,
+      "trades": 165,
+      "usd_per_asset_day": 2667.578125,
+      "usd_per_trade": 1034.6969696969697,
+      "wall_rate": 0.0,
+      "walls": 0,
+      "win_rate": 0.9575757575757575
+     }
+    }
+   }
+  },
+  "o3": {
+   "A1m+0.00/t1800": {
+    "HG": {
+     "clears_rung": false,
+     "coverage": 0.6078431372549019,
+     "first_is_last_fraction": 0.03968253968253968,
+     "illegal": 2,
+     "mdd_day_usd": 10.0,
+     "mdd_trade_usd": 455.0,
+     "mean_triggers": 14.285714285714286,
+     "median_triggers": 11.5,
+     "total_usd": 59848.75,
+     "trades": 124,
+     "triggered_cells": 126,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 906.7992424242424,
+     "usd_per_trade": 482.65120967741933,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.9193548387096774
+    },
+    "NKD": {
+     "clears_rung": false,
+     "coverage": 0.6161616161616161,
+     "first_is_last_fraction": 0.06976744186046512,
+     "illegal": 7,
+     "mdd_day_usd": 477.5,
+     "mdd_trade_usd": 567.5,
+     "mean_triggers": 16.6046511627907,
+     "median_triggers": 13.0,
+     "total_usd": 67415.0,
+     "trades": 122,
+     "triggered_cells": 129,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 1037.1538461538462,
+     "usd_per_trade": 552.5819672131148,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8688524590163934
+    },
+    "SI": {
+     "clears_rung": false,
+     "coverage": 0.5151515151515151,
+     "first_is_last_fraction": 0.11818181818181818,
+     "illegal": 8,
+     "mdd_day_usd": 642.5,
+     "mdd_trade_usd": 1047.5,
+     "mean_triggers": 15.372727272727273,
+     "median_triggers": 13.5,
+     "total_usd": 72552.5,
+     "trades": 102,
+     "triggered_cells": 110,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 1133.6328125,
+     "usd_per_trade": 711.2990196078431,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8627450980392157
+    }
+   },
+   "A1m+0.00/t900": {
+    "HG": {
+     "clears_rung": false,
+     "coverage": 0.6274509803921569,
+     "first_is_last_fraction": 0.045454545454545456,
+     "illegal": 4,
+     "mdd_day_usd": 10.0,
+     "mdd_trade_usd": 455.0,
+     "mean_triggers": 14.530303030303031,
+     "median_triggers": 11.5,
+     "total_usd": 64103.75,
+     "trades": 128,
+     "triggered_cells": 132,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 971.2689393939394,
+     "usd_per_trade": 500.810546875,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.921875
+    },
+    "NKD": {
+     "clears_rung": false,
+     "coverage": 0.6212121212121212,
+     "first_is_last_fraction": 0.06818181818181818,
+     "illegal": 9,
+     "mdd_day_usd": 477.5,
+     "mdd_trade_usd": 567.5,
+     "mean_triggers": 16.87878787878788,
+     "median_triggers": 13.0,
+     "total_usd": 67560.0,
+     "trades": 123,
+     "triggered_cells": 132,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 1039.3846153846155,
+     "usd_per_trade": 549.2682926829268,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8699186991869918
+    },
+    "SI": {
+     "clears_rung": false,
+     "coverage": 0.5202020202020202,
+     "first_is_last_fraction": 0.08108108108108109,
+     "illegal": 8,
+     "mdd_day_usd": 642.5,
+     "mdd_trade_usd": 1047.5,
+     "mean_triggers": 16.27927927927928,
+     "median_triggers": 14.0,
+     "total_usd": 73097.5,
+     "trades": 103,
+     "triggered_cells": 111,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 1142.1484375,
+     "usd_per_trade": 709.6844660194175,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8640776699029126
+    }
+   },
+   "A1m+0.25/t1800": {
+    "HG": {
+     "clears_rung": false,
+     "coverage": 0.7647058823529411,
+     "first_is_last_fraction": 0.030864197530864196,
+     "illegal": 6,
+     "mdd_day_usd": 10.0,
+     "mdd_trade_usd": 636.25,
+     "mean_triggers": 15.895061728395062,
+     "median_triggers": 14.0,
+     "total_usd": 66620.0,
+     "trades": 156,
+     "triggered_cells": 162,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 1009.3939393939394,
+     "usd_per_trade": 427.05128205128204,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8910256410256411
+    },
+    "NKD": {
+     "clears_rung": false,
+     "coverage": 0.7777777777777778,
+     "first_is_last_fraction": 0.03680981595092025,
+     "illegal": 9,
+     "mdd_day_usd": 477.5,
+     "mdd_trade_usd": 567.5,
+     "mean_triggers": 17.79754601226994,
+     "median_triggers": 14.0,
+     "total_usd": 83405.0,
+     "trades": 154,
+     "triggered_cells": 163,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 1283.1538461538462,
+     "usd_per_trade": 541.5909090909091,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8701298701298701
+    },
+    "SI": {
+     "clears_rung": true,
+     "coverage": 0.7373737373737373,
+     "first_is_last_fraction": 0.0625,
+     "illegal": 14,
+     "mdd_day_usd": 360.0,
+     "mdd_trade_usd": 1047.5,
+     "mean_triggers": 15.08125,
+     "median_triggers": 11.0,
+     "total_usd": 102982.5,
+     "trades": 146,
+     "triggered_cells": 160,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 1609.1015625,
+     "usd_per_trade": 705.3595890410959,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8698630136986302
+    }
+   },
+   "A1m+0.25/t900": {
+    "HG": {
+     "clears_rung": false,
+     "coverage": 0.7843137254901961,
+     "first_is_last_fraction": 0.03571428571428571,
+     "illegal": 8,
+     "mdd_day_usd": 10.0,
+     "mdd_trade_usd": 636.25,
+     "mean_triggers": 16.482142857142858,
+     "median_triggers": 15.0,
+     "total_usd": 70875.0,
+     "trades": 160,
+     "triggered_cells": 168,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 1073.8636363636363,
+     "usd_per_trade": 442.96875,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.89375
+    },
+    "NKD": {
+     "clears_rung": false,
+     "coverage": 0.7828282828282829,
+     "first_is_last_fraction": 0.041666666666666664,
+     "illegal": 13,
+     "mdd_day_usd": 477.5,
+     "mdd_trade_usd": 567.5,
+     "mean_triggers": 18.142857142857142,
+     "median_triggers": 14.0,
+     "total_usd": 83550.0,
+     "trades": 155,
+     "triggered_cells": 168,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 1285.3846153846155,
+     "usd_per_trade": 539.0322580645161,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8709677419354839
+    },
+    "SI": {
+     "clears_rung": true,
+     "coverage": 0.7474747474747475,
+     "first_is_last_fraction": 0.037037037037037035,
+     "illegal": 14,
+     "mdd_day_usd": 360.0,
+     "mdd_trade_usd": 1047.5,
+     "mean_triggers": 16.123456790123456,
+     "median_triggers": 11.0,
+     "total_usd": 103860.0,
+     "trades": 148,
+     "triggered_cells": 162,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 1622.8125,
+     "usd_per_trade": 701.7567567567568,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8716216216216216
+    }
+   },
+   "A1m-0.10/t1800": {
+    "HG": {
+     "clears_rung": false,
+     "coverage": 0.4803921568627451,
+     "first_is_last_fraction": 0.05,
+     "illegal": 2,
+     "mdd_day_usd": 55.0,
+     "mdd_trade_usd": 455.0,
+     "mean_triggers": 15.03,
+     "median_triggers": 13.0,
+     "total_usd": 43510.0,
+     "trades": 98,
+     "triggered_cells": 100,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 659.2424242424242,
+     "usd_per_trade": 443.9795918367347,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.9081632653061225
+    },
+    "NKD": {
+     "clears_rung": false,
+     "coverage": 0.5555555555555556,
+     "first_is_last_fraction": 0.07142857142857142,
+     "illegal": 2,
+     "mdd_day_usd": 477.5,
+     "mdd_trade_usd": 567.5,
+     "mean_triggers": 16.464285714285715,
+     "median_triggers": 12.0,
+     "total_usd": 63712.5,
+     "trades": 110,
+     "triggered_cells": 112,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 980.1923076923077,
+     "usd_per_trade": 579.2045454545455,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8727272727272727
+    },
+    "SI": {
+     "clears_rung": false,
+     "coverage": 0.45454545454545453,
+     "first_is_last_fraction": 0.09375,
+     "illegal": 6,
+     "mdd_day_usd": 642.5,
+     "mdd_trade_usd": 1047.5,
+     "mean_triggers": 15.927083333333334,
+     "median_triggers": 13.0,
+     "total_usd": 74062.5,
+     "trades": 90,
+     "triggered_cells": 96,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 1157.2265625,
+     "usd_per_trade": 822.9166666666666,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8777777777777778
+    }
+   },
+   "A1m-0.10/t900": {
+    "HG": {
+     "clears_rung": false,
+     "coverage": 0.5,
+     "first_is_last_fraction": 0.05660377358490566,
+     "illegal": 4,
+     "mdd_day_usd": 55.0,
+     "mdd_trade_usd": 455.0,
+     "mean_triggers": 15.084905660377359,
+     "median_triggers": 13.0,
+     "total_usd": 47765.0,
+     "trades": 102,
+     "triggered_cells": 106,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 723.7121212121212,
+     "usd_per_trade": 468.2843137254902,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.9117647058823529
+    },
+    "NKD": {
+     "clears_rung": false,
+     "coverage": 0.5606060606060606,
+     "first_is_last_fraction": 0.06956521739130435,
+     "illegal": 4,
+     "mdd_day_usd": 477.5,
+     "mdd_trade_usd": 567.5,
+     "mean_triggers": 16.660869565217393,
+     "median_triggers": 11.0,
+     "total_usd": 63857.5,
+     "trades": 111,
+     "triggered_cells": 115,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 982.4230769230769,
+     "usd_per_trade": 575.2927927927927,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8738738738738738
+    },
+    "SI": {
+     "clears_rung": false,
+     "coverage": 0.45454545454545453,
+     "first_is_last_fraction": 0.052083333333333336,
+     "illegal": 6,
+     "mdd_day_usd": 642.5,
+     "mdd_trade_usd": 1047.5,
+     "mean_triggers": 16.90625,
+     "median_triggers": 13.5,
+     "total_usd": 74062.5,
+     "trades": 90,
+     "triggered_cells": 96,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 1157.2265625,
+     "usd_per_trade": 822.9166666666666,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8777777777777778
+    }
+   },
+   "A2D0.50/t1800": {
+    "HG": {
+     "clears_rung": false,
+     "coverage": 0.28921568627450983,
+     "first_is_last_fraction": 0.11864406779661017,
+     "illegal": 0,
+     "mdd_day_usd": 530.0,
+     "mdd_trade_usd": 530.0,
+     "mean_triggers": 10.728813559322035,
+     "median_triggers": 8.0,
+     "total_usd": 26105.0,
+     "trades": 59,
+     "triggered_cells": 59,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 395.530303030303,
+     "usd_per_trade": 442.45762711864404,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8305084745762712
+    },
+    "NKD": {
+     "clears_rung": false,
+     "coverage": 0.3484848484848485,
+     "first_is_last_fraction": 0.028985507246376812,
+     "illegal": 0,
+     "mdd_day_usd": 192.5,
+     "mdd_trade_usd": 192.5,
+     "mean_triggers": 14.695652173913043,
+     "median_triggers": 13.0,
+     "total_usd": 51542.5,
+     "trades": 69,
+     "triggered_cells": 69,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 792.9615384615385,
+     "usd_per_trade": 746.9927536231884,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.9130434782608695
+    },
+    "SI": {
+     "clears_rung": false,
+     "coverage": 0.2878787878787879,
+     "first_is_last_fraction": 0.1206896551724138,
+     "illegal": 1,
+     "mdd_day_usd": 642.5,
+     "mdd_trade_usd": 1047.5,
+     "mean_triggers": 13.741379310344827,
+     "median_triggers": 8.0,
+     "total_usd": 50240.0,
+     "trades": 57,
+     "triggered_cells": 58,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 785.0,
+     "usd_per_trade": 881.4035087719299,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8421052631578947
+    }
+   },
+   "A2D0.50/t900": {
+    "HG": {
+     "clears_rung": false,
+     "coverage": 0.28921568627450983,
+     "first_is_last_fraction": 0.1016949152542373,
+     "illegal": 0,
+     "mdd_day_usd": 530.0,
+     "mdd_trade_usd": 530.0,
+     "mean_triggers": 10.76271186440678,
+     "median_triggers": 8.0,
+     "total_usd": 26105.0,
+     "trades": 59,
+     "triggered_cells": 59,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 395.530303030303,
+     "usd_per_trade": 442.45762711864404,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8305084745762712
+    },
+    "NKD": {
+     "clears_rung": false,
+     "coverage": 0.3484848484848485,
+     "first_is_last_fraction": 0.028985507246376812,
+     "illegal": 0,
+     "mdd_day_usd": 192.5,
+     "mdd_trade_usd": 192.5,
+     "mean_triggers": 14.695652173913043,
+     "median_triggers": 13.0,
+     "total_usd": 51542.5,
+     "trades": 69,
+     "triggered_cells": 69,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 792.9615384615385,
+     "usd_per_trade": 746.9927536231884,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.9130434782608695
+    },
+    "SI": {
+     "clears_rung": false,
+     "coverage": 0.2878787878787879,
+     "first_is_last_fraction": 0.1206896551724138,
+     "illegal": 1,
+     "mdd_day_usd": 642.5,
+     "mdd_trade_usd": 1047.5,
+     "mean_triggers": 13.741379310344827,
+     "median_triggers": 8.0,
+     "total_usd": 50240.0,
+     "trades": 57,
+     "triggered_cells": 58,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 785.0,
+     "usd_per_trade": 881.4035087719299,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8421052631578947
+    }
+   },
+   "A2D0.75/t1800": {
+    "HG": {
+     "clears_rung": false,
+     "coverage": 0.06862745098039216,
+     "first_is_last_fraction": 0.07142857142857142,
+     "illegal": 0,
+     "mdd_day_usd": 91.25,
+     "mdd_trade_usd": 91.25,
+     "mean_triggers": 9.714285714285714,
+     "median_triggers": 9.0,
+     "total_usd": 8086.25,
+     "trades": 14,
+     "triggered_cells": 14,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 122.51893939393939,
+     "usd_per_trade": 577.5892857142857,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8571428571428571
+    },
+    "NKD": {
+     "clears_rung": false,
+     "coverage": 0.15656565656565657,
+     "first_is_last_fraction": 0.16129032258064516,
+     "illegal": 0,
+     "mdd_day_usd": 72.5,
+     "mdd_trade_usd": 92.5,
+     "mean_triggers": 12.387096774193548,
+     "median_triggers": 7.0,
+     "total_usd": 25632.5,
+     "trades": 31,
+     "triggered_cells": 31,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 394.34615384615387,
+     "usd_per_trade": 826.8548387096774,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.9032258064516129
+    },
+    "SI": {
+     "clears_rung": false,
+     "coverage": 0.13636363636363635,
+     "first_is_last_fraction": 0.07407407407407407,
+     "illegal": 0,
+     "mdd_day_usd": 642.5,
+     "mdd_trade_usd": 642.5,
+     "mean_triggers": 16.037037037037038,
+     "median_triggers": 13.0,
+     "total_usd": 27315.0,
+     "trades": 27,
+     "triggered_cells": 27,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 426.796875,
+     "usd_per_trade": 1011.6666666666666,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8518518518518519
+    }
+   },
+   "A2D0.75/t900": {
+    "HG": {
+     "clears_rung": false,
+     "coverage": 0.06862745098039216,
+     "first_is_last_fraction": 0.07142857142857142,
+     "illegal": 0,
+     "mdd_day_usd": 91.25,
+     "mdd_trade_usd": 91.25,
+     "mean_triggers": 9.714285714285714,
+     "median_triggers": 9.0,
+     "total_usd": 8086.25,
+     "trades": 14,
+     "triggered_cells": 14,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 122.51893939393939,
+     "usd_per_trade": 577.5892857142857,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8571428571428571
+    },
+    "NKD": {
+     "clears_rung": false,
+     "coverage": 0.15656565656565657,
+     "first_is_last_fraction": 0.16129032258064516,
+     "illegal": 0,
+     "mdd_day_usd": 72.5,
+     "mdd_trade_usd": 92.5,
+     "mean_triggers": 12.387096774193548,
+     "median_triggers": 7.0,
+     "total_usd": 25632.5,
+     "trades": 31,
+     "triggered_cells": 31,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 394.34615384615387,
+     "usd_per_trade": 826.8548387096774,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.9032258064516129
+    },
+    "SI": {
+     "clears_rung": false,
+     "coverage": 0.13636363636363635,
+     "first_is_last_fraction": 0.07407407407407407,
+     "illegal": 0,
+     "mdd_day_usd": 642.5,
+     "mdd_trade_usd": 642.5,
+     "mean_triggers": 16.037037037037038,
+     "median_triggers": 13.0,
+     "total_usd": 27315.0,
+     "trades": 27,
+     "triggered_cells": 27,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 426.796875,
+     "usd_per_trade": 1011.6666666666666,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8518518518518519
+    }
+   },
+   "A2D1.00/t1800": {
+    "HG": {
+     "clears_rung": false,
+     "coverage": 0.00980392156862745,
+     "first_is_last_fraction": 0.0,
+     "illegal": 0,
+     "mdd_day_usd": 0.0,
+     "mdd_trade_usd": 0.0,
+     "mean_triggers": 4.0,
+     "median_triggers": 4.0,
+     "total_usd": 971.25,
+     "trades": 2,
+     "triggered_cells": 2,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 14.715909090909092,
+     "usd_per_trade": 485.625,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 1.0
+    },
+    "NKD": {
+     "clears_rung": false,
+     "coverage": 0.06060606060606061,
+     "first_is_last_fraction": 0.0,
+     "illegal": 0,
+     "mdd_day_usd": 42.5,
+     "mdd_trade_usd": 42.5,
+     "mean_triggers": 13.5,
+     "median_triggers": 11.5,
+     "total_usd": 13202.5,
+     "trades": 12,
+     "triggered_cells": 12,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 203.1153846153846,
+     "usd_per_trade": 1100.2083333333333,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.9166666666666666
+    },
+    "SI": {
+     "clears_rung": false,
+     "coverage": 0.0707070707070707,
+     "first_is_last_fraction": 0.0,
+     "illegal": 0,
+     "mdd_day_usd": 642.5,
+     "mdd_trade_usd": 642.5,
+     "mean_triggers": 16.071428571428573,
+     "median_triggers": 12.5,
+     "total_usd": 11530.0,
+     "trades": 14,
+     "triggered_cells": 14,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 180.15625,
+     "usd_per_trade": 823.5714285714286,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8571428571428571
+    }
+   },
+   "A2D1.00/t900": {
+    "HG": {
+     "clears_rung": false,
+     "coverage": 0.00980392156862745,
+     "first_is_last_fraction": 0.0,
+     "illegal": 0,
+     "mdd_day_usd": 0.0,
+     "mdd_trade_usd": 0.0,
+     "mean_triggers": 4.0,
+     "median_triggers": 4.0,
+     "total_usd": 971.25,
+     "trades": 2,
+     "triggered_cells": 2,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 14.715909090909092,
+     "usd_per_trade": 485.625,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 1.0
+    },
+    "NKD": {
+     "clears_rung": false,
+     "coverage": 0.06060606060606061,
+     "first_is_last_fraction": 0.0,
+     "illegal": 0,
+     "mdd_day_usd": 42.5,
+     "mdd_trade_usd": 42.5,
+     "mean_triggers": 13.5,
+     "median_triggers": 11.5,
+     "total_usd": 13202.5,
+     "trades": 12,
+     "triggered_cells": 12,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 203.1153846153846,
+     "usd_per_trade": 1100.2083333333333,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.9166666666666666
+    },
+    "SI": {
+     "clears_rung": false,
+     "coverage": 0.0707070707070707,
+     "first_is_last_fraction": 0.0,
+     "illegal": 0,
+     "mdd_day_usd": 642.5,
+     "mdd_trade_usd": 642.5,
+     "mean_triggers": 16.071428571428573,
+     "median_triggers": 12.5,
+     "total_usd": 11530.0,
+     "trades": 14,
+     "triggered_cells": 14,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 180.15625,
+     "usd_per_trade": 823.5714285714286,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8571428571428571
+    }
+   },
+   "A2D1.25/t1800": {
+    "HG": {
+     "clears_rung": false,
+     "coverage": 0.0,
+     "first_is_last_fraction": null,
+     "illegal": 0,
+     "mdd_day_usd": 0.0,
+     "mdd_trade_usd": 0.0,
+     "mean_triggers": null,
+     "median_triggers": null,
+     "total_usd": 0.0,
+     "trades": 0,
+     "triggered_cells": 0,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 0.0,
+     "usd_per_trade": 0.0,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.0
+    },
+    "NKD": {
+     "clears_rung": false,
+     "coverage": 0.03535353535353535,
+     "first_is_last_fraction": 0.14285714285714285,
+     "illegal": 0,
+     "mdd_day_usd": 42.5,
+     "mdd_trade_usd": 42.5,
+     "mean_triggers": 7.857142857142857,
+     "median_triggers": 9.0,
+     "total_usd": 8690.0,
+     "trades": 7,
+     "triggered_cells": 7,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 133.69230769230768,
+     "usd_per_trade": 1241.4285714285713,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8571428571428571
+    },
+    "SI": {
+     "clears_rung": false,
+     "coverage": 0.04040404040404041,
+     "first_is_last_fraction": 0.0,
+     "illegal": 0,
+     "mdd_day_usd": 642.5,
+     "mdd_trade_usd": 642.5,
+     "mean_triggers": 9.75,
+     "median_triggers": 5.0,
+     "total_usd": 3597.5,
+     "trades": 8,
+     "triggered_cells": 8,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 56.2109375,
+     "usd_per_trade": 449.6875,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.875
+    }
+   },
+   "A2D1.25/t900": {
+    "HG": {
+     "clears_rung": false,
+     "coverage": 0.0,
+     "first_is_last_fraction": null,
+     "illegal": 0,
+     "mdd_day_usd": 0.0,
+     "mdd_trade_usd": 0.0,
+     "mean_triggers": null,
+     "median_triggers": null,
+     "total_usd": 0.0,
+     "trades": 0,
+     "triggered_cells": 0,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 0.0,
+     "usd_per_trade": 0.0,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.0
+    },
+    "NKD": {
+     "clears_rung": false,
+     "coverage": 0.03535353535353535,
+     "first_is_last_fraction": 0.14285714285714285,
+     "illegal": 0,
+     "mdd_day_usd": 42.5,
+     "mdd_trade_usd": 42.5,
+     "mean_triggers": 7.857142857142857,
+     "median_triggers": 9.0,
+     "total_usd": 8690.0,
+     "trades": 7,
+     "triggered_cells": 7,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 133.69230769230768,
+     "usd_per_trade": 1241.4285714285713,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.8571428571428571
+    },
+    "SI": {
+     "clears_rung": false,
+     "coverage": 0.04040404040404041,
+     "first_is_last_fraction": 0.0,
+     "illegal": 0,
+     "mdd_day_usd": 642.5,
+     "mdd_trade_usd": 642.5,
+     "mean_triggers": 9.75,
+     "median_triggers": 5.0,
+     "total_usd": 3597.5,
+     "trades": 8,
+     "triggered_cells": 8,
+     "uncertifiable": 0,
+     "usd_per_asset_day": 56.2109375,
+     "usd_per_trade": 449.6875,
+     "wall_rate": 0.0,
+     "walls": 0,
+     "win_rate": 0.875
+    }
+   }
+  }
+ },
+ "tier": "exploratory",
+ "wall_seconds": 6.74
+}

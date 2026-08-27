@@ -46,13 +46,30 @@ run on 2021. Census streamed 2025H1 forecast headers. No 2021 late store.
 common-clock record-side causal replay
 (`.audit/briefs/threshold-covering-after-v0-stop-fable-out.md`). Sol named
 the same shape. B2 LIVE stays an optimistic batch cap, not an executable
-clock. B3 STOP, Fable judged
-(`.audit/briefs/threshold-b3-common-clock-judge-out.md`).
-`cell identity differs: HG/20221107/0`. Two phase-0 instances in one HG
-day file. No strict block. No dollar line. Causal clock question unanswered.
-Parent stopped per USER 2026-08-27. No covering after B3. Exit overlay
-forbidden. Tickets 37 and 47 stay unstarted.
+clock. B3 STOP stays locked
+(`.audit/briefs/threshold-b3-common-clock-judge-out.md`). Covering after
+B3 named **B4**, Fable designer
+(`.audit/briefs/threshold-covering-after-b3-fable-out.md`). Sol peer named
+the same unit. Cell identity is the scheduled phase instance. Locked-era
+CLEAR collisions are 52 cells, 22 HG / 10 NKD / 20 SI. Era-wide files 249.
+Covering after B4 split. Fable named **B5**
+(`.audit/briefs/threshold-covering-after-b4-fable-out.md`). Sol peer
+named a dead end
+(`.audit/briefs/threshold-covering-after-b4-sol-out.md`). B5 KILL, Fable judged
+(`.audit/briefs/threshold-b5-common-clock-judge-out.md`). Causal
+cheap-on-side at 2400 is dead under every scoring of the four silent
+cells. USER forbade auto-starting E1. Next is a minutes mill on when
+the side is known, not another ranker. No exits.
 2021 can kill. 2021 cannot promote. 2025H2 stays sealed.
+
+The mill is chartered (`.audit/briefs/mill-side-resolution.md`, Fable
+2026-08-27, parent seat moved to Claude after Grok's weekly limit).
+Exploratory tier: can kill, cannot promote. Quarantine split frozen in
+`.audit/mill-split.json`: EXPLORE 66/65/64 asset-days (d8 rank mod 3 == 0
+over the B5 locked 582), HOLD 131/129/127 untouched until a survivor rule
+is frozen in writing for one read. Mill cash comes from the frozen outcome
+law on raw suffixes; teacher and late stores stay shut. Substrate and
+frontier tooling live in `tools/mill/`, caches in `artifacts/cache/mill/`.
 
 Cursor Ultra is exhausted (~97% monthly). Do not use Cursor as the overnight
 parent. Daily parent is this Grok TUI. Sol specified walks: `codex exec`
@@ -124,12 +141,16 @@ the leaf when its trigger matches. Do not install stock Pstack.
 The path to the rungs is the **hillclimb** playbook, not Feature and not the
 2026-08-23 ticket plan. Metric: HG 2000, NKD 1500, SI 1500, MDD under 1000, at
 most 12 entries, dollars per trade. The covering map is the hypothesis log.
-The unblocked frontier is paused. User 2026-08-27: stop after judged B3.
-B3 STOP is infrastructure, not a dollar KILL. Next covering would own the
-cell-identity law. Parent does not start it.
+The unblocked frontier is not E1. B5 KILL is judged. User 2026-08-27:
+covering queue is pre-decided. Next is a cheap mill on side-resolution
+timing. No exits.
 Wayfinder tickets only when a question is sharp and unnamed. Do not invent a
 picker from the judge page. `/tdd` only for a cheap local test.
 Covering units already fail selftest plus mutants before the run.
+Named STOP seams get a cheap probe on locked bytes before a specified
+Sol or Fable walk. A seam that fires is covering work. Do not spend a
+40-minute walk to discover it. B3's cell-identity collision and B4's
+four empty suffixes were both this class.
 
 Overnight follows principle-never-block-on-the-human and
 `playbooks/autonomous-run.md`. A unit ends at a check
@@ -357,8 +378,8 @@ forward-vol plane and the entry plane can be joined at all.
 
 # 5. The frontier
 
-The live unit is in Live cursor. B3 is judged STOP. Parent stopped. No
-covering after B3.
+The live unit is in Live cursor. B5 KILL judged. Do not start E1. Side
+resolution mill is the open object.
 
 `design/entry_reset/tickets/` and `ENTRY_PLAN_20260823.md` are the 2026-08-23
 plan-flow backlog, written when Pstack plan-flow was added. Poteto covering

@@ -1,0 +1,371 @@
+{
+  "age_seconds": 2400,
+  "asset_chain_workers": 3,
+  "b3_stop_superseded_by": "threshold-covering-after-b3-fable-out",
+  "candidate_table_opens_per_shard": 1,
+  "cell_identity": "asset,d8,phase,phase_open_utc",
+  "dispositions": {
+    "HG": {
+      "dispositions": {
+        "emitted_certified": 586,
+        "emitted_unscorable": 1,
+        "no_prefix_bbo": 0,
+        "phase_closed_before_timer": 22
+      },
+      "emitted_unscorable_cells": [
+        "HG/20240426/0/1714082400"
+      ],
+      "multiple_truth_quality_key_cells": 0,
+      "post_timer_formation_count": 51832,
+      "roster_size_count": 609,
+      "roster_size_max": 79,
+      "roster_size_mean": 10.180623973727421,
+      "roster_size_min": 1,
+      "roster_size_total": 6200,
+      "scheduled_cells": 609
+    },
+    "NKD": {
+      "dispositions": {
+        "emitted_certified": 582,
+        "emitted_unscorable": 0,
+        "no_prefix_bbo": 0,
+        "phase_closed_before_timer": 10
+      },
+      "emitted_unscorable_cells": [],
+      "multiple_truth_quality_key_cells": 0,
+      "post_timer_formation_count": 56022,
+      "roster_size_count": 592,
+      "roster_size_max": 114,
+      "roster_size_mean": 16.847972972972972,
+      "roster_size_min": 1,
+      "roster_size_total": 9974,
+      "scheduled_cells": 592
+    },
+    "SI": {
+      "dispositions": {
+        "emitted_certified": 562,
+        "emitted_unscorable": 3,
+        "no_prefix_bbo": 0,
+        "phase_closed_before_timer": 20
+      },
+      "emitted_unscorable_cells": [
+        "SI/20220829/1/1661756400",
+        "SI/20221003/2/1664791200",
+        "SI/20230327/1/1679893200"
+      ],
+      "multiple_truth_quality_key_cells": 0,
+      "post_timer_formation_count": 54458,
+      "roster_size_count": 585,
+      "roster_size_max": 63,
+      "roster_size_mean": 7.218803418803419,
+      "roster_size_min": 1,
+      "roster_size_total": 4223,
+      "scheduled_cells": 585
+    }
+  },
+  "dollar_line_reads": 1,
+  "emitted_unscorable_cells": [
+    "HG/20240426/0/1714082400",
+    "SI/20220829/1/1661756400",
+    "SI/20221003/2/1664791200",
+    "SI/20230327/1/1679893200"
+  ],
+  "engine_writes": 0,
+  "event_pack_opens_per_shard": 1,
+  "exit_overlay_started": false,
+  "expected_wall_seconds": 2400.0,
+  "fit_started": false,
+  "judge_started": false,
+  "late_label_shard_opens": 0,
+  "licensed_changed_paths": [
+    ".audit/score_threshold_b4_common_clock.py",
+    ".audit/threshold-b4-common-clock.json"
+  ],
+  "locked_asset_days": {
+    "HG": 197,
+    "NKD": 194,
+    "SI": 191
+  },
+  "passes_over_raw_candidate_event_set": 1,
+  "phase_close_conversion": "int(phase_close_utc)*1000000000",
+  "phase_instance_census": {
+    "expected": {
+      "collision_cells": 52,
+      "collision_cells_by_asset": {
+        "HG": 22,
+        "NKD": 10,
+        "SI": 20
+      },
+      "collision_phases": {
+        "0": 52
+      },
+      "extra_clear_rows": 112,
+      "extra_instance_close_seconds_of_day": [
+        79200
+      ],
+      "extra_instance_decisions_at_or_before_anchor_close_plus_age": 0,
+      "extra_instance_durations_seconds": [
+        1800
+      ],
+      "instances_per_collision": [
+        2
+      ],
+      "sliver_cells": 52,
+      "sliver_phase_closed_before_timer": 52
+    },
+    "observed": {
+      "cell_identity": "asset,d8,phase,phase_open_utc",
+      "collision_cells": 52,
+      "collision_cells_by_asset": {
+        "HG": 22,
+        "NKD": 10,
+        "SI": 20
+      },
+      "collision_phases": {
+        "0": 52
+      },
+      "extra_clear_rows": 112,
+      "extra_instance_close_seconds_of_day": [
+        79200
+      ],
+      "extra_instance_decisions_at_or_before_anchor_close_plus_age": 0,
+      "extra_instance_durations_seconds": [
+        1800
+      ],
+      "instances_per_collision": [
+        2
+      ],
+      "locked_asset_days": 582,
+      "max_instances_per_ordinal": 2,
+      "sliver_cells": 52,
+      "sliver_phase_closed_before_timer": 52
+    },
+    "status": "PASS"
+  },
+  "pre_pass_evidence": {
+    "engine_tree": {
+      "changed_paths": [
+        ".audit/score_threshold_b4_common_clock.py",
+        ".audit/threshold-b4-common-clock.json"
+      ],
+      "end_sha256": "98b4d2eff5af2dc1575d4717cbd0563822f3b6c4e9fd57d317d91fcf4526ff2e",
+      "reconstructed_start_sha256": "98b4d2eff5af2dc1575d4717cbd0563822f3b6c4e9fd57d317d91fcf4526ff2e",
+      "start_sha256": "98b4d2eff5af2dc1575d4717cbd0563822f3b6c4e9fd57d317d91fcf4526ff2e"
+    },
+    "expected_wall_seconds": 2400.0,
+    "learned_block_compatibility": {
+      "byte_identical_evidence": true,
+      "evidence_sha256_after": "6646e5e9cb9c5185b37e58e95105510c10804dcc332e8ab23352bf5097716e3c",
+      "evidence_sha256_before": "6646e5e9cb9c5185b37e58e95105510c10804dcc332e8ab23352bf5097716e3c",
+      "file_sha256": "ce3662c22247bfc988d87a24154b6c2d703a4aa52bd8d69dfb59f9186a7e4f72",
+      "path": "artifacts/entry_v2/tabular_recovery/rehearsal/fit_only/e1r/evaluation/E1R_raw_THRESHOLD/real/seed_20260820/raw_block.json",
+      "receipt_sha256": "7aacd05aa0daf1602eaea0178b0517e58f41983abcbe19af4666f3c00c477eea",
+      "status": "PASS"
+    },
+    "locked_jobs": 582,
+    "preconditions": {
+      "b0_stage0_receipt_sha256": "9513201ddac141b14b6fd990e57eb2176484da4dd5b7090454a88640570dafcb",
+      "b0_stage1_receipt_sha256": "a7d4dc99d30749814976dec4224540786d11ce2b73532c9045d210595742bd7e",
+      "b2_age_2400": {
+        "HG": {
+          "max_drawdown_usd": 905.0,
+          "usd_per_asset_day": 2171.738578680203
+        },
+        "NKD": {
+          "max_drawdown_usd": 967.5,
+          "usd_per_asset_day": 2700.3994845360826
+        },
+        "SI": {
+          "max_drawdown_usd": 967.5,
+          "usd_per_asset_day": 2987.0549738219897
+        }
+      },
+      "b2_judge_sha256": "a7e2b64a698e113467399523a90bd932a1cc12eee9671704191c58de0194952d",
+      "b2_receipt_sha256": "0b4e14f6fc01d5feae089cf4d7e86a9050bb6f5313902fc21d3756c27cc18def",
+      "b3_stop_judge_sha256": "b37d336855bb7a1229d38d3f12411e7d0c6cdeeeb43ef9c79870f2047265535d",
+      "b3_stop_receipt_sha256": "36d6293177c7629d8b5ac1f0b2106cffebaf0a8a0627698d2a046fe64c65d48c",
+      "projection": {
+        "b3_wall_seconds": 1134.5472412090749,
+        "completed_hg_days": 79,
+        "expected_seconds": 2400.0,
+        "measured_source": "B3_STOP_HG_POSITION_79_OF_197",
+        "projected_seconds": 2829.1874242808576,
+        "status": "PASS",
+        "total_hg_days": 197,
+        "tripwire_seconds": 7200.0,
+        "worker_budget": 13,
+        "workers_by_asset": {
+          "HG": 5,
+          "NKD": 4,
+          "SI": 4
+        }
+      },
+      "status": "PASS"
+    },
+    "protected_trees_before": {
+      "candidate_receipts": {
+        "bytes": 8917291,
+        "files": 8198,
+        "metadata_sha256": "e6b0b68d0e63cfb179aa4ddab44720da99b5c5309c4a295a8454c12839191494"
+      },
+      "candidates": {
+        "bytes": 593053587,
+        "files": 4096,
+        "metadata_sha256": "c8b8a52610c64e06d4fe0bf449079decba08dfb4bbd8a71adc64c312eb13e7f9"
+      },
+      "events": {
+        "bytes": 109929974532,
+        "files": 8096,
+        "metadata_sha256": "d07f0075e8103798171063b353b735dd7329be1a4c8ca0cf5fb61dfbb5ed99ae"
+      },
+      "pivot": {
+        "bytes": 152838555,
+        "files": 3631,
+        "metadata_sha256": "3abe081496156770768b03f190bdbd972da7596b836e8cef52c7cc1335b7c4ba"
+      },
+      "teacher": {
+        "bytes": 170848932,
+        "files": 4096,
+        "metadata_sha256": "51c2677ecb9909450763e5df80a4192b6533810b54d62b1f8e63a41b8999f649"
+      }
+    },
+    "red_first": {
+      "baseline_exit_code": 0,
+      "era_bytes_read": 0,
+      "mutants": {
+        "census_binding": {
+          "exit_code": 1,
+          "last_line": "AssertionError: synthetic census mismatch was accepted",
+          "status": "RED"
+        },
+        "event_at_decision_visible": {
+          "exit_code": 1,
+          "last_line": "B4Stop: raw prefix cutoff admitted an event at the decision",
+          "status": "RED"
+        },
+        "future_candidate_in_roster": {
+          "exit_code": 1,
+          "last_line": "B4Stop: formed roster contains a future candidate",
+          "status": "RED"
+        },
+        "instance_cap": {
+          "exit_code": 1,
+          "last_line": "AssertionError: synthetic phase ordinal accepted three instances",
+          "status": "RED"
+        },
+        "mdd_boundary_inclusive": {
+          "exit_code": 1,
+          "last_line": "AssertionError: synthetic strict block boundary guard failed",
+          "status": "RED"
+        },
+        "outcome_changes_selection": {
+          "exit_code": 1,
+          "last_line": "B4Stop: outcome construction changed selection",
+          "status": "RED"
+        },
+        "per_candidate_snapshot_reprice": {
+          "exit_code": 1,
+          "last_line": "B4Stop: common-clock roster used candidate-specific quotes",
+          "status": "RED"
+        },
+        "policy_block_dollars_ignored": {
+          "exit_code": 1,
+          "last_line": "AssertionError: synthetic strict block boundary guard failed",
+          "status": "RED"
+        },
+        "policy_cap_ignored": {
+          "exit_code": 1,
+          "last_line": "AssertionError: synthetic strict block boundary guard failed",
+          "status": "RED"
+        },
+        "policy_overlap_ignored": {
+          "exit_code": 1,
+          "last_line": "AssertionError: synthetic strict block boundary guard failed",
+          "status": "RED"
+        },
+        "ready_filters_roster": {
+          "exit_code": 1,
+          "last_line": "B4Stop: formation parser exposes a late-label or outcome field",
+          "status": "RED"
+        },
+        "repeat_phase_opportunity": {
+          "exit_code": 1,
+          "last_line": "B4Stop: one cell emitted more than one opportunity",
+          "status": "RED"
+        },
+        "schema_alias_without_frozen_source": {
+          "exit_code": 1,
+          "last_line": "B4Stop: deterministic block used learned-looking lineage",
+          "status": "RED"
+        }
+      },
+      "status": "PASS"
+    },
+    "selftest": {
+      "checks": [
+        "future_candidate_in_roster",
+        "event_at_decision_visible",
+        "per_candidate_snapshot_reprice",
+        "ready_filters_roster",
+        "outcome_changes_selection",
+        "repeat_phase_opportunity",
+        "census_binding",
+        "instance_cap",
+        "schema_alias_without_frozen_source",
+        "policy_block_dollars_ignored",
+        "mdd_boundary_inclusive",
+        "policy_cap_ignored",
+        "policy_overlap_ignored"
+      ],
+      "era_bytes_read": 0,
+      "mutant": null,
+      "status": "PASS"
+    },
+    "sources": {
+      ".audit/assert_threshold_replay_receipt.py": "3efb390557395a87d9a86346599855f2cf7407a0907e87d29b5f3a536783cb2c",
+      ".audit/briefs/threshold-b2-price-picker-judge-out.md": "a7e2b64a698e113467399523a90bd932a1cc12eee9671704191c58de0194952d",
+      ".audit/briefs/threshold-b3-common-clock-judge-out.md": "b37d336855bb7a1229d38d3f12411e7d0c6cdeeeb43ef9c79870f2047265535d",
+      ".audit/briefs/threshold-b4-common-clock.md": "82077d155c49dc1bb128aa027afb9ac4c0b64617d7b086d51a23d9f43d7275e7",
+      ".audit/briefs/threshold-covering-after-b2-sol-out.md": "cd2a24a1aea61a955e0877b0be5d25cca54c0d1a3e78f2995f34f7af175e3918",
+      ".audit/briefs/threshold-covering-after-b3-fable-out.md": "30ea08780082696bcc82f3c38c099ad3169bb541e73d43d096fb9ff0f6950800",
+      ".audit/briefs/threshold-covering-after-v0-stop-fable-out.md": "4c6733a60d1a22083131c25ae2f5b0a80851ec5d2b77fb36eef0302ce1b15aa9",
+      ".audit/score_threshold_b3_common_clock.py": "e881a6765a2673de392b66593fd762507955e2916472b8c36922d8b4daffdc9f",
+      ".audit/score_threshold_b4_common_clock.py": "d07781692cca7d3535b3401bb49b195fa2f205a5a6c4491389722c5331c42ab4",
+      ".audit/threshold-b0-stage0.json": "9513201ddac141b14b6fd990e57eb2176484da4dd5b7090454a88640570dafcb",
+      ".audit/threshold-b0-stage1.json": "a7d4dc99d30749814976dec4224540786d11ce2b73532c9045d210595742bd7e",
+      ".audit/threshold-b2-price-picker.json": "0b4e14f6fc01d5feae089cf4d7e86a9050bb6f5313902fc21d3756c27cc18def",
+      ".audit/threshold-b3-common-clock.json": "36d6293177c7629d8b5ac1f0b2106cffebaf0a8a0627698d2a046fe64c65d48c",
+      "engine/entry_v2/confirmation_index.py": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+      "engine/entry_v2/late_teacher.py": "0b9d7ca0098ec05bae5f5aeb7ced486535c2be7b3388dc8ca7a4cce5478657a7",
+      "engine/entry_v2/replay.py": "ebf803a7217a11f3aad3602945ba1546394d5438949dfb52ed577295f452b08e",
+      "engine/entry_v2/tabular_evaluation_policy.py": "e3711af592fd9f44fb50b86c7bddf9da98471248304ec574fa7d8718fa40caab",
+      "engine/entry_v2/tabular_live_replay.py": "2de00ed3e836dc7aabba5dd4e96263294902c5e60dc5a6e3201fc0403a46b6c7"
+    },
+    "tripwire_seconds": 7200.0,
+    "worker_budget": 13,
+    "workers_by_asset": {
+      "HG": 5,
+      "NKD": 4,
+      "SI": 4
+    }
+  },
+  "scheduled_closes_per_cell": 1,
+  "schema": "QRE2THRESHOLDB4COMMONCLOCK1",
+  "status": "STOP",
+  "stop_reason": "emitted opportunity lacks a certifiable raw suffix",
+  "stored_teacher_opens": 0,
+  "timer_anchor": "ceil_second(first_formation)+2400*1000000000",
+  "touched_2025": false,
+  "tripwire_seconds": 7200.0,
+  "unit": "B4_COMMON_CLOCK_2400",
+  "verdict": "STOP",
+  "wall_clock_seconds": 2395.543310681358,
+  "wall_seconds_raw_pass": 2129.4103302918375,
+  "worker_budget": 13,
+  "workers_by_asset": {
+    "HG": 5,
+    "NKD": 4,
+    "SI": 4
+  },
+  "year_2021_started": false
+}

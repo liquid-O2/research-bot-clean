@@ -1,0 +1,3926 @@
+{
+  "assets": [
+    "HG",
+    "NKD",
+    "SI"
+  ],
+  "attrition": {
+    "HG": {
+      "entered": {
+        "S1_ARRIVAL": 7893,
+        "S2_ABSORPTION": 7893,
+        "S3_TRANSFER": 7755,
+        "S4_HOLD": 5214,
+        "S5_ENTRY": 2080
+      },
+      "lane": {
+        "fast": 937,
+        "slow": 1143
+      },
+      "miss": {
+        "cell_already_entered": 0,
+        "no_candidate": 0,
+        "no_candidate_in_depth": 1,
+        "opposite_extreme_cancelled": 39,
+        "stratum_unscored": 0,
+        "under_1800s_remaining": 0,
+        "wait_limit": 44
+      },
+      "survivors": {
+        "S1_ARRIVAL": 7893,
+        "S2_ABSORPTION": 7755,
+        "S3_TRANSFER": 5214,
+        "S4_HOLD": 2080,
+        "S5_ENTRY": 0
+      },
+      "veto": {
+        "S2_no_absorption": 29,
+        "S2_run_continues": 109,
+        "S3_new_extreme": 2353,
+        "S3_no_transfer": 188,
+        "S4_new_extreme": 91,
+        "S4_zone_reentry": 3043
+      }
+    },
+    "NKD": {
+      "entered": {
+        "S1_ARRIVAL": 8177,
+        "S2_ABSORPTION": 8177,
+        "S3_TRANSFER": 7996,
+        "S4_HOLD": 5622,
+        "S5_ENTRY": 2105
+      },
+      "lane": {
+        "fast": 1189,
+        "slow": 916
+      },
+      "miss": {
+        "cell_already_entered": 0,
+        "no_candidate": 0,
+        "no_candidate_in_depth": 10,
+        "opposite_extreme_cancelled": 106,
+        "stratum_unscored": 0,
+        "under_1800s_remaining": 0,
+        "wait_limit": 57
+      },
+      "survivors": {
+        "S1_ARRIVAL": 8177,
+        "S2_ABSORPTION": 7996,
+        "S3_TRANSFER": 5622,
+        "S4_HOLD": 2105,
+        "S5_ENTRY": 0
+      },
+      "veto": {
+        "S2_no_absorption": 35,
+        "S2_run_continues": 146,
+        "S3_new_extreme": 2217,
+        "S3_no_transfer": 157,
+        "S4_new_extreme": 151,
+        "S4_zone_reentry": 3366
+      }
+    },
+    "POOLED": {
+      "entered": {
+        "S1_ARRIVAL": 23879,
+        "S2_ABSORPTION": 23879,
+        "S3_TRANSFER": 23389,
+        "S4_HOLD": 15986,
+        "S5_ENTRY": 6029
+      },
+      "lane": {
+        "fast": 3017,
+        "slow": 3012
+      },
+      "miss": {
+        "cell_already_entered": 0,
+        "no_candidate": 0,
+        "no_candidate_in_depth": 13,
+        "opposite_extreme_cancelled": 187,
+        "stratum_unscored": 0,
+        "under_1800s_remaining": 0,
+        "wait_limit": 154
+      },
+      "survivors": {
+        "S1_ARRIVAL": 23879,
+        "S2_ABSORPTION": 23389,
+        "S3_TRANSFER": 15986,
+        "S4_HOLD": 6029,
+        "S5_ENTRY": 0
+      },
+      "veto": {
+        "S2_no_absorption": 100,
+        "S2_run_continues": 390,
+        "S3_new_extreme": 6869,
+        "S3_no_transfer": 534,
+        "S4_new_extreme": 340,
+        "S4_zone_reentry": 9617
+      }
+    },
+    "SI": {
+      "entered": {
+        "S1_ARRIVAL": 7809,
+        "S2_ABSORPTION": 7809,
+        "S3_TRANSFER": 7638,
+        "S4_HOLD": 5150,
+        "S5_ENTRY": 1844
+      },
+      "lane": {
+        "fast": 891,
+        "slow": 953
+      },
+      "miss": {
+        "cell_already_entered": 0,
+        "no_candidate": 0,
+        "no_candidate_in_depth": 2,
+        "opposite_extreme_cancelled": 42,
+        "stratum_unscored": 0,
+        "under_1800s_remaining": 0,
+        "wait_limit": 53
+      },
+      "survivors": {
+        "S1_ARRIVAL": 7809,
+        "S2_ABSORPTION": 7638,
+        "S3_TRANSFER": 5150,
+        "S4_HOLD": 1844,
+        "S5_ENTRY": 0
+      },
+      "veto": {
+        "S2_no_absorption": 36,
+        "S2_run_continues": 135,
+        "S3_new_extreme": 2299,
+        "S3_no_transfer": 189,
+        "S4_new_extreme": 98,
+        "S4_zone_reentry": 3208
+      }
+    }
+  },
+  "cells": {
+    "HG": 201,
+    "NKD": 195,
+    "SI": 195
+  },
+  "cells_scored": 413,
+  "cells_skipped_no_substrate": {
+    "HG": 3,
+    "NKD": 3,
+    "SI": 3
+  },
+  "cells_unscored_stratum": 178,
+  "code_sha": "1fbd334a2962fbfdd925f2e181ea2f73bff0aadd54f7ee79d9ee4b189505d699",
+  "controls": {
+    "stage_shuffled": {
+      "law": "same S1 arrivals, S2-S4 waived, entry at the first candidate after arrival + 6 bars",
+      "line": "STAGESHUFFLE",
+      "prices": "what the grammar's ORDERING adds beyond arrival detection"
+    },
+    "sweep8_control": {
+      "by_asset": {
+        "HG": {
+          "coverage": 0.9130434782608695,
+          "delay_median_s": -6390.0,
+          "delay_p90_s": 1140.0,
+          "depth_median_atr": 0.03799588470234913,
+          "entries": 126,
+          "mdd_day_usd": 11003.75,
+          "mdd_trade_usd": 11908.75,
+          "post_extension": 0.7777777777777778,
+          "postx1800_entry": 0.4523809523809524,
+          "side_agree": 0.4954128440366973,
+          "soft_hit": 0.9682539682539683,
+          "trades": 126,
+          "usd_per_asset_day": 16.59090909090909,
+          "usd_per_trade": 8.69047619047619,
+          "wall_rate": 0.2222222222222222,
+          "walls": 28,
+          "win_rate": 0.5079365079365079
+        },
+        "NKD": {
+          "coverage": 0.9772727272727273,
+          "delay_median_s": -4860.0,
+          "delay_p90_s": 2040.0,
+          "depth_median_atr": 0.046804446924283254,
+          "entries": 129,
+          "mdd_day_usd": 5270.0,
+          "mdd_trade_usd": 6175.0,
+          "post_extension": 0.7131782945736435,
+          "postx1800_entry": 0.4108527131782946,
+          "side_agree": 0.5818181818181818,
+          "soft_hit": 0.9534883720930233,
+          "trades": 129,
+          "usd_per_asset_day": 286.8076923076923,
+          "usd_per_trade": 144.515503875969,
+          "wall_rate": 0.3023255813953488,
+          "walls": 39,
+          "win_rate": 0.49612403100775193
+        },
+        "SI": {
+          "coverage": 0.946969696969697,
+          "delay_median_s": -8160.0,
+          "delay_p90_s": 996.0000000000005,
+          "depth_median_atr": 0.03333187959311064,
+          "entries": 125,
+          "mdd_day_usd": 9952.5,
+          "mdd_trade_usd": 10072.5,
+          "post_extension": 0.792,
+          "postx1800_entry": 0.456,
+          "side_agree": 0.43636363636363634,
+          "soft_hit": 0.952,
+          "trades": 125,
+          "usd_per_asset_day": 125.78125,
+          "usd_per_trade": 64.4,
+          "wall_rate": 0.36,
+          "walls": 45,
+          "win_rate": 0.384
+        }
+      },
+      "line": "CONTROL",
+      "source": "/workspace/.audit/mill-sweep8.json",
+      "status": "OK"
+    }
+  },
+  "decision": {
+    "by_asset": {
+      "NKD": {
+        "cash_usd_day": -196.80769230769232,
+        "coverage": 0.6717948717948717,
+        "freeze_candidate": false,
+        "interesting": false,
+        "mdd_day_usd": 18917.5,
+        "mdd_trade_usd": 20505.0,
+        "wall_rate": 0.35877862595419846
+      },
+      "SI": {
+        "cash_usd_day": 342.3046875,
+        "coverage": 0.6461538461538462,
+        "freeze_candidate": false,
+        "interesting": false,
+        "mdd_day_usd": 8410.0,
+        "mdd_trade_usd": 8690.0,
+        "wall_rate": 0.3412698412698413
+      }
+    },
+    "fired_bounds": [
+      "NKD cash/day -196.8 < rung 1500",
+      "NKD MDD_day 18918 >= 1000",
+      "NKD MDD_trade 20505 >= 1000",
+      "NKD stress cash -348.2 <= 0",
+      "NKD adjusted null p 1.000 > 0.05",
+      "NKD wall 0.359 > 0.08",
+      "SI cash/day 342.3 < rung 1500",
+      "SI MDD_day 8410 >= 1000",
+      "SI MDD_trade 8690 >= 1000",
+      "SI adjusted null p 0.990 > 0.05",
+      "SI wall 0.341 > 0.08"
+    ],
+    "verdict": "KILL",
+    "worst_stage": {
+      "by_stage": {
+        "S2_ABSORPTION": 490,
+        "S3_TRANSFER": 7403,
+        "S4_HOLD": 9957
+      },
+      "share_of_arrivals": 0.41697726035428617,
+      "stage": "S4_HOLD",
+      "vetoes": 9957
+    }
+  },
+  "explore_days": {
+    "HG": 66,
+    "NKD": 65,
+    "SI": 64
+  },
+  "family": "F8-GRAMMAR",
+  "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+  "parent_trial": "sweep8b-004",
+  "schema": "QRE2MILLSWEEP11",
+  "seed": 20260827,
+  "selection_rule": "none: frozen automaton, pre-registered decision table",
+  "spec": "QRE2MILLSWEEP11\ntier=exploratory; explore-only; can kill, cannot promote.  parent trial\n  sweep8b-004.  Charter: mill-side-resolution.md \"The structural diagnosis:\n  score versus sequence\".  Computation class: ORDERED AUTOMATON.  No weight,\n  no average, no composite score, no swept knob.  Every percentile cutoff\n  below is fixed by the charter text, not selected.\nAUTOMATON, per (cell, side), advancing on completed 60 s bars, FULL RESET of\n  that side on any veto.  Both sides run independent automata.\n  S1 ARRIVAL: the bar is in the side's zone (bar mid within 0.15*ATR14_prev of\n    the running extreme read strictly before the bar) and its attack volume is\n    at or above the (asset, phase) stratum p60, calibrated on strictly-prior\n    EXPLORE days (>= 20 of them).  Opens the setup and RECORDS THE ARRIVAL\n    EXTREME - every later stage measures against that stamped level, not a\n    level that moves under it.\n  S2 ABSORPTION, in bars [arrival, arrival+3]: price yield per unit attack at\n    or below stratum p40, OR a one-sided print at the extreme (|delta|/vol at\n    the touch bar at or above stratum p60).  VETO if a new same-side extreme\n    prints more than 0.075*ATR beyond the arrival extreme (the run is still\n    going).  VETO when the window closes unsatisfied.\n  S3 CONTROL TRANSFER, two lanes, either satisfies.\n    FAST: signed per-minute delta flips TOWARD the fade side within 3 bars of\n      S2 - a sign change whose flipped bar carries |delta| at or above its\n      stratum p40.\n    SLOW: price pulls away from the zone (a bar closing more than 0.075*ATR\n      toward the interior) and then retests the zone WITHOUT setting a new\n      extreme and holds (the retest bar's close back toward the interior).\n    VETO on a new same-side extreme.\n  S4 HOLD: k = 3 completed bars with no new same-side extreme and price not\n    re-entering the zone's outer half (within 0.075*ATR of the arrival\n    extreme).  Any breach VETOES and resets.\n  S5 ENTRY: the first fade-side CLEAR candidate at or after S4 completion\n    whose decision quote sits within 0.15*ATR of the extreme; 15-minute wait\n    limit; at least 1800 s remaining at entry; ONE entry per cell (the first\n    side to complete wins); an opposite-side new extreme cancels a pending\n    entry and RESETS BOTH SIDES.\n  No other parameter exists.  p60/p40 are the charter's, never swept.\nS3-ENTRY VARIANT (priced beside the base, coordinator addition): identical\n  through S3, then entry at the first fade-side CLEAR candidate at or after S3\n  completion under the same depth and time laws.  Trades hold-safety for entry\n  depth inside the same grammar.  Shares stages 1-3 of the attrition table.\nCONTROLS on identical cells: the sweep-8 CONTROL line (receipt numbers imported\n  from .audit/mill-sweep8.json, never retyped), and a STAGE-SHUFFLED control -\n  the same S1 arrivals with S2-S4 waived, entering at the first candidate after\n  arrival + 6 bars.  The shuffle prices exactly what the grammar's ORDERING\n  adds beyond arrival detection.\nMETRICS: the STAGE ATTRITION TABLE is the diagnostic heart - a failure must\n  name its stage.  Plus coverage, lane split, wall rate with Wilson CI,\n  postX_1800 at entry, soft-hit, side agreement vs sign(Delta*) (diagnostic\n  only), delay from the side's true terminal, per-trade cash, cash/day vs\n  rungs, win, MDD both orderings.  Every stage-A and priced table is also cut\n  by calendar year (2022/2023/2024) per asset - diagnostic columns only, no\n  selection on year.\nPRICED BATTERY per deciding asset: engine replay (partial-day label), 2%\n  adversarial stress, block-permutation null (200 draws, seed 20260827,\n  max-stat across all priced lines).\nVARIANT priced only if the base line's MDD is its binding miss: the stand-down\n  cadence overlay - after any wall, no new entries for the remainder of that\n  asset-day plus the next EXPLORE asset-day.\nMUTANT QRE2_MILL_S11_MUTANT=stage_order_ignored checks S2/S3/S4 as unordered\n  conditions over the same window instead of the strict sequence.  It MUST\n  flip a selftest case red: that is the proof the ORDERING, not the stage\n  menu, is what this unit implements.\n",
+  "spec_sha": "e678eb6b5af5198dfded2f3b38e027a93a39205a4982b33afdb0d831976e6dbf",
+  "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+  "stage_a": {
+    "GRAMMAR": {
+      "by_asset": {
+        "HG": {
+          "cash": {
+            "clears_rung": false,
+            "coverage": 0.6666666666666666,
+            "mdd_day_usd": 15953.75,
+            "mdd_trade_usd": 15953.75,
+            "total_usd": -13270.0,
+            "trades": 134,
+            "usd_per_asset_day": -201.06060606060606,
+            "usd_per_trade": -99.02985074626865,
+            "wall_rate": 0.29850746268656714,
+            "walls": 40,
+            "win_rate": 0.44029850746268656
+          },
+          "cells": 201,
+          "coverage": 0.6666666666666666,
+          "delay_median_s": -6180.0,
+          "delay_p90_s": 1920.0,
+          "depth_median_atr": 0.10031128319874194,
+          "entries": 134,
+          "lane_fast": 51,
+          "lane_slow": 83,
+          "post_extreme_openended": {
+            "ci_high": 0.7925362597799643,
+            "ci_low": 0.6427464230451554,
+            "hits": 97,
+            "n": 134,
+            "rate": 0.7238805970149254
+          },
+          "postx1800": {
+            "ci_high": 0.31763151188298544,
+            "ci_low": 0.17453869148770823,
+            "hits": 32,
+            "n": 134,
+            "rate": 0.23880597014925373
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.7925362597799643,
+            "ci_low": 0.6427464230451554,
+            "hits": 97,
+            "n": 134,
+            "rate": 0.7238805970149254
+          },
+          "side_agreement": {
+            "ci_high": 0.5909528090897461,
+            "ci_low": 0.41693104851720253,
+            "hits": 62,
+            "n": 123,
+            "rate": 0.5040650406504065
+          },
+          "soft_hit": {
+            "ci_high": 0.9923572611632616,
+            "ci_low": 0.9362457955303272,
+            "hits": 131,
+            "n": 134,
+            "rate": 0.9776119402985075
+          },
+          "wait_median_s": 0.0
+        },
+        "NKD": {
+          "cash": {
+            "clears_rung": false,
+            "coverage": 0.6717948717948717,
+            "mdd_day_usd": 18917.5,
+            "mdd_trade_usd": 20505.0,
+            "total_usd": -12792.5,
+            "trades": 131,
+            "usd_per_asset_day": -196.80769230769232,
+            "usd_per_trade": -97.6526717557252,
+            "wall_rate": 0.35877862595419846,
+            "walls": 47,
+            "win_rate": 0.40458015267175573
+          },
+          "cells": 195,
+          "coverage": 0.6717948717948717,
+          "delay_median_s": -5250.0,
+          "delay_p90_s": 2280.0,
+          "depth_median_atr": 0.1026917011570303,
+          "entries": 131,
+          "lane_fast": 60,
+          "lane_slow": 71,
+          "post_extreme_openended": {
+            "ci_high": 0.7532186770136112,
+            "ci_low": 0.5953388097642381,
+            "hits": 89,
+            "n": 131,
+            "rate": 0.6793893129770993
+          },
+          "postx1800": {
+            "ci_high": 0.3648783771478582,
+            "ci_low": 0.21240296867475017,
+            "hits": 37,
+            "n": 131,
+            "rate": 0.2824427480916031
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.7532186770136112,
+            "ci_low": 0.5953388097642381,
+            "hits": 89,
+            "n": 131,
+            "rate": 0.6793893129770993
+          },
+          "side_agreement": {
+            "ci_high": 0.6006026411811176,
+            "ci_low": 0.42381908116572403,
+            "hits": 61,
+            "n": 119,
+            "rate": 0.5126050420168067
+          },
+          "soft_hit": {
+            "ci_high": 0.9738778627766858,
+            "ci_low": 0.8938077957979604,
+            "hits": 124,
+            "n": 131,
+            "rate": 0.9465648854961832
+          },
+          "wait_median_s": 0.0
+        },
+        "SI": {
+          "cash": {
+            "clears_rung": false,
+            "coverage": 0.6461538461538462,
+            "mdd_day_usd": 8410.0,
+            "mdd_trade_usd": 8690.0,
+            "total_usd": 21907.5,
+            "trades": 126,
+            "usd_per_asset_day": 342.3046875,
+            "usd_per_trade": 173.86904761904762,
+            "wall_rate": 0.3412698412698413,
+            "walls": 43,
+            "win_rate": 0.42857142857142855
+          },
+          "cells": 195,
+          "coverage": 0.6461538461538462,
+          "delay_median_s": -5460.0,
+          "delay_p90_s": 3552.0,
+          "depth_median_atr": 0.0962382782852769,
+          "entries": 126,
+          "lane_fast": 61,
+          "lane_slow": 65,
+          "post_extreme_openended": {
+            "ci_high": 0.7357228901241758,
+            "ci_low": 0.5723451211513167,
+            "hits": 83,
+            "n": 126,
+            "rate": 0.6587301587301587
+          },
+          "postx1800": {
+            "ci_high": 0.2765097000470162,
+            "ci_low": 0.1381610785295479,
+            "hits": 25,
+            "n": 126,
+            "rate": 0.1984126984126984
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.7357228901241758,
+            "ci_low": 0.5723451211513167,
+            "hits": 83,
+            "n": 126,
+            "rate": 0.6587301587301587
+          },
+          "side_agreement": {
+            "ci_high": 0.6423395192773136,
+            "ci_low": 0.4612503363940854,
+            "hits": 62,
+            "n": 112,
+            "rate": 0.5535714285714286
+          },
+          "soft_hit": {
+            "ci_high": 0.9674794600272171,
+            "ci_low": 0.8797075709803873,
+            "hits": 118,
+            "n": 126,
+            "rate": 0.9365079365079365
+          },
+          "wait_median_s": 0.0
+        }
+      },
+      "by_phase": {
+        "0": {
+          "cells": 209,
+          "coverage": 0.6267942583732058,
+          "delay_median_s": -4020.0,
+          "delay_p90_s": 4332.000000000005,
+          "depth_median_atr": 0.10368508364432974,
+          "entries": 131,
+          "lane_fast": 63,
+          "lane_slow": 68,
+          "post_extreme_openended": {
+            "ci_high": 0.7393005284722439,
+            "ci_low": 0.5795924913457883,
+            "hits": 87,
+            "n": 131,
+            "rate": 0.6641221374045801
+          },
+          "postx1800": {
+            "ci_high": 0.332587798955049,
+            "ci_low": 0.18536461294792542,
+            "hits": 33,
+            "n": 131,
+            "rate": 0.25190839694656486
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.7393005284722439,
+            "ci_low": 0.5795924913457883,
+            "hits": 87,
+            "n": 131,
+            "rate": 0.6641221374045801
+          },
+          "side_agreement": {
+            "ci_high": 0.6281387121747415,
+            "ci_low": 0.4526096906236998,
+            "hits": 65,
+            "n": 120,
+            "rate": 0.5416666666666666
+          },
+          "soft_hit": {
+            "ci_high": 0.9738778627766858,
+            "ci_low": 0.8938077957979604,
+            "hits": 124,
+            "n": 131,
+            "rate": 0.9465648854961832
+          },
+          "wait_median_s": 0.0
+        },
+        "1": {
+          "cells": 191,
+          "coverage": 0.6701570680628273,
+          "delay_median_s": -3240.0,
+          "delay_p90_s": 2532.000000000002,
+          "depth_median_atr": 0.09800310872283464,
+          "entries": 128,
+          "lane_fast": 54,
+          "lane_slow": 74,
+          "post_extreme_openended": {
+            "ci_high": 0.7185326942447414,
+            "ci_low": 0.5545225368033344,
+            "hits": 82,
+            "n": 128,
+            "rate": 0.640625
+          },
+          "postx1800": {
+            "ci_high": 0.33155562952316864,
+            "ci_low": 0.18301284861358558,
+            "hits": 32,
+            "n": 128,
+            "rate": 0.25
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.7185326942447414,
+            "ci_low": 0.5545225368033344,
+            "hits": 82,
+            "n": 128,
+            "rate": 0.640625
+          },
+          "side_agreement": {
+            "ci_high": 0.5966809358674496,
+            "ci_low": 0.4121810551990519,
+            "hits": 55,
+            "n": 109,
+            "rate": 0.5045871559633027
+          },
+          "soft_hit": {
+            "ci_high": 0.9957045502898559,
+            "ci_low": 0.9448190233201829,
+            "hits": 126,
+            "n": 128,
+            "rate": 0.984375
+          },
+          "wait_median_s": 0.0
+        },
+        "2": {
+          "cells": 191,
+          "coverage": 0.6910994764397905,
+          "delay_median_s": -10800.0,
+          "delay_p90_s": 1440.0,
+          "depth_median_atr": 0.09465519339073229,
+          "entries": 132,
+          "lane_fast": 55,
+          "lane_slow": 77,
+          "post_extreme_openended": {
+            "ci_high": 0.8227253736202301,
+            "ci_low": 0.6778581786350323,
+            "hits": 100,
+            "n": 132,
+            "rate": 0.7575757575757576
+          },
+          "postx1800": {
+            "ci_high": 0.29770007814150484,
+            "ci_low": 0.15754723263953324,
+            "hits": 29,
+            "n": 132,
+            "rate": 0.2196969696969697
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8227253736202301,
+            "ci_low": 0.6778581786350323,
+            "hits": 100,
+            "n": 132,
+            "rate": 0.7575757575757576
+          },
+          "side_agreement": {
+            "ci_high": 0.6056723298378032,
+            "ci_low": 0.4331350544138638,
+            "hits": 65,
+            "n": 125,
+            "rate": 0.52
+          },
+          "soft_hit": {
+            "ci_high": 0.9637176651451884,
+            "ci_low": 0.8754959371651043,
+            "hits": 123,
+            "n": 132,
+            "rate": 0.9318181818181818
+          },
+          "wait_median_s": 0.0
+        }
+      },
+      "by_year": {
+        "HG/2022": {
+          "cash": {
+            "explore_days_with_a_trade": 8,
+            "mdd_day_usd": 4432.5,
+            "total_usd": -1538.75,
+            "trades": 24,
+            "usd_per_asset_day": -192.34375,
+            "usd_per_trade": -64.11458333333333,
+            "wall_rate": 0.3333333333333333,
+            "walls": 8,
+            "win_rate": 0.5
+          },
+          "cells": 82,
+          "coverage": 0.2926829268292683,
+          "delay_median_s": -4620.0,
+          "delay_p90_s": 3540.000000000001,
+          "depth_median_atr": 0.09912879515166811,
+          "entries": 24,
+          "lane_fast": 8,
+          "lane_slow": 16,
+          "post_extreme_openended": {
+            "ci_high": 0.8508535180303913,
+            "ci_low": 0.5083230633550337,
+            "hits": 17,
+            "n": 24,
+            "rate": 0.7083333333333334
+          },
+          "postx1800": {
+            "ci_high": 0.49167693664496637,
+            "ci_low": 0.14914648196960875,
+            "hits": 7,
+            "n": 24,
+            "rate": 0.2916666666666667
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8508535180303913,
+            "ci_low": 0.5083230633550337,
+            "hits": 17,
+            "n": 24,
+            "rate": 0.7083333333333334
+          },
+          "side_agreement": {
+            "ci_high": 0.7307970581918668,
+            "ci_low": 0.3465979532073494,
+            "hits": 12,
+            "n": 22,
+            "rate": 0.5454545454545454
+          },
+          "soft_hit": {
+            "ci_high": 1.0,
+            "ci_low": 0.8620237953250198,
+            "hits": 24,
+            "n": 24,
+            "rate": 1.0
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.5329368316186824,
+            "ci_low": 0.1797219032729775,
+            "hits": 8,
+            "n": 24,
+            "rate": 0.3333333333333333
+          }
+        },
+        "HG/2023": {
+          "cash": {
+            "explore_days_with_a_trade": 11,
+            "mdd_day_usd": 3958.75,
+            "total_usd": -3896.25,
+            "trades": 33,
+            "usd_per_asset_day": -354.20454545454544,
+            "usd_per_trade": -118.06818181818181,
+            "wall_rate": 0.30303030303030304,
+            "walls": 10,
+            "win_rate": 0.48484848484848486
+          },
+          "cells": 33,
+          "coverage": 1.0,
+          "delay_median_s": -6120.0,
+          "delay_p90_s": 2076.0000000000005,
+          "depth_median_atr": 0.09140289015813628,
+          "entries": 33,
+          "lane_fast": 13,
+          "lane_slow": 20,
+          "post_extreme_openended": {
+            "ci_high": 0.7781282176475764,
+            "ci_low": 0.466161783022664,
+            "hits": 21,
+            "n": 33,
+            "rate": 0.6363636363636364
+          },
+          "postx1800": {
+            "ci_high": 0.3438823163466992,
+            "ci_low": 0.08610768208940667,
+            "hits": 6,
+            "n": 33,
+            "rate": 0.18181818181818182
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.7781282176475764,
+            "ci_low": 0.466161783022664,
+            "hits": 21,
+            "n": 33,
+            "rate": 0.6363636363636364
+          },
+          "side_agreement": {
+            "ci_high": 0.6418731076553209,
+            "ci_low": 0.2953156998279538,
+            "hits": 13,
+            "n": 28,
+            "rate": 0.4642857142857143
+          },
+          "soft_hit": {
+            "ci_high": 1.0,
+            "ci_low": 0.895730002457548,
+            "hits": 33,
+            "n": 33,
+            "rate": 1.0
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.47338135145800575,
+            "ci_low": 0.17375531424053606,
+            "hits": 10,
+            "n": 33,
+            "rate": 0.30303030303030304
+          }
+        },
+        "HG/2024": {
+          "cash": {
+            "explore_days_with_a_trade": 26,
+            "mdd_day_usd": 10847.5,
+            "total_usd": -7835.0,
+            "trades": 77,
+            "usd_per_asset_day": -301.34615384615387,
+            "usd_per_trade": -101.75324675324676,
+            "wall_rate": 0.2857142857142857,
+            "walls": 22,
+            "win_rate": 0.4025974025974026
+          },
+          "cells": 77,
+          "coverage": 1.0,
+          "delay_median_s": -6240.0,
+          "delay_p90_s": 660.0,
+          "depth_median_atr": 0.10456318361300254,
+          "entries": 77,
+          "lane_fast": 30,
+          "lane_slow": 47,
+          "post_extreme_openended": {
+            "ci_high": 0.8467037990895051,
+            "ci_low": 0.660461714721147,
+            "hits": 59,
+            "n": 77,
+            "rate": 0.7662337662337663
+          },
+          "postx1800": {
+            "ci_high": 0.3535335212745531,
+            "ci_low": 0.1640407460762901,
+            "hits": 19,
+            "n": 77,
+            "rate": 0.24675324675324675
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8467037990895051,
+            "ci_low": 0.660461714721147,
+            "hits": 59,
+            "n": 77,
+            "rate": 0.7662337662337663
+          },
+          "side_agreement": {
+            "ci_high": 0.6182914018771178,
+            "ci_low": 0.39472240623307775,
+            "hits": 37,
+            "n": 73,
+            "rate": 0.5068493150684932
+          },
+          "soft_hit": {
+            "ci_high": 0.986662049959409,
+            "ci_low": 0.8916001812736711,
+            "hits": 74,
+            "n": 77,
+            "rate": 0.961038961038961
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.3948984292440005,
+            "ci_low": 0.1968951815913284,
+            "hits": 22,
+            "n": 77,
+            "rate": 0.2857142857142857
+          }
+        },
+        "NKD/2022": {
+          "cash": {
+            "explore_days_with_a_trade": 7,
+            "mdd_day_usd": 9630.0,
+            "total_usd": -9630.0,
+            "trades": 21,
+            "usd_per_asset_day": -1375.7142857142858,
+            "usd_per_trade": -458.57142857142856,
+            "wall_rate": 0.38095238095238093,
+            "walls": 8,
+            "win_rate": 0.14285714285714285
+          },
+          "cells": 81,
+          "coverage": 0.25925925925925924,
+          "delay_median_s": -5400.0,
+          "delay_p90_s": 900.0,
+          "depth_median_atr": 0.10282137397343152,
+          "entries": 21,
+          "lane_fast": 9,
+          "lane_slow": 12,
+          "post_extreme_openended": {
+            "ci_high": 0.9233243494723822,
+            "ci_low": 0.5999943530979508,
+            "hits": 17,
+            "n": 21,
+            "rate": 0.8095238095238095
+          },
+          "postx1800": {
+            "ci_high": 0.5912134622488425,
+            "ci_low": 0.20751011368564493,
+            "hits": 8,
+            "n": 21,
+            "rate": 0.38095238095238093
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.9233243494723822,
+            "ci_low": 0.5999943530979508,
+            "hits": 17,
+            "n": 21,
+            "rate": 0.8095238095238095
+          },
+          "side_agreement": {
+            "ci_high": 0.613809583977621,
+            "ci_low": 0.2030524657216362,
+            "hits": 7,
+            "n": 18,
+            "rate": 0.3888888888888889
+          },
+          "soft_hit": {
+            "ci_high": 0.9501898750027473,
+            "ci_low": 0.6536393971937906,
+            "hits": 18,
+            "n": 21,
+            "rate": 0.8571428571428571
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.5912134622488425,
+            "ci_low": 0.20751011368564493,
+            "hits": 8,
+            "n": 21,
+            "rate": 0.38095238095238093
+          }
+        },
+        "NKD/2023": {
+          "cash": {
+            "explore_days_with_a_trade": 11,
+            "mdd_day_usd": 1517.5,
+            "total_usd": 2897.5,
+            "trades": 33,
+            "usd_per_asset_day": 263.40909090909093,
+            "usd_per_trade": 87.8030303030303,
+            "wall_rate": 0.15151515151515152,
+            "walls": 5,
+            "win_rate": 0.5151515151515151
+          },
+          "cells": 33,
+          "coverage": 1.0,
+          "delay_median_s": -5310.0,
+          "delay_p90_s": 3684.0000000000014,
+          "depth_median_atr": 0.10296978323342316,
+          "entries": 33,
+          "lane_fast": 14,
+          "lane_slow": 19,
+          "post_extreme_openended": {
+            "ci_high": 0.8024977232077931,
+            "ci_low": 0.4960789442780561,
+            "hits": 22,
+            "n": 33,
+            "rate": 0.6666666666666666
+          },
+          "postx1800": {
+            "ci_high": 0.47338135145800575,
+            "ci_low": 0.17375531424053606,
+            "hits": 10,
+            "n": 33,
+            "rate": 0.30303030303030304
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8024977232077931,
+            "ci_low": 0.4960789442780561,
+            "hits": 22,
+            "n": 33,
+            "rate": 0.6666666666666666
+          },
+          "side_agreement": {
+            "ci_high": 0.6976761109230025,
+            "ci_low": 0.36142299619873297,
+            "hits": 16,
+            "n": 30,
+            "rate": 0.5333333333333333
+          },
+          "soft_hit": {
+            "ci_high": 0.9946305894631283,
+            "ci_low": 0.846812746178811,
+            "hits": 32,
+            "n": 33,
+            "rate": 0.9696969696969697
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.3091987588044212,
+            "ci_low": 0.06650457281607568,
+            "hits": 5,
+            "n": 33,
+            "rate": 0.15151515151515152
+          }
+        },
+        "NKD/2024": {
+          "cash": {
+            "explore_days_with_a_trade": 26,
+            "mdd_day_usd": 13632.5,
+            "total_usd": -6060.0,
+            "trades": 77,
+            "usd_per_asset_day": -233.07692307692307,
+            "usd_per_trade": -78.7012987012987,
+            "wall_rate": 0.44155844155844154,
+            "walls": 34,
+            "win_rate": 0.42857142857142855
+          },
+          "cells": 77,
+          "coverage": 1.0,
+          "delay_median_s": -4860.0,
+          "delay_p90_s": 2340.0,
+          "depth_median_atr": 0.10119037819106942,
+          "entries": 77,
+          "lane_fast": 37,
+          "lane_slow": 40,
+          "post_extreme_openended": {
+            "ci_high": 0.7465132479593756,
+            "ci_low": 0.5379942353978194,
+            "hits": 50,
+            "n": 77,
+            "rate": 0.6493506493506493
+          },
+          "postx1800": {
+            "ci_high": 0.3535335212745531,
+            "ci_low": 0.1640407460762901,
+            "hits": 19,
+            "n": 77,
+            "rate": 0.24675324675324675
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.7465132479593756,
+            "ci_low": 0.5379942353978194,
+            "hits": 50,
+            "n": 77,
+            "rate": 0.6493506493506493
+          },
+          "side_agreement": {
+            "ci_high": 0.6464155215452013,
+            "ci_low": 0.42039236914515843,
+            "hits": 38,
+            "n": 71,
+            "rate": 0.5352112676056338
+          },
+          "soft_hit": {
+            "ci_high": 0.986662049959409,
+            "ci_low": 0.8916001812736711,
+            "hits": 74,
+            "n": 77,
+            "rate": 0.961038961038961
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.5526176384386964,
+            "ci_low": 0.33605334633457495,
+            "hits": 34,
+            "n": 77,
+            "rate": 0.44155844155844154
+          }
+        },
+        "SI/2022": {
+          "cash": {
+            "explore_days_with_a_trade": 7,
+            "mdd_day_usd": 1590.0000000000002,
+            "total_usd": 15420.0,
+            "trades": 21,
+            "usd_per_asset_day": 2202.8571428571427,
+            "usd_per_trade": 734.2857142857143,
+            "wall_rate": 0.23809523809523808,
+            "walls": 5,
+            "win_rate": 0.6190476190476191
+          },
+          "cells": 81,
+          "coverage": 0.25925925925925924,
+          "delay_median_s": -5460.0,
+          "delay_p90_s": 1356.0,
+          "depth_median_atr": 0.09756475270253882,
+          "entries": 21,
+          "lane_fast": 11,
+          "lane_slow": 10,
+          "post_extreme_openended": {
+            "ci_high": 0.7165599389846583,
+            "ci_low": 0.3236953458284443,
+            "hits": 11,
+            "n": 21,
+            "rate": 0.5238095238095238
+          },
+          "postx1800": {
+            "ci_high": 0.2891413907391826,
+            "ci_low": 0.02651876743807452,
+            "hits": 2,
+            "n": 21,
+            "rate": 0.09523809523809523
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.7165599389846583,
+            "ci_low": 0.3236953458284443,
+            "hits": 11,
+            "n": 21,
+            "rate": 0.5238095238095238
+          },
+          "side_agreement": {
+            "ci_high": 0.7924898863143551,
+            "ci_low": 0.4087865377511576,
+            "hits": 13,
+            "n": 21,
+            "rate": 0.6190476190476191
+          },
+          "soft_hit": {
+            "ci_high": 0.9915440121901737,
+            "ci_low": 0.7733063992587743,
+            "hits": 20,
+            "n": 21,
+            "rate": 0.9523809523809523
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.4509117368295075,
+            "ci_low": 0.10628013022636468,
+            "hits": 5,
+            "n": 21,
+            "rate": 0.23809523809523808
+          }
+        },
+        "SI/2023": {
+          "cash": {
+            "explore_days_with_a_trade": 10,
+            "mdd_day_usd": 7562.500000000001,
+            "total_usd": -5707.500000000002,
+            "trades": 29,
+            "usd_per_asset_day": -570.7500000000002,
+            "usd_per_trade": -196.81034482758628,
+            "wall_rate": 0.4482758620689655,
+            "walls": 13,
+            "win_rate": 0.3793103448275862
+          },
+          "cells": 29,
+          "coverage": 1.0,
+          "delay_median_s": -6060.0,
+          "delay_p90_s": 3528.0,
+          "depth_median_atr": 0.09999563877933192,
+          "entries": 29,
+          "lane_fast": 12,
+          "lane_slow": 17,
+          "post_extreme_openended": {
+            "ci_high": 0.8778157755747991,
+            "ci_low": 0.5789239838218867,
+            "hits": 22,
+            "n": 29,
+            "rate": 0.7586206896551724
+          },
+          "postx1800": {
+            "ci_high": 0.42107601617811335,
+            "ci_low": 0.12218422442520088,
+            "hits": 7,
+            "n": 29,
+            "rate": 0.2413793103448276
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8778157755747991,
+            "ci_low": 0.5789239838218867,
+            "hits": 22,
+            "n": 29,
+            "rate": 0.7586206896551724
+          },
+          "side_agreement": {
+            "ci_high": 0.8363940681864375,
+            "ci_low": 0.47318597741042745,
+            "hits": 15,
+            "n": 22,
+            "rate": 0.6818181818181818
+          },
+          "soft_hit": {
+            "ci_high": 1.0,
+            "ci_low": 0.8830302015002593,
+            "hits": 29,
+            "n": 29,
+            "rate": 1.0
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.6245203678902909,
+            "ci_low": 0.28413168023037194,
+            "hits": 13,
+            "n": 29,
+            "rate": 0.4482758620689655
+          }
+        },
+        "SI/2024": {
+          "cash": {
+            "explore_days_with_a_trade": 26,
+            "mdd_day_usd": 3990.000000000001,
+            "total_usd": 12195.0,
+            "trades": 76,
+            "usd_per_asset_day": 469.03846153846155,
+            "usd_per_trade": 160.46052631578948,
+            "wall_rate": 0.32894736842105265,
+            "walls": 25,
+            "win_rate": 0.39473684210526316
+          },
+          "cells": 76,
+          "coverage": 1.0,
+          "delay_median_s": -3840.0,
+          "delay_p90_s": 3594.0,
+          "depth_median_atr": 0.09419148223655736,
+          "entries": 76,
+          "lane_fast": 38,
+          "lane_slow": 38,
+          "post_extreme_openended": {
+            "ci_high": 0.7546367318250531,
+            "ci_low": 0.5459589781543774,
+            "hits": 50,
+            "n": 76,
+            "rate": 0.6578947368421053
+          },
+          "postx1800": {
+            "ci_high": 0.31495639793896757,
+            "ci_low": 0.1339514670987436,
+            "hits": 16,
+            "n": 76,
+            "rate": 0.21052631578947367
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.7546367318250531,
+            "ci_low": 0.5459589781543774,
+            "hits": 50,
+            "n": 76,
+            "rate": 0.6578947368421053
+          },
+          "side_agreement": {
+            "ci_high": 0.6079473243736349,
+            "ci_low": 0.3783242300928733,
+            "hits": 34,
+            "n": 69,
+            "rate": 0.4927536231884058
+          },
+          "soft_hit": {
+            "ci_high": 0.9546659959362239,
+            "ci_low": 0.8218729215106378,
+            "hits": 69,
+            "n": 76,
+            "rate": 0.9078947368421053
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.44056191116412347,
+            "ci_low": 0.23379273635816047,
+            "hits": 25,
+            "n": 76,
+            "rate": 0.32894736842105265
+          }
+        }
+      },
+      "pooled": {
+        "cells": 591,
+        "coverage": 0.6615905245346869,
+        "delay_median_s": -5460.0,
+        "delay_p90_s": 2952.0000000000064,
+        "depth_median_atr": 0.09910690418314752,
+        "entries": 391,
+        "lane_fast": 172,
+        "lane_slow": 219,
+        "post_extreme_openended": {
+          "ci_high": 0.7318872255862364,
+          "ci_low": 0.6404141037601224,
+          "hits": 269,
+          "n": 391,
+          "rate": 0.6879795396419437
+        },
+        "postx1800": {
+          "ci_high": 0.28516083318611096,
+          "ci_low": 0.2007087596212984,
+          "hits": 94,
+          "n": 391,
+          "rate": 0.24040920716112532
+        },
+        "postx_censored": 0,
+        "pre_terminal_fraction": {
+          "ci_high": 0.7318872255862364,
+          "ci_low": 0.6404141037601224,
+          "hits": 269,
+          "n": 391,
+          "rate": 0.6879795396419437
+        },
+        "side_agreement": {
+          "ci_high": 0.5741090260887979,
+          "ci_low": 0.4706035123988602,
+          "hits": 185,
+          "n": 354,
+          "rate": 0.5225988700564972
+        },
+        "soft_hit": {
+          "ci_high": 0.9706845965421939,
+          "ci_low": 0.9284104505187406,
+          "hits": 373,
+          "n": 391,
+          "rate": 0.9539641943734015
+        },
+        "wait_median_s": 0.0
+      }
+    },
+    "GRAMMAR-S3": {
+      "by_asset": {
+        "HG": {
+          "cash": {
+            "clears_rung": false,
+            "coverage": 0.6716417910447762,
+            "mdd_day_usd": 13768.75,
+            "mdd_trade_usd": 14116.25,
+            "total_usd": -8937.5,
+            "trades": 135,
+            "usd_per_asset_day": -135.41666666666666,
+            "usd_per_trade": -66.20370370370371,
+            "wall_rate": 0.25925925925925924,
+            "walls": 35,
+            "win_rate": 0.45925925925925926
+          },
+          "cells": 201,
+          "coverage": 0.6716417910447762,
+          "delay_median_s": -7920.0,
+          "delay_p90_s": 420.0,
+          "depth_median_atr": 0.06867222419245987,
+          "entries": 135,
+          "lane_fast": 65,
+          "lane_slow": 70,
+          "post_extreme_openended": {
+            "ci_high": 0.8775236921382976,
+            "ci_low": 0.7490902943392974,
+            "hits": 111,
+            "n": 135,
+            "rate": 0.8222222222222222
+          },
+          "postx1800": {
+            "ci_high": 0.476845526832575,
+            "ci_low": 0.31428314434156,
+            "hits": 53,
+            "n": 135,
+            "rate": 0.3925925925925926
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8775236921382976,
+            "ci_low": 0.7490902943392974,
+            "hits": 111,
+            "n": 135,
+            "rate": 0.8222222222222222
+          },
+          "side_agreement": {
+            "ci_high": 0.5433143709125176,
+            "ci_low": 0.3699631954110468,
+            "hits": 56,
+            "n": 123,
+            "rate": 0.45528455284552843
+          },
+          "soft_hit": {
+            "ci_high": 0.9840780862263326,
+            "ci_low": 0.9162293656092925,
+            "hits": 130,
+            "n": 135,
+            "rate": 0.9629629629629629
+          },
+          "wait_median_s": 0.0
+        },
+        "NKD": {
+          "cash": {
+            "clears_rung": false,
+            "coverage": 0.676923076923077,
+            "mdd_day_usd": 16352.5,
+            "mdd_trade_usd": 17257.5,
+            "total_usd": -12810.0,
+            "trades": 132,
+            "usd_per_asset_day": -197.07692307692307,
+            "usd_per_trade": -97.04545454545455,
+            "wall_rate": 0.4166666666666667,
+            "walls": 55,
+            "win_rate": 0.4166666666666667
+          },
+          "cells": 195,
+          "coverage": 0.676923076923077,
+          "delay_median_s": -8520.0,
+          "delay_p90_s": 167.99999999999983,
+          "depth_median_atr": 0.046182048955370716,
+          "entries": 132,
+          "lane_fast": 89,
+          "lane_slow": 43,
+          "post_extreme_openended": {
+            "ci_high": 0.8554440077470554,
+            "ci_low": 0.7187547727810396,
+            "hits": 105,
+            "n": 132,
+            "rate": 0.7954545454545454
+          },
+          "postx1800": {
+            "ci_high": 0.5619127698910446,
+            "ci_low": 0.39391809314525594,
+            "hits": 63,
+            "n": 132,
+            "rate": 0.4772727272727273
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8554440077470554,
+            "ci_low": 0.7187547727810396,
+            "hits": 105,
+            "n": 132,
+            "rate": 0.7954545454545454
+          },
+          "side_agreement": {
+            "ci_high": 0.5987478576364939,
+            "ci_low": 0.4182240979045792,
+            "hits": 58,
+            "n": 114,
+            "rate": 0.5087719298245614
+          },
+          "soft_hit": {
+            "ci_high": 0.9637176651451884,
+            "ci_low": 0.8754959371651043,
+            "hits": 123,
+            "n": 132,
+            "rate": 0.9318181818181818
+          },
+          "wait_median_s": 0.0
+        },
+        "SI": {
+          "cash": {
+            "clears_rung": false,
+            "coverage": 0.6615384615384615,
+            "mdd_day_usd": 16482.5,
+            "mdd_trade_usd": 17387.5,
+            "total_usd": 4555.0,
+            "trades": 129,
+            "usd_per_asset_day": 71.171875,
+            "usd_per_trade": 35.310077519379846,
+            "wall_rate": 0.3953488372093023,
+            "walls": 51,
+            "win_rate": 0.3953488372093023
+          },
+          "cells": 195,
+          "coverage": 0.6615384615384615,
+          "delay_median_s": -8580.0,
+          "delay_p90_s": 216.0000000000005,
+          "depth_median_atr": 0.05753793122197681,
+          "entries": 129,
+          "lane_fast": 72,
+          "lane_slow": 57,
+          "post_extreme_openended": {
+            "ci_high": 0.9036355206679834,
+            "ci_low": 0.7813915846337536,
+            "hits": 110,
+            "n": 129,
+            "rate": 0.8527131782945736
+          },
+          "postx1800": {
+            "ci_high": 0.4264287138130363,
+            "ci_low": 0.26493270028178545,
+            "hits": 44,
+            "n": 129,
+            "rate": 0.34108527131782945
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.9036355206679834,
+            "ci_low": 0.7813915846337536,
+            "hits": 110,
+            "n": 129,
+            "rate": 0.8527131782945736
+          },
+          "side_agreement": {
+            "ci_high": 0.6144359495212066,
+            "ci_low": 0.4356301966943292,
+            "hits": 61,
+            "n": 116,
+            "rate": 0.5258620689655172
+          },
+          "soft_hit": {
+            "ci_high": 0.9734690446691078,
+            "ci_low": 0.8922245499429776,
+            "hits": 122,
+            "n": 129,
+            "rate": 0.9457364341085271
+          },
+          "wait_median_s": 0.0
+        }
+      },
+      "by_phase": {
+        "0": {
+          "cells": 209,
+          "coverage": 0.631578947368421,
+          "delay_median_s": -6540.0,
+          "delay_p90_s": 1200.0,
+          "depth_median_atr": 0.06835162497353256,
+          "entries": 132,
+          "lane_fast": 61,
+          "lane_slow": 71,
+          "post_extreme_openended": {
+            "ci_high": 0.8424527673604667,
+            "ci_low": 0.7022999218584951,
+            "hits": 103,
+            "n": 132,
+            "rate": 0.7803030303030303
+          },
+          "postx1800": {
+            "ci_high": 0.4252469099573323,
+            "ci_low": 0.2655691312967705,
+            "hits": 45,
+            "n": 132,
+            "rate": 0.3409090909090909
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8424527673604667,
+            "ci_low": 0.7022999218584951,
+            "hits": 103,
+            "n": 132,
+            "rate": 0.7803030303030303
+          },
+          "side_agreement": {
+            "ci_high": 0.5811616242888545,
+            "ci_low": 0.4021496603059669,
+            "hits": 57,
+            "n": 116,
+            "rate": 0.49137931034482757
+          },
+          "soft_hit": {
+            "ci_high": 0.9637176651451884,
+            "ci_low": 0.8754959371651043,
+            "hits": 123,
+            "n": 132,
+            "rate": 0.9318181818181818
+          },
+          "wait_median_s": 0.0
+        },
+        "1": {
+          "cells": 191,
+          "coverage": 0.6910994764397905,
+          "delay_median_s": -6180.0,
+          "delay_p90_s": 240.0,
+          "depth_median_atr": 0.04993033390237458,
+          "entries": 132,
+          "lane_fast": 89,
+          "lane_slow": 43,
+          "post_extreme_openended": {
+            "ci_high": 0.8746648941318169,
+            "ci_low": 0.7437030233599777,
+            "hits": 108,
+            "n": 132,
+            "rate": 0.8181818181818182
+          },
+          "postx1800": {
+            "ci_high": 0.5544855070063492,
+            "ci_low": 0.38662231037538475,
+            "hits": 62,
+            "n": 132,
+            "rate": 0.4696969696969697
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8746648941318169,
+            "ci_low": 0.7437030233599777,
+            "hits": 108,
+            "n": 132,
+            "rate": 0.8181818181818182
+          },
+          "side_agreement": {
+            "ci_high": 0.5475088067702976,
+            "ci_low": 0.3676314155243377,
+            "hits": 52,
+            "n": 114,
+            "rate": 0.45614035087719296
+          },
+          "soft_hit": {
+            "ci_high": 0.9790036776734188,
+            "ci_low": 0.9043790616005736,
+            "hits": 126,
+            "n": 132,
+            "rate": 0.9545454545454546
+          },
+          "wait_median_s": 0.0
+        },
+        "2": {
+          "cells": 191,
+          "coverage": 0.6910994764397905,
+          "delay_median_s": -14460.0,
+          "delay_p90_s": -2172.0,
+          "depth_median_atr": 0.04934548276879755,
+          "entries": 132,
+          "lane_fast": 76,
+          "lane_slow": 56,
+          "post_extreme_openended": {
+            "ci_high": 0.9180133447579986,
+            "ci_low": 0.8034158923157619,
+            "hits": 115,
+            "n": 132,
+            "rate": 0.8712121212121212
+          },
+          "postx1800": {
+            "ci_high": 0.4867818243200997,
+            "ci_low": 0.32181858217053533,
+            "hits": 53,
+            "n": 132,
+            "rate": 0.4015151515151515
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.9180133447579986,
+            "ci_low": 0.8034158923157619,
+            "hits": 115,
+            "n": 132,
+            "rate": 0.8712121212121212
+          },
+          "side_agreement": {
+            "ci_high": 0.6222648550895681,
+            "ci_low": 0.4486898633729702,
+            "hits": 66,
+            "n": 123,
+            "rate": 0.5365853658536586
+          },
+          "soft_hit": {
+            "ci_high": 0.9790036776734188,
+            "ci_low": 0.9043790616005736,
+            "hits": 126,
+            "n": 132,
+            "rate": 0.9545454545454546
+          },
+          "wait_median_s": 0.0
+        }
+      },
+      "by_year": {
+        "HG/2022": {
+          "cash": {
+            "explore_days_with_a_trade": 8,
+            "mdd_day_usd": 4262.5,
+            "total_usd": -307.5,
+            "trades": 24,
+            "usd_per_asset_day": -38.4375,
+            "usd_per_trade": -12.8125,
+            "wall_rate": 0.20833333333333334,
+            "walls": 5,
+            "win_rate": 0.5833333333333334
+          },
+          "cells": 83,
+          "coverage": 0.2891566265060241,
+          "delay_median_s": -7920.0,
+          "delay_p90_s": 24.00000000000034,
+          "depth_median_atr": 0.06918821605325381,
+          "entries": 24,
+          "lane_fast": 12,
+          "lane_slow": 12,
+          "post_extreme_openended": {
+            "ci_high": 0.9332132367136705,
+            "ci_low": 0.6414692935030095,
+            "hits": 20,
+            "n": 24,
+            "rate": 0.8333333333333334
+          },
+          "postx1800": {
+            "ci_high": 0.5729003755732572,
+            "ci_low": 0.21159367559548778,
+            "hits": 9,
+            "n": 24,
+            "rate": 0.375
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.9332132367136705,
+            "ci_low": 0.6414692935030095,
+            "hits": 20,
+            "n": 24,
+            "rate": 0.8333333333333334
+          },
+          "side_agreement": {
+            "ci_high": 0.7553003107462404,
+            "ci_low": 0.3654655436930671,
+            "hits": 12,
+            "n": 21,
+            "rate": 0.5714285714285714
+          },
+          "soft_hit": {
+            "ci_high": 0.9926065438344942,
+            "ci_low": 0.7975819352134406,
+            "hits": 23,
+            "n": 24,
+            "rate": 0.9583333333333334
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.40470453253188665,
+            "ci_low": 0.09244825352851857,
+            "hits": 5,
+            "n": 24,
+            "rate": 0.20833333333333334
+          }
+        },
+        "HG/2023": {
+          "cash": {
+            "explore_days_with_a_trade": 11,
+            "mdd_day_usd": 5575.0,
+            "total_usd": -5052.5,
+            "trades": 33,
+            "usd_per_asset_day": -459.3181818181818,
+            "usd_per_trade": -153.1060606060606,
+            "wall_rate": 0.36363636363636365,
+            "walls": 12,
+            "win_rate": 0.45454545454545453
+          },
+          "cells": 35,
+          "coverage": 0.9428571428571428,
+          "delay_median_s": -8940.0,
+          "delay_p90_s": 1248.0,
+          "depth_median_atr": 0.0708012867526657,
+          "entries": 33,
+          "lane_fast": 16,
+          "lane_slow": 17,
+          "post_extreme_openended": {
+            "ci_high": 0.8716828662282499,
+            "ci_low": 0.5897538017044264,
+            "hits": 25,
+            "n": 33,
+            "rate": 0.7575757575757576
+          },
+          "postx1800": {
+            "ci_high": 0.5631655918005977,
+            "ci_low": 0.2468310743447709,
+            "hits": 13,
+            "n": 33,
+            "rate": 0.3939393939393939
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8716828662282499,
+            "ci_low": 0.5897538017044264,
+            "hits": 25,
+            "n": 33,
+            "rate": 0.7575757575757576
+          },
+          "side_agreement": {
+            "ci_high": 0.6418731076553209,
+            "ci_low": 0.2953156998279538,
+            "hits": 13,
+            "n": 28,
+            "rate": 0.4642857142857143
+          },
+          "soft_hit": {
+            "ci_high": 1.0,
+            "ci_low": 0.895730002457548,
+            "hits": 33,
+            "n": 33,
+            "rate": 1.0
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.5338382169773361,
+            "ci_low": 0.2218717823524236,
+            "hits": 12,
+            "n": 33,
+            "rate": 0.36363636363636365
+          }
+        },
+        "HG/2024": {
+          "cash": {
+            "explore_days_with_a_trade": 26,
+            "mdd_day_usd": 7986.25,
+            "total_usd": -3577.5,
+            "trades": 78,
+            "usd_per_asset_day": -137.59615384615384,
+            "usd_per_trade": -45.86538461538461,
+            "wall_rate": 0.23076923076923078,
+            "walls": 18,
+            "win_rate": 0.4230769230769231
+          },
+          "cells": 83,
+          "coverage": 0.9397590361445783,
+          "delay_median_s": -7140.0,
+          "delay_p90_s": 180.0,
+          "depth_median_atr": 0.06558398810454119,
+          "entries": 78,
+          "lane_fast": 37,
+          "lane_slow": 41,
+          "post_extreme_openended": {
+            "ci_high": 0.9097449509161288,
+            "ci_low": 0.7500673346677367,
+            "hits": 66,
+            "n": 78,
+            "rate": 0.8461538461538461
+          },
+          "postx1800": {
+            "ci_high": 0.5083814170868827,
+            "ci_low": 0.29611864644382385,
+            "hits": 31,
+            "n": 78,
+            "rate": 0.3974358974358974
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.9097449509161288,
+            "ci_low": 0.7500673346677367,
+            "hits": 66,
+            "n": 78,
+            "rate": 0.8461538461538461
+          },
+          "side_agreement": {
+            "ci_high": 0.5325971554922029,
+            "ci_low": 0.3132433492747786,
+            "hits": 31,
+            "n": 74,
+            "rate": 0.4189189189189189
+          },
+          "soft_hit": {
+            "ci_high": 0.9798789875261039,
+            "ci_low": 0.8754332345270551,
+            "hits": 74,
+            "n": 78,
+            "rate": 0.9487179487179487
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.3355575782628359,
+            "ci_low": 0.15125508850526875,
+            "hits": 18,
+            "n": 78,
+            "rate": 0.23076923076923078
+          }
+        },
+        "NKD/2022": {
+          "cash": {
+            "explore_days_with_a_trade": 7,
+            "mdd_day_usd": 4232.5,
+            "total_usd": -3892.5,
+            "trades": 21,
+            "usd_per_asset_day": -556.0714285714286,
+            "usd_per_trade": -185.35714285714286,
+            "wall_rate": 0.3333333333333333,
+            "walls": 7,
+            "win_rate": 0.38095238095238093
+          },
+          "cells": 81,
+          "coverage": 0.25925925925925924,
+          "delay_median_s": -5280.0,
+          "delay_p90_s": 300.0,
+          "depth_median_atr": 0.05516439891511841,
+          "entries": 21,
+          "lane_fast": 14,
+          "lane_slow": 7,
+          "post_extreme_openended": {
+            "ci_high": 0.8937198697736354,
+            "ci_low": 0.5490882631704924,
+            "hits": 16,
+            "n": 21,
+            "rate": 0.7619047619047619
+          },
+          "postx1800": {
+            "ci_high": 0.6763046541715557,
+            "ci_low": 0.2834400610153417,
+            "hits": 10,
+            "n": 21,
+            "rate": 0.47619047619047616
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8937198697736354,
+            "ci_low": 0.5490882631704924,
+            "hits": 16,
+            "n": 21,
+            "rate": 0.7619047619047619
+          },
+          "side_agreement": {
+            "ci_high": 0.6903676493999558,
+            "ci_low": 0.26165106442409436,
+            "hits": 8,
+            "n": 17,
+            "rate": 0.47058823529411764
+          },
+          "soft_hit": {
+            "ci_high": 0.9501898750027473,
+            "ci_low": 0.6536393971937906,
+            "hits": 18,
+            "n": 21,
+            "rate": 0.8571428571428571
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.5462654802574476,
+            "ci_low": 0.17194752605083477,
+            "hits": 7,
+            "n": 21,
+            "rate": 0.3333333333333333
+          }
+        },
+        "NKD/2023": {
+          "cash": {
+            "explore_days_with_a_trade": 11,
+            "mdd_day_usd": 1405.0,
+            "total_usd": 3897.5,
+            "trades": 33,
+            "usd_per_asset_day": 354.3181818181818,
+            "usd_per_trade": 118.10606060606061,
+            "wall_rate": 0.21212121212121213,
+            "walls": 7,
+            "win_rate": 0.6363636363636364
+          },
+          "cells": 35,
+          "coverage": 0.9428571428571428,
+          "delay_median_s": -6840.0,
+          "delay_p90_s": 191.99999999999994,
+          "depth_median_atr": 0.03770366677975627,
+          "entries": 33,
+          "lane_fast": 24,
+          "lane_slow": 9,
+          "post_extreme_openended": {
+            "ci_high": 0.8716828662282499,
+            "ci_low": 0.5897538017044264,
+            "hits": 25,
+            "n": 33,
+            "rate": 0.7575757575757576
+          },
+          "postx1800": {
+            "ci_high": 0.5631655918005977,
+            "ci_low": 0.2468310743447709,
+            "hits": 13,
+            "n": 33,
+            "rate": 0.3939393939393939
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8716828662282499,
+            "ci_low": 0.5897538017044264,
+            "hits": 25,
+            "n": 33,
+            "rate": 0.7575757575757576
+          },
+          "side_agreement": {
+            "ci_high": 0.8682962543809281,
+            "ci_low": 0.5532142868544692,
+            "hits": 20,
+            "n": 27,
+            "rate": 0.7407407407407407
+          },
+          "soft_hit": {
+            "ci_high": 0.9832191169128082,
+            "ci_low": 0.8039375519135219,
+            "hits": 31,
+            "n": 33,
+            "rate": 0.9393939393939394
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.3775164499215069,
+            "ci_low": 0.10676021533020799,
+            "hits": 7,
+            "n": 33,
+            "rate": 0.21212121212121213
+          }
+        },
+        "NKD/2024": {
+          "cash": {
+            "explore_days_with_a_trade": 26,
+            "mdd_day_usd": 15050.0,
+            "total_usd": -12815.0,
+            "trades": 78,
+            "usd_per_asset_day": -492.88461538461536,
+            "usd_per_trade": -164.2948717948718,
+            "wall_rate": 0.5256410256410257,
+            "walls": 41,
+            "win_rate": 0.3333333333333333
+          },
+          "cells": 79,
+          "coverage": 0.9873417721518988,
+          "delay_median_s": -9720.0,
+          "delay_p90_s": 107.99999999999983,
+          "depth_median_atr": 0.05177525144952244,
+          "entries": 78,
+          "lane_fast": 51,
+          "lane_slow": 27,
+          "post_extreme_openended": {
+            "ci_high": 0.8899608408107412,
+            "ci_low": 0.7209764606558008,
+            "hits": 64,
+            "n": 78,
+            "rate": 0.8205128205128205
+          },
+          "postx1800": {
+            "ci_high": 0.6205104797510615,
+            "ci_low": 0.4039270123076001,
+            "hits": 40,
+            "n": 78,
+            "rate": 0.5128205128205128
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8899608408107412,
+            "ci_low": 0.7209764606558008,
+            "hits": 64,
+            "n": 78,
+            "rate": 0.8205128205128205
+          },
+          "side_agreement": {
+            "ci_high": 0.545221634401498,
+            "ci_low": 0.3193530887999687,
+            "hits": 30,
+            "n": 70,
+            "rate": 0.42857142857142855
+          },
+          "soft_hit": {
+            "ci_high": 0.9798789875261039,
+            "ci_low": 0.8754332345270551,
+            "hits": 74,
+            "n": 78,
+            "rate": 0.9487179487179487
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.6326273302399217,
+            "ci_low": 0.41624765387740176,
+            "hits": 41,
+            "n": 78,
+            "rate": 0.5256410256410257
+          }
+        },
+        "SI/2022": {
+          "cash": {
+            "explore_days_with_a_trade": 7,
+            "mdd_day_usd": 1802.5,
+            "total_usd": 16632.5,
+            "trades": 21,
+            "usd_per_asset_day": 2376.0714285714284,
+            "usd_per_trade": 792.0238095238095,
+            "wall_rate": 0.2857142857142857,
+            "walls": 6,
+            "win_rate": 0.6190476190476191
+          },
+          "cells": 81,
+          "coverage": 0.25925925925925924,
+          "delay_median_s": -7740.0,
+          "delay_p90_s": 360.0,
+          "depth_median_atr": 0.042762664612767134,
+          "entries": 21,
+          "lane_fast": 13,
+          "lane_slow": 8,
+          "post_extreme_openended": {
+            "ci_high": 0.8937198697736354,
+            "ci_low": 0.5490882631704924,
+            "hits": 16,
+            "n": 21,
+            "rate": 0.7619047619047619
+          },
+          "postx1800": {
+            "ci_high": 0.6345344563069328,
+            "ci_low": 0.2446996892537596,
+            "hits": 9,
+            "n": 21,
+            "rate": 0.42857142857142855
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8937198697736354,
+            "ci_low": 0.5490882631704924,
+            "hits": 16,
+            "n": 21,
+            "rate": 0.7619047619047619
+          },
+          "side_agreement": {
+            "ci_high": 0.8937198697736354,
+            "ci_low": 0.5490882631704924,
+            "hits": 16,
+            "n": 21,
+            "rate": 0.7619047619047619
+          },
+          "soft_hit": {
+            "ci_high": 0.9915440121901737,
+            "ci_low": 0.7733063992587743,
+            "hits": 20,
+            "n": 21,
+            "rate": 0.9523809523809523
+          },
+          "wait_median_s": 60.0,
+          "wall_ci": {
+            "ci_high": 0.49956380716085597,
+            "ci_low": 0.1381386295212213,
+            "hits": 6,
+            "n": 21,
+            "rate": 0.2857142857142857
+          }
+        },
+        "SI/2023": {
+          "cash": {
+            "explore_days_with_a_trade": 10,
+            "mdd_day_usd": 4282.5,
+            "total_usd": -100.00000000000034,
+            "trades": 30,
+            "usd_per_asset_day": -10.000000000000034,
+            "usd_per_trade": -3.3333333333333446,
+            "wall_rate": 0.4,
+            "walls": 12,
+            "win_rate": 0.5
+          },
+          "cells": 31,
+          "coverage": 0.967741935483871,
+          "delay_median_s": -8370.0,
+          "delay_p90_s": -1907.9999999999982,
+          "depth_median_atr": 0.0453805309360307,
+          "entries": 30,
+          "lane_fast": 21,
+          "lane_slow": 9,
+          "post_extreme_openended": {
+            "ci_high": 0.9815229762087295,
+            "ci_low": 0.7867654163738308,
+            "hits": 28,
+            "n": 30,
+            "rate": 0.9333333333333333
+          },
+          "postx1800": {
+            "ci_high": 0.5121994835545616,
+            "ci_low": 0.19230498083676134,
+            "hits": 10,
+            "n": 30,
+            "rate": 0.3333333333333333
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.9815229762087295,
+            "ci_low": 0.7867654163738308,
+            "hits": 28,
+            "n": 30,
+            "rate": 0.9333333333333333
+          },
+          "side_agreement": {
+            "ci_high": 0.8508535180303913,
+            "ci_low": 0.5083230633550337,
+            "hits": 17,
+            "n": 24,
+            "rate": 0.7083333333333334
+          },
+          "soft_hit": {
+            "ci_high": 0.9999999999999999,
+            "ci_low": 0.8864866068260312,
+            "hits": 30,
+            "n": 30,
+            "rate": 1.0
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.5767963974667752,
+            "ci_low": 0.24590628116801852,
+            "hits": 12,
+            "n": 30,
+            "rate": 0.4
+          }
+        },
+        "SI/2024": {
+          "cash": {
+            "explore_days_with_a_trade": 26,
+            "mdd_day_usd": 14615.0,
+            "total_usd": -11977.5,
+            "trades": 78,
+            "usd_per_asset_day": -460.6730769230769,
+            "usd_per_trade": -153.55769230769232,
+            "wall_rate": 0.4230769230769231,
+            "walls": 33,
+            "win_rate": 0.2948717948717949
+          },
+          "cells": 82,
+          "coverage": 0.9512195121951219,
+          "delay_median_s": -9480.0,
+          "delay_p90_s": -113.99999999999778,
+          "depth_median_atr": 0.06451777298620737,
+          "entries": 78,
+          "lane_fast": 38,
+          "lane_slow": 40,
+          "post_extreme_openended": {
+            "ci_high": 0.9097449509161288,
+            "ci_low": 0.7500673346677367,
+            "hits": 66,
+            "n": 78,
+            "rate": 0.8461538461538461
+          },
+          "postx1800": {
+            "ci_high": 0.4303934408417395,
+            "ci_low": 0.2274816703369969,
+            "hits": 25,
+            "n": 78,
+            "rate": 0.32051282051282054
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.9097449509161288,
+            "ci_low": 0.7500673346677367,
+            "hits": 66,
+            "n": 78,
+            "rate": 0.8461538461538461
+          },
+          "side_agreement": {
+            "ci_high": 0.5106423150059914,
+            "ci_low": 0.288934012922929,
+            "hits": 28,
+            "n": 71,
+            "rate": 0.39436619718309857
+          },
+          "soft_hit": {
+            "ci_high": 0.9642695359976443,
+            "ci_low": 0.8421677019381915,
+            "hits": 72,
+            "n": 78,
+            "rate": 0.9230769230769231
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.533784444166275,
+            "ci_low": 0.31959060348175483,
+            "hits": 33,
+            "n": 78,
+            "rate": 0.4230769230769231
+          }
+        }
+      },
+      "pooled": {
+        "cells": 591,
+        "coverage": 0.6700507614213198,
+        "delay_median_s": -8400.0,
+        "delay_p90_s": 191.99999999999932,
+        "depth_median_atr": 0.05725703028770433,
+        "entries": 396,
+        "lane_fast": 226,
+        "lane_slow": 170,
+        "post_extreme_openended": {
+          "ci_high": 0.8576465969985541,
+          "ci_low": 0.782607169469423,
+          "hits": 326,
+          "n": 396,
+          "rate": 0.8232323232323232
+        },
+        "postx1800": {
+          "ci_high": 0.453068941362986,
+          "ci_low": 0.3568557217168333,
+          "hits": 160,
+          "n": 396,
+          "rate": 0.40404040404040403
+        },
+        "postx_censored": 0,
+        "pre_terminal_fraction": {
+          "ci_high": 0.8576465969985541,
+          "ci_low": 0.782607169469423,
+          "hits": 326,
+          "n": 396,
+          "rate": 0.8232323232323232
+        },
+        "side_agreement": {
+          "ci_high": 0.5476722668572024,
+          "ci_low": 0.44392063826678585,
+          "hits": 175,
+          "n": 353,
+          "rate": 0.49575070821529743
+        },
+        "soft_hit": {
+          "ci_high": 0.9650564420141055,
+          "ci_low": 0.9202944694298942,
+          "hits": 375,
+          "n": 396,
+          "rate": 0.946969696969697
+        },
+        "wait_median_s": 0.0
+      }
+    },
+    "STAGESHUFFLE": {
+      "by_asset": {
+        "HG": {
+          "cash": {
+            "clears_rung": false,
+            "coverage": 0.6716417910447762,
+            "mdd_day_usd": 7613.75,
+            "mdd_trade_usd": 8518.75,
+            "total_usd": 3012.5,
+            "trades": 135,
+            "usd_per_asset_day": 45.64393939393939,
+            "usd_per_trade": 22.314814814814813,
+            "wall_rate": 0.2518518518518518,
+            "walls": 34,
+            "win_rate": 0.4740740740740741
+          },
+          "cells": 201,
+          "coverage": 0.6716417910447762,
+          "delay_median_s": -6990.0,
+          "delay_p90_s": 234.00000000000034,
+          "depth_median_atr": 0.039635568245865636,
+          "entries": 135,
+          "lane_fast": 0,
+          "lane_slow": 0,
+          "post_extreme_openended": {
+            "ci_high": 0.8959490327560677,
+            "ci_low": 0.7738797114096374,
+            "hits": 114,
+            "n": 135,
+            "rate": 0.8444444444444444
+          },
+          "postx1800": {
+            "ci_high": 0.6011190975052271,
+            "ci_low": 0.4348932005681979,
+            "hits": 70,
+            "n": 135,
+            "rate": 0.5185185185185185
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8959490327560677,
+            "ci_low": 0.7738797114096374,
+            "hits": 114,
+            "n": 135,
+            "rate": 0.8444444444444444
+          },
+          "side_agreement": {
+            "ci_high": 0.6455128802476364,
+            "ci_low": 0.47274498385659425,
+            "hits": 69,
+            "n": 123,
+            "rate": 0.5609756097560976
+          },
+          "soft_hit": {
+            "ci_high": 0.9840780862263326,
+            "ci_low": 0.9162293656092925,
+            "hits": 130,
+            "n": 135,
+            "rate": 0.9629629629629629
+          },
+          "wait_median_s": 0.0
+        },
+        "NKD": {
+          "cash": {
+            "clears_rung": false,
+            "coverage": 0.676923076923077,
+            "mdd_day_usd": 10397.5,
+            "mdd_trade_usd": 11060.0,
+            "total_usd": 3565.0,
+            "trades": 132,
+            "usd_per_asset_day": 54.84615384615385,
+            "usd_per_trade": 27.007575757575758,
+            "wall_rate": 0.36363636363636365,
+            "walls": 48,
+            "win_rate": 0.4090909090909091
+          },
+          "cells": 195,
+          "coverage": 0.676923076923077,
+          "delay_median_s": -8880.0,
+          "delay_p90_s": 282.00000000000017,
+          "depth_median_atr": 0.040104665715939285,
+          "entries": 132,
+          "lane_fast": 0,
+          "lane_slow": 0,
+          "post_extreme_openended": {
+            "ci_high": 0.8489651956838378,
+            "ci_low": 0.7105105391896906,
+            "hits": 104,
+            "n": 132,
+            "rate": 0.7878787878787878
+          },
+          "postx1800": {
+            "ci_high": 0.5840817857782059,
+            "ci_low": 0.41591821422179404,
+            "hits": 66,
+            "n": 132,
+            "rate": 0.5
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8489651956838378,
+            "ci_low": 0.7105105391896906,
+            "hits": 104,
+            "n": 132,
+            "rate": 0.7878787878787878
+          },
+          "side_agreement": {
+            "ci_high": 0.5850068888730391,
+            "ci_low": 0.40671780553433473,
+            "hits": 58,
+            "n": 117,
+            "rate": 0.49572649572649574
+          },
+          "soft_hit": {
+            "ci_high": 0.9583319352142533,
+            "ci_low": 0.8661586214414728,
+            "hits": 122,
+            "n": 132,
+            "rate": 0.9242424242424242
+          },
+          "wait_median_s": 60.0
+        },
+        "SI": {
+          "cash": {
+            "clears_rung": false,
+            "coverage": 0.6615384615384615,
+            "mdd_day_usd": 12220.0,
+            "mdd_trade_usd": 12417.5,
+            "total_usd": 8217.499999999998,
+            "trades": 129,
+            "usd_per_asset_day": 128.39843749999997,
+            "usd_per_trade": 63.70155038759688,
+            "wall_rate": 0.3643410852713178,
+            "walls": 47,
+            "win_rate": 0.4186046511627907
+          },
+          "cells": 195,
+          "coverage": 0.6615384615384615,
+          "delay_median_s": -7860.0,
+          "delay_p90_s": 396.0000000000005,
+          "depth_median_atr": 0.03007961710548755,
+          "entries": 129,
+          "lane_fast": 0,
+          "lane_slow": 0,
+          "post_extreme_openended": {
+            "ci_high": 0.8716692537697368,
+            "ci_low": 0.7380801476526884,
+            "hits": 105,
+            "n": 129,
+            "rate": 0.813953488372093
+          },
+          "postx1800": {
+            "ci_high": 0.5203198494832572,
+            "ci_low": 0.35170805392191284,
+            "hits": 56,
+            "n": 129,
+            "rate": 0.43410852713178294
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8716692537697368,
+            "ci_low": 0.7380801476526884,
+            "hits": 105,
+            "n": 129,
+            "rate": 0.813953488372093
+          },
+          "side_agreement": {
+            "ci_high": 0.5978503396940331,
+            "ci_low": 0.41883837571114535,
+            "hits": 59,
+            "n": 116,
+            "rate": 0.5086206896551724
+          },
+          "soft_hit": {
+            "ci_high": 0.9785114139999394,
+            "ci_low": 0.9022377213880084,
+            "hits": 123,
+            "n": 129,
+            "rate": 0.9534883720930233
+          },
+          "wait_median_s": 0.0
+        }
+      },
+      "by_phase": {
+        "0": {
+          "cells": 209,
+          "coverage": 0.631578947368421,
+          "delay_median_s": -4320.0,
+          "delay_p90_s": 840.0,
+          "depth_median_atr": 0.0528792636893102,
+          "entries": 132,
+          "lane_fast": 0,
+          "lane_slow": 0,
+          "post_extreme_openended": {
+            "ci_high": 0.8293317933609827,
+            "ci_low": 0.6859748045488461,
+            "hits": 101,
+            "n": 132,
+            "rate": 0.7651515151515151
+          },
+          "postx1800": {
+            "ci_high": 0.5320903249800593,
+            "ci_low": 0.364848355437975,
+            "hits": 59,
+            "n": 132,
+            "rate": 0.44696969696969696
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8293317933609827,
+            "ci_low": 0.6859748045488461,
+            "hits": 101,
+            "n": 132,
+            "rate": 0.7651515151515151
+          },
+          "side_agreement": {
+            "ci_high": 0.6051464652729679,
+            "ci_low": 0.4276830825567779,
+            "hits": 61,
+            "n": 118,
+            "rate": 0.5169491525423728
+          },
+          "soft_hit": {
+            "ci_high": 0.9740775827951562,
+            "ci_low": 0.8945821108242697,
+            "hits": 125,
+            "n": 132,
+            "rate": 0.946969696969697
+          },
+          "wait_median_s": 450.0
+        },
+        "1": {
+          "cells": 191,
+          "coverage": 0.6910994764397905,
+          "delay_median_s": -5970.0,
+          "delay_p90_s": 300.0,
+          "depth_median_atr": 0.029788716954135784,
+          "entries": 132,
+          "lane_fast": 0,
+          "lane_slow": 0,
+          "post_extreme_openended": {
+            "ci_high": 0.8809946856780821,
+            "ci_low": 0.7520962774682791,
+            "hits": 109,
+            "n": 132,
+            "rate": 0.8257575757575758
+          },
+          "postx1800": {
+            "ci_high": 0.6279126221787636,
+            "ci_low": 0.4604256517486356,
+            "hits": 72,
+            "n": 132,
+            "rate": 0.5454545454545454
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8809946856780821,
+            "ci_low": 0.7520962774682791,
+            "hits": 109,
+            "n": 132,
+            "rate": 0.8257575757575758
+          },
+          "side_agreement": {
+            "ci_high": 0.5602824064400617,
+            "ci_low": 0.3808155902568531,
+            "hits": 54,
+            "n": 115,
+            "rate": 0.46956521739130436
+          },
+          "soft_hit": {
+            "ci_high": 0.9790036776734188,
+            "ci_low": 0.9043790616005736,
+            "hits": 126,
+            "n": 132,
+            "rate": 0.9545454545454546
+          },
+          "wait_median_s": 0.0
+        },
+        "2": {
+          "cells": 191,
+          "coverage": 0.6910994764397905,
+          "delay_median_s": -15210.0,
+          "delay_p90_s": -737.9999999999998,
+          "depth_median_atr": 0.032179025911534126,
+          "entries": 132,
+          "lane_fast": 0,
+          "lane_slow": 0,
+          "post_extreme_openended": {
+            "ci_high": 0.9058743422979855,
+            "ci_low": 0.7861088034666418,
+            "hits": 113,
+            "n": 132,
+            "rate": 0.8560606060606061
+          },
+          "postx1800": {
+            "ci_high": 0.5470393855109762,
+            "ci_low": 0.3793453862161912,
+            "hits": 61,
+            "n": 132,
+            "rate": 0.4621212121212121
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.9058743422979855,
+            "ci_low": 0.7861088034666418,
+            "hits": 113,
+            "n": 132,
+            "rate": 0.8560606060606061
+          },
+          "side_agreement": {
+            "ci_high": 0.6608977284186497,
+            "ci_low": 0.4888955661133758,
+            "hits": 71,
+            "n": 123,
+            "rate": 0.5772357723577236
+          },
+          "soft_hit": {
+            "ci_high": 0.9689731155299369,
+            "ci_low": 0.8849635324349224,
+            "hits": 124,
+            "n": 132,
+            "rate": 0.9393939393939394
+          },
+          "wait_median_s": 0.0
+        }
+      },
+      "by_year": {
+        "HG/2022": {
+          "cash": {
+            "explore_days_with_a_trade": 8,
+            "mdd_day_usd": 2897.5,
+            "total_usd": 423.75,
+            "trades": 24,
+            "usd_per_asset_day": 52.96875,
+            "usd_per_trade": 17.65625,
+            "wall_rate": 0.2916666666666667,
+            "walls": 7,
+            "win_rate": 0.4583333333333333
+          },
+          "cells": 83,
+          "coverage": 0.2891566265060241,
+          "delay_median_s": -7410.0,
+          "delay_p90_s": -282.0000000000004,
+          "depth_median_atr": 0.025745524172256316,
+          "entries": 24,
+          "lane_fast": 0,
+          "lane_slow": 0,
+          "post_extreme_openended": {
+            "ci_high": 0.9926065438344942,
+            "ci_low": 0.7975819352134406,
+            "hits": 23,
+            "n": 24,
+            "rate": 0.9583333333333334
+          },
+          "postx1800": {
+            "ci_high": 0.7884063244045122,
+            "ci_low": 0.42709962442674276,
+            "hits": 15,
+            "n": 24,
+            "rate": 0.625
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.9926065438344942,
+            "ci_low": 0.7975819352134406,
+            "hits": 23,
+            "n": 24,
+            "rate": 0.9583333333333334
+          },
+          "side_agreement": {
+            "ci_high": 0.7165599389846583,
+            "ci_low": 0.3236953458284443,
+            "hits": 11,
+            "n": 21,
+            "rate": 0.5238095238095238
+          },
+          "soft_hit": {
+            "ci_high": 0.9926065438344942,
+            "ci_low": 0.7975819352134406,
+            "hits": 23,
+            "n": 24,
+            "rate": 0.9583333333333334
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.49167693664496637,
+            "ci_low": 0.14914648196960875,
+            "hits": 7,
+            "n": 24,
+            "rate": 0.2916666666666667
+          }
+        },
+        "HG/2023": {
+          "cash": {
+            "explore_days_with_a_trade": 11,
+            "mdd_day_usd": 3503.75,
+            "total_usd": 3897.5,
+            "trades": 33,
+            "usd_per_asset_day": 354.3181818181818,
+            "usd_per_trade": 118.10606060606061,
+            "wall_rate": 0.24242424242424243,
+            "walls": 8,
+            "win_rate": 0.5454545454545454
+          },
+          "cells": 35,
+          "coverage": 0.9428571428571428,
+          "delay_median_s": -7920.0,
+          "delay_p90_s": 708.0,
+          "depth_median_atr": 0.042986495528404174,
+          "entries": 33,
+          "lane_fast": 0,
+          "lane_slow": 0,
+          "post_extreme_openended": {
+            "ci_high": 0.8262446857594641,
+            "ci_low": 0.5266186485419944,
+            "hits": 23,
+            "n": 33,
+            "rate": 0.696969696969697
+          },
+          "postx1800": {
+            "ci_high": 0.5039210557219438,
+            "ci_low": 0.19750227679220683,
+            "hits": 11,
+            "n": 33,
+            "rate": 0.3333333333333333
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8262446857594641,
+            "ci_low": 0.5266186485419944,
+            "hits": 23,
+            "n": 33,
+            "rate": 0.696969696969697
+          },
+          "side_agreement": {
+            "ci_high": 0.734914528758763,
+            "ci_low": 0.3907078562746876,
+            "hits": 16,
+            "n": 28,
+            "rate": 0.5714285714285714
+          },
+          "soft_hit": {
+            "ci_high": 1.0,
+            "ci_low": 0.895730002457548,
+            "hits": 33,
+            "n": 33,
+            "rate": 1.0
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.4102461982955736,
+            "ci_low": 0.1283171337717501,
+            "hits": 8,
+            "n": 33,
+            "rate": 0.24242424242424243
+          }
+        },
+        "HG/2024": {
+          "cash": {
+            "explore_days_with_a_trade": 26,
+            "mdd_day_usd": 7613.75,
+            "total_usd": -1308.75,
+            "trades": 78,
+            "usd_per_asset_day": -50.33653846153846,
+            "usd_per_trade": -16.778846153846153,
+            "wall_rate": 0.24358974358974358,
+            "walls": 19,
+            "win_rate": 0.44871794871794873
+          },
+          "cells": 83,
+          "coverage": 0.9397590361445783,
+          "delay_median_s": -6600.0,
+          "delay_p90_s": -179.99999999999744,
+          "depth_median_atr": 0.04383544527902012,
+          "entries": 78,
+          "lane_fast": 0,
+          "lane_slow": 0,
+          "post_extreme_openended": {
+            "ci_high": 0.9288467736876552,
+            "ci_low": 0.7798404960135338,
+            "hits": 68,
+            "n": 78,
+            "rate": 0.8717948717948718
+          },
+          "postx1800": {
+            "ci_high": 0.6685675945895508,
+            "ci_low": 0.45361986570375756,
+            "hits": 44,
+            "n": 78,
+            "rate": 0.5641025641025641
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.9288467736876552,
+            "ci_low": 0.7798404960135338,
+            "hits": 68,
+            "n": 78,
+            "rate": 0.8717948717948718
+          },
+          "side_agreement": {
+            "ci_high": 0.6743388134293266,
+            "ci_low": 0.4541274325981889,
+            "hits": 42,
+            "n": 74,
+            "rate": 0.5675675675675675
+          },
+          "soft_hit": {
+            "ci_high": 0.9798789875261039,
+            "ci_low": 0.8754332345270551,
+            "hits": 74,
+            "n": 78,
+            "rate": 0.9487179487179487
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.3493977736900935,
+            "ci_low": 0.16185238513667277,
+            "hits": 19,
+            "n": 78,
+            "rate": 0.24358974358974358
+          }
+        },
+        "NKD/2022": {
+          "cash": {
+            "explore_days_with_a_trade": 7,
+            "mdd_day_usd": 2625.0,
+            "total_usd": -2092.5,
+            "trades": 21,
+            "usd_per_asset_day": -298.92857142857144,
+            "usd_per_trade": -99.64285714285714,
+            "wall_rate": 0.23809523809523808,
+            "walls": 5,
+            "win_rate": 0.38095238095238093
+          },
+          "cells": 81,
+          "coverage": 0.25925925925925924,
+          "delay_median_s": -2820.0,
+          "delay_p90_s": 300.0,
+          "depth_median_atr": 0.0413325512606412,
+          "entries": 21,
+          "lane_fast": 0,
+          "lane_slow": 0,
+          "post_extreme_openended": {
+            "ci_high": 0.8280524739491653,
+            "ci_low": 0.4537345197425524,
+            "hits": 14,
+            "n": 21,
+            "rate": 0.6666666666666666
+          },
+          "postx1800": {
+            "ci_high": 0.6763046541715557,
+            "ci_low": 0.2834400610153417,
+            "hits": 10,
+            "n": 21,
+            "rate": 0.47619047619047616
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8280524739491653,
+            "ci_low": 0.4537345197425524,
+            "hits": 14,
+            "n": 21,
+            "rate": 0.6666666666666666
+          },
+          "side_agreement": {
+            "ci_high": 0.6903676493999558,
+            "ci_low": 0.26165106442409436,
+            "hits": 8,
+            "n": 17,
+            "rate": 0.47058823529411764
+          },
+          "soft_hit": {
+            "ci_high": 0.9501898750027473,
+            "ci_low": 0.6536393971937906,
+            "hits": 18,
+            "n": 21,
+            "rate": 0.8571428571428571
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.4509117368295075,
+            "ci_low": 0.10628013022636468,
+            "hits": 5,
+            "n": 21,
+            "rate": 0.23809523809523808
+          }
+        },
+        "NKD/2023": {
+          "cash": {
+            "explore_days_with_a_trade": 11,
+            "mdd_day_usd": 1442.5,
+            "total_usd": 1397.5,
+            "trades": 33,
+            "usd_per_asset_day": 127.04545454545455,
+            "usd_per_trade": 42.34848484848485,
+            "wall_rate": 0.21212121212121213,
+            "walls": 7,
+            "win_rate": 0.5151515151515151
+          },
+          "cells": 35,
+          "coverage": 0.9428571428571428,
+          "delay_median_s": -7650.0,
+          "delay_p90_s": -575.9999999999989,
+          "depth_median_atr": 0.03416463231468878,
+          "entries": 33,
+          "lane_fast": 0,
+          "lane_slow": 0,
+          "post_extreme_openended": {
+            "ci_high": 0.9138923179105933,
+            "ci_low": 0.6561176836533009,
+            "hits": 27,
+            "n": 33,
+            "rate": 0.8181818181818182
+          },
+          "postx1800": {
+            "ci_high": 0.6201406146378254,
+            "ci_low": 0.29842938513876116,
+            "hits": 15,
+            "n": 33,
+            "rate": 0.45454545454545453
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.9138923179105933,
+            "ci_low": 0.6561176836533009,
+            "hits": 27,
+            "n": 33,
+            "rate": 0.8181818181818182
+          },
+          "side_agreement": {
+            "ci_high": 0.7731197789919015,
+            "ci_low": 0.4400254420598852,
+            "hits": 18,
+            "n": 29,
+            "rate": 0.6206896551724138
+          },
+          "soft_hit": {
+            "ci_high": 0.9832191169128082,
+            "ci_low": 0.8039375519135219,
+            "hits": 31,
+            "n": 33,
+            "rate": 0.9393939393939394
+          },
+          "wait_median_s": 60.0,
+          "wall_ci": {
+            "ci_high": 0.3775164499215069,
+            "ci_low": 0.10676021533020799,
+            "hits": 7,
+            "n": 33,
+            "rate": 0.21212121212121213
+          }
+        },
+        "NKD/2024": {
+          "cash": {
+            "explore_days_with_a_trade": 26,
+            "mdd_day_usd": 9095.0,
+            "total_usd": 4260.0,
+            "trades": 78,
+            "usd_per_asset_day": 163.84615384615384,
+            "usd_per_trade": 54.61538461538461,
+            "wall_rate": 0.46153846153846156,
+            "walls": 36,
+            "win_rate": 0.3717948717948718
+          },
+          "cells": 79,
+          "coverage": 0.9873417721518988,
+          "delay_median_s": -9900.0,
+          "delay_p90_s": 167.99999999999983,
+          "depth_median_atr": 0.04766354447418948,
+          "entries": 78,
+          "lane_fast": 0,
+          "lane_slow": 0,
+          "post_extreme_openended": {
+            "ci_high": 0.8798479365985158,
+            "ci_low": 0.7066518728093648,
+            "hits": 63,
+            "n": 78,
+            "rate": 0.8076923076923077
+          },
+          "postx1800": {
+            "ci_high": 0.6326273302399217,
+            "ci_low": 0.41624765387740176,
+            "hits": 41,
+            "n": 78,
+            "rate": 0.5256410256410257
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8798479365985158,
+            "ci_low": 0.7066518728093648,
+            "hits": 63,
+            "n": 78,
+            "rate": 0.8076923076923077
+          },
+          "side_agreement": {
+            "ci_high": 0.5659893412852551,
+            "ci_low": 0.34047961174824115,
+            "hits": 32,
+            "n": 71,
+            "rate": 0.4507042253521127
+          },
+          "soft_hit": {
+            "ci_high": 0.9723106846262091,
+            "ci_low": 0.8585640453682883,
+            "hits": 73,
+            "n": 78,
+            "rate": 0.9358974358974359
+          },
+          "wait_median_s": 60.0,
+          "wall_ci": {
+            "ci_high": 0.5713635605960243,
+            "ci_low": 0.35532396322799065,
+            "hits": 36,
+            "n": 78,
+            "rate": 0.46153846153846156
+          }
+        },
+        "SI/2022": {
+          "cash": {
+            "explore_days_with_a_trade": 7,
+            "mdd_day_usd": 2740.0,
+            "total_usd": 10482.5,
+            "trades": 21,
+            "usd_per_asset_day": 1497.5,
+            "usd_per_trade": 499.1666666666667,
+            "wall_rate": 0.42857142857142855,
+            "walls": 9,
+            "win_rate": 0.5238095238095238
+          },
+          "cells": 81,
+          "coverage": 0.25925925925925924,
+          "delay_median_s": -8970.0,
+          "delay_p90_s": 366.0000000000001,
+          "depth_median_atr": 0.02287082404226481,
+          "entries": 21,
+          "lane_fast": 0,
+          "lane_slow": 0,
+          "post_extreme_openended": {
+            "ci_high": 0.8937198697736354,
+            "ci_low": 0.5490882631704924,
+            "hits": 16,
+            "n": 21,
+            "rate": 0.7619047619047619
+          },
+          "postx1800": {
+            "ci_high": 0.6763046541715557,
+            "ci_low": 0.2834400610153417,
+            "hits": 10,
+            "n": 21,
+            "rate": 0.47619047619047616
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8937198697736354,
+            "ci_low": 0.5490882631704924,
+            "hits": 16,
+            "n": 21,
+            "rate": 0.7619047619047619
+          },
+          "side_agreement": {
+            "ci_high": 0.8618613704787788,
+            "ci_low": 0.5004361928391441,
+            "hits": 15,
+            "n": 21,
+            "rate": 0.7142857142857143
+          },
+          "soft_hit": {
+            "ci_high": 0.9915440121901737,
+            "ci_low": 0.7733063992587743,
+            "hits": 20,
+            "n": 21,
+            "rate": 0.9523809523809523
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.6345344563069328,
+            "ci_low": 0.2446996892537596,
+            "hits": 9,
+            "n": 21,
+            "rate": 0.42857142857142855
+          }
+        },
+        "SI/2023": {
+          "cash": {
+            "explore_days_with_a_trade": 10,
+            "mdd_day_usd": 8037.5,
+            "total_usd": -8037.5,
+            "trades": 30,
+            "usd_per_asset_day": -803.75,
+            "usd_per_trade": -267.9166666666667,
+            "wall_rate": 0.43333333333333335,
+            "walls": 13,
+            "win_rate": 0.36666666666666664
+          },
+          "cells": 32,
+          "coverage": 0.9375,
+          "delay_median_s": -9510.0,
+          "delay_p90_s": -611.9999999999984,
+          "depth_median_atr": 0.02938814269282791,
+          "entries": 30,
+          "lane_fast": 0,
+          "lane_slow": 0,
+          "post_extreme_openended": {
+            "ci_high": 0.9654001112526658,
+            "ci_low": 0.7437891742081593,
+            "hits": 27,
+            "n": 30,
+            "rate": 0.9
+          },
+          "postx1800": {
+            "ci_high": 0.5767963974667752,
+            "ci_low": 0.24590628116801852,
+            "hits": 12,
+            "n": 30,
+            "rate": 0.4
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.9654001112526658,
+            "ci_low": 0.7437891742081593,
+            "hits": 27,
+            "n": 30,
+            "rate": 0.9
+          },
+          "side_agreement": {
+            "ci_high": 0.6492513464108051,
+            "ci_low": 0.2789133373121099,
+            "hits": 11,
+            "n": 24,
+            "rate": 0.4583333333333333
+          },
+          "soft_hit": {
+            "ci_high": 0.9940914096183874,
+            "ci_low": 0.8332960900859082,
+            "hits": 29,
+            "n": 30,
+            "rate": 0.9666666666666667
+          },
+          "wait_median_s": 180.0,
+          "wall_ci": {
+            "ci_high": 0.6080269299918639,
+            "ci_low": 0.2737748557646652,
+            "hits": 13,
+            "n": 30,
+            "rate": 0.43333333333333335
+          }
+        },
+        "SI/2024": {
+          "cash": {
+            "explore_days_with_a_trade": 26,
+            "mdd_day_usd": 4122.5,
+            "total_usd": 5772.5,
+            "trades": 78,
+            "usd_per_asset_day": 222.01923076923077,
+            "usd_per_trade": 74.00641025641026,
+            "wall_rate": 0.32051282051282054,
+            "walls": 25,
+            "win_rate": 0.41025641025641024
+          },
+          "cells": 82,
+          "coverage": 0.9512195121951219,
+          "delay_median_s": -6360.0,
+          "delay_p90_s": 420.0,
+          "depth_median_atr": 0.03441299781102644,
+          "entries": 78,
+          "lane_fast": 0,
+          "lane_slow": 0,
+          "post_extreme_openended": {
+            "ci_high": 0.8696020478016797,
+            "ci_low": 0.692460269547539,
+            "hits": 62,
+            "n": 78,
+            "rate": 0.7948717948717948
+          },
+          "postx1800": {
+            "ci_high": 0.5463801342962424,
+            "ci_low": 0.33143240541044916,
+            "hits": 34,
+            "n": 78,
+            "rate": 0.4358974358974359
+          },
+          "postx_censored": 0,
+          "pre_terminal_fraction": {
+            "ci_high": 0.8696020478016797,
+            "ci_low": 0.692460269547539,
+            "hits": 62,
+            "n": 78,
+            "rate": 0.7948717948717948
+          },
+          "side_agreement": {
+            "ci_high": 0.5796076308548415,
+            "ci_low": 0.3535844784547986,
+            "hits": 33,
+            "n": 71,
+            "rate": 0.4647887323943662
+          },
+          "soft_hit": {
+            "ci_high": 0.9798789875261039,
+            "ci_low": 0.8754332345270551,
+            "hits": 74,
+            "n": 78,
+            "rate": 0.9487179487179487
+          },
+          "wait_median_s": 0.0,
+          "wall_ci": {
+            "ci_high": 0.4303934408417395,
+            "ci_low": 0.2274816703369969,
+            "hits": 25,
+            "n": 78,
+            "rate": 0.32051282051282054
+          }
+        }
+      },
+      "pooled": {
+        "cells": 591,
+        "coverage": 0.6700507614213198,
+        "delay_median_s": -7740.0,
+        "delay_p90_s": 300.0,
+        "depth_median_atr": 0.03621093651215331,
+        "entries": 396,
+        "lane_fast": 0,
+        "lane_slow": 0,
+        "post_extreme_openended": {
+          "ci_high": 0.8507524144464726,
+          "ci_low": 0.7744954043699113,
+          "hits": 323,
+          "n": 396,
+          "rate": 0.8156565656565656
+        },
+        "postx1800": {
+          "ci_high": 0.5339805746829057,
+          "ci_low": 0.4360075300139079,
+          "hits": 192,
+          "n": 396,
+          "rate": 0.48484848484848486
+        },
+        "postx_censored": 0,
+        "pre_terminal_fraction": {
+          "ci_high": 0.8507524144464726,
+          "ci_low": 0.7744954043699113,
+          "hits": 323,
+          "n": 396,
+          "rate": 0.8156565656565656
+        },
+        "side_agreement": {
+          "ci_high": 0.5738413308318083,
+          "ci_low": 0.4706226952213227,
+          "hits": 186,
+          "n": 356,
+          "rate": 0.5224719101123596
+        },
+        "soft_hit": {
+          "ci_high": 0.9650564420141055,
+          "ci_low": 0.9202944694298942,
+          "hits": 375,
+          "n": 396,
+          "rate": 0.946969696969697
+        },
+        "wait_median_s": 0.0
+      }
+    }
+  },
+  "stage_b": {
+    "cash": {
+      "GRAMMAR": {
+        "HG": {
+          "clears_rung": false,
+          "coverage": 0.6666666666666666,
+          "mdd_day_usd": 15953.75,
+          "mdd_trade_usd": 15953.75,
+          "total_usd": -13270.0,
+          "trades": 134,
+          "usd_per_asset_day": -201.06060606060606,
+          "usd_per_trade": -99.02985074626865,
+          "wall_rate": 0.29850746268656714,
+          "walls": 40,
+          "win_rate": 0.44029850746268656
+        },
+        "NKD": {
+          "clears_rung": false,
+          "coverage": 0.6717948717948717,
+          "mdd_day_usd": 18917.5,
+          "mdd_trade_usd": 20505.0,
+          "total_usd": -12792.5,
+          "trades": 131,
+          "usd_per_asset_day": -196.80769230769232,
+          "usd_per_trade": -97.6526717557252,
+          "wall_rate": 0.35877862595419846,
+          "walls": 47,
+          "win_rate": 0.40458015267175573
+        },
+        "SI": {
+          "clears_rung": false,
+          "coverage": 0.6461538461538462,
+          "mdd_day_usd": 8410.0,
+          "mdd_trade_usd": 8690.0,
+          "total_usd": 21907.5,
+          "trades": 126,
+          "usd_per_asset_day": 342.3046875,
+          "usd_per_trade": 173.86904761904762,
+          "wall_rate": 0.3412698412698413,
+          "walls": 43,
+          "win_rate": 0.42857142857142855
+        }
+      },
+      "GRAMMAR-S3": {
+        "HG": {
+          "clears_rung": false,
+          "coverage": 0.6716417910447762,
+          "mdd_day_usd": 13768.75,
+          "mdd_trade_usd": 14116.25,
+          "total_usd": -8937.5,
+          "trades": 135,
+          "usd_per_asset_day": -135.41666666666666,
+          "usd_per_trade": -66.20370370370371,
+          "wall_rate": 0.25925925925925924,
+          "walls": 35,
+          "win_rate": 0.45925925925925926
+        },
+        "NKD": {
+          "clears_rung": false,
+          "coverage": 0.676923076923077,
+          "mdd_day_usd": 16352.5,
+          "mdd_trade_usd": 17257.5,
+          "total_usd": -12810.0,
+          "trades": 132,
+          "usd_per_asset_day": -197.07692307692307,
+          "usd_per_trade": -97.04545454545455,
+          "wall_rate": 0.4166666666666667,
+          "walls": 55,
+          "win_rate": 0.4166666666666667
+        },
+        "SI": {
+          "clears_rung": false,
+          "coverage": 0.6615384615384615,
+          "mdd_day_usd": 16482.5,
+          "mdd_trade_usd": 17387.5,
+          "total_usd": 4555.0,
+          "trades": 129,
+          "usd_per_asset_day": 71.171875,
+          "usd_per_trade": 35.310077519379846,
+          "wall_rate": 0.3953488372093023,
+          "walls": 51,
+          "win_rate": 0.3953488372093023
+        }
+      },
+      "GRAMMAR-STANDDOWN": {
+        "HG": {
+          "clears_rung": false,
+          "coverage": 0.3283582089552239,
+          "mdd_day_usd": 8516.25,
+          "mdd_trade_usd": 9282.5,
+          "total_usd": -8355.0,
+          "trades": 66,
+          "usd_per_asset_day": -126.5909090909091,
+          "usd_per_trade": -126.5909090909091,
+          "wall_rate": 0.25757575757575757,
+          "walls": 17,
+          "win_rate": 0.45454545454545453
+        },
+        "NKD": {
+          "clears_rung": false,
+          "coverage": 0.26666666666666666,
+          "mdd_day_usd": 7040.0,
+          "mdd_trade_usd": 7722.5,
+          "total_usd": -6022.5,
+          "trades": 52,
+          "usd_per_asset_day": -92.65384615384616,
+          "usd_per_trade": -115.8173076923077,
+          "wall_rate": 0.34615384615384615,
+          "walls": 18,
+          "win_rate": 0.40384615384615385
+        },
+        "SI": {
+          "clears_rung": false,
+          "coverage": 0.27692307692307694,
+          "mdd_day_usd": 9427.5,
+          "mdd_trade_usd": 9675.0,
+          "total_usd": 3492.5,
+          "trades": 54,
+          "usd_per_asset_day": 54.5703125,
+          "usd_per_trade": 64.67592592592592,
+          "wall_rate": 0.35185185185185186,
+          "walls": 19,
+          "win_rate": 0.3888888888888889
+        }
+      },
+      "STAGESHUFFLE": {
+        "HG": {
+          "clears_rung": false,
+          "coverage": 0.6716417910447762,
+          "mdd_day_usd": 7613.75,
+          "mdd_trade_usd": 8518.75,
+          "total_usd": 3012.5,
+          "trades": 135,
+          "usd_per_asset_day": 45.64393939393939,
+          "usd_per_trade": 22.314814814814813,
+          "wall_rate": 0.2518518518518518,
+          "walls": 34,
+          "win_rate": 0.4740740740740741
+        },
+        "NKD": {
+          "clears_rung": false,
+          "coverage": 0.676923076923077,
+          "mdd_day_usd": 10397.5,
+          "mdd_trade_usd": 11060.0,
+          "total_usd": 3565.0,
+          "trades": 132,
+          "usd_per_asset_day": 54.84615384615385,
+          "usd_per_trade": 27.007575757575758,
+          "wall_rate": 0.36363636363636365,
+          "walls": 48,
+          "win_rate": 0.4090909090909091
+        },
+        "SI": {
+          "clears_rung": false,
+          "coverage": 0.6615384615384615,
+          "mdd_day_usd": 12220.0,
+          "mdd_trade_usd": 12417.5,
+          "total_usd": 8217.499999999998,
+          "trades": 129,
+          "usd_per_asset_day": 128.39843749999997,
+          "usd_per_trade": 63.70155038759688,
+          "wall_rate": 0.3643410852713178,
+          "walls": 47,
+          "win_rate": 0.4186046511627907
+        }
+      }
+    },
+    "lines": [
+      "GRAMMAR",
+      "GRAMMAR-S3",
+      "GRAMMAR-STANDDOWN",
+      "STAGESHUFFLE"
+    ],
+    "null": {
+      "by_line": {
+        "HG/GRAMMAR": {
+          "null_asset_mdd_mean_usd": 17038.7,
+          "null_asset_mdd_p05_usd": 13270.0,
+          "null_pooled_mdd_mean_usd": 17038.7,
+          "observed_max_asset_mdd_usd": 15953.75,
+          "observed_pooled_mdd_usd": 15953.75,
+          "p_max_adjusted": 1.0,
+          "p_own": 0.417910447761194,
+          "p_pooled_max_adjusted": 1.0,
+          "p_pooled_own": 0.417910447761194
+        },
+        "HG/GRAMMAR-S3": {
+          "null_asset_mdd_mean_usd": 13474.70625,
+          "null_asset_mdd_p05_usd": 9591.8125,
+          "null_pooled_mdd_mean_usd": 13474.70625,
+          "observed_max_asset_mdd_usd": 13768.75,
+          "observed_pooled_mdd_usd": 13768.75,
+          "p_max_adjusted": 1.0,
+          "p_own": 0.572139303482587,
+          "p_pooled_max_adjusted": 1.0,
+          "p_pooled_own": 0.572139303482587
+        },
+        "HG/GRAMMAR-STANDDOWN": {
+          "null_asset_mdd_mean_usd": 9758.725,
+          "null_asset_mdd_p05_usd": 8355.0,
+          "null_pooled_mdd_mean_usd": 9758.725,
+          "observed_max_asset_mdd_usd": 8516.25,
+          "observed_pooled_mdd_usd": 8516.25,
+          "p_max_adjusted": 1.0,
+          "p_own": 0.22388059701492538,
+          "p_pooled_max_adjusted": 1.0,
+          "p_pooled_own": 0.22388059701492538
+        },
+        "HG/STAGESHUFFLE": {
+          "null_asset_mdd_mean_usd": 8214.36875,
+          "null_asset_mdd_p05_usd": 5177.5,
+          "null_pooled_mdd_mean_usd": 8214.36875,
+          "observed_max_asset_mdd_usd": 7613.75,
+          "observed_pooled_mdd_usd": 7613.75,
+          "p_max_adjusted": 0.9601990049751243,
+          "p_own": 0.472636815920398,
+          "p_pooled_max_adjusted": 0.9601990049751243,
+          "p_pooled_own": 0.472636815920398
+        },
+        "NKD/GRAMMAR": {
+          "null_asset_mdd_mean_usd": 17531.3875,
+          "null_asset_mdd_p05_usd": 13089.625,
+          "null_pooled_mdd_mean_usd": 17531.3875,
+          "observed_max_asset_mdd_usd": 18917.5,
+          "observed_pooled_mdd_usd": 18917.5,
+          "p_max_adjusted": 1.0,
+          "p_own": 0.681592039800995,
+          "p_pooled_max_adjusted": 1.0,
+          "p_pooled_own": 0.681592039800995
+        },
+        "NKD/GRAMMAR-S3": {
+          "null_asset_mdd_mean_usd": 17177.4875,
+          "null_asset_mdd_p05_usd": 12940.0,
+          "null_pooled_mdd_mean_usd": 17177.4875,
+          "observed_max_asset_mdd_usd": 16352.5,
+          "observed_pooled_mdd_usd": 16352.5,
+          "p_max_adjusted": 1.0,
+          "p_own": 0.4129353233830846,
+          "p_pooled_max_adjusted": 1.0,
+          "p_pooled_own": 0.4129353233830846
+        },
+        "NKD/GRAMMAR-STANDDOWN": {
+          "null_asset_mdd_mean_usd": 8320.475,
+          "null_asset_mdd_p05_usd": 6134.0,
+          "null_pooled_mdd_mean_usd": 8320.475,
+          "observed_max_asset_mdd_usd": 7040.0,
+          "observed_pooled_mdd_usd": 7040.0,
+          "p_max_adjusted": 0.9054726368159204,
+          "p_own": 0.20398009950248755,
+          "p_pooled_max_adjusted": 0.9054726368159204,
+          "p_pooled_own": 0.20398009950248755
+        },
+        "NKD/STAGESHUFFLE": {
+          "null_asset_mdd_mean_usd": 10380.575,
+          "null_asset_mdd_p05_usd": 6691.125,
+          "null_pooled_mdd_mean_usd": 10380.575,
+          "observed_max_asset_mdd_usd": 10397.5,
+          "observed_pooled_mdd_usd": 10397.5,
+          "p_max_adjusted": 1.0,
+          "p_own": 0.5572139303482587,
+          "p_pooled_max_adjusted": 1.0,
+          "p_pooled_own": 0.5572139303482587
+        },
+        "SI/GRAMMAR": {
+          "null_asset_mdd_mean_usd": 8109.2,
+          "null_asset_mdd_p05_usd": 5150.125,
+          "null_pooled_mdd_mean_usd": 8109.2,
+          "observed_max_asset_mdd_usd": 8410.0,
+          "observed_pooled_mdd_usd": 8410.0,
+          "p_max_adjusted": 0.9900497512437811,
+          "p_own": 0.6019900497512438,
+          "p_pooled_max_adjusted": 0.9900497512437811,
+          "p_pooled_own": 0.6019900497512438
+        },
+        "SI/GRAMMAR-S3": {
+          "null_asset_mdd_mean_usd": 12902.5875,
+          "null_asset_mdd_p05_usd": 8056.5,
+          "null_pooled_mdd_mean_usd": 12902.5875,
+          "observed_max_asset_mdd_usd": 16482.5,
+          "observed_pooled_mdd_usd": 16482.5,
+          "p_max_adjusted": 1.0,
+          "p_own": 0.8208955223880597,
+          "p_pooled_max_adjusted": 1.0,
+          "p_pooled_own": 0.8208955223880597
+        },
+        "SI/GRAMMAR-STANDDOWN": {
+          "null_asset_mdd_mean_usd": 6466.1625,
+          "null_asset_mdd_p05_usd": 3843.875,
+          "null_pooled_mdd_mean_usd": 6466.1625,
+          "observed_max_asset_mdd_usd": 9427.5,
+          "observed_pooled_mdd_usd": 9427.5,
+          "p_max_adjusted": 1.0,
+          "p_own": 0.9303482587064676,
+          "p_pooled_max_adjusted": 1.0,
+          "p_pooled_own": 0.9303482587064676
+        },
+        "SI/STAGESHUFFLE": {
+          "null_asset_mdd_mean_usd": 9707.85,
+          "null_asset_mdd_p05_usd": 5838.0,
+          "null_pooled_mdd_mean_usd": 9707.85,
+          "observed_max_asset_mdd_usd": 12220.0,
+          "observed_pooled_mdd_usd": 12220.0,
+          "p_max_adjusted": 1.0,
+          "p_own": 0.8208955223880597,
+          "p_pooled_max_adjusted": 1.0,
+          "p_pooled_own": 0.8208955223880597
+        }
+      },
+      "draws": 200,
+      "lines_held_out_empty": [],
+      "seed": 20260827,
+      "statistic": "-asset_day_ordered_mdd and -pooled_day_ordered_mdd",
+      "total_cash_invariant_under_this_null": true
+    },
+    "null_pool": [
+      "HG/GRAMMAR",
+      "HG/GRAMMAR-S3",
+      "HG/GRAMMAR-STANDDOWN",
+      "HG/STAGESHUFFLE",
+      "NKD/GRAMMAR",
+      "NKD/GRAMMAR-S3",
+      "NKD/GRAMMAR-STANDDOWN",
+      "NKD/STAGESHUFFLE",
+      "SI/GRAMMAR",
+      "SI/GRAMMAR-S3",
+      "SI/GRAMMAR-STANDDOWN",
+      "SI/STAGESHUFFLE"
+    ],
+    "replays": {
+      "GRAMMAR": {
+        "arrivals": 391,
+        "asset_days": 195,
+        "by_asset": {
+          "HG": {
+            "asset_days": 66,
+            "max_drawdown_usd": 15953.75,
+            "trades": 134,
+            "usd_per_asset_day": -201.06060606060606,
+            "usd_per_trade": -99.02985074626865
+          },
+          "NKD": {
+            "asset_days": 65,
+            "max_drawdown_usd": 20505.0,
+            "trades": 131,
+            "usd_per_asset_day": -196.80769230769232,
+            "usd_per_trade": -97.6526717557252
+          },
+          "SI": {
+            "asset_days": 64,
+            "max_drawdown_usd": 8690.0,
+            "trades": 126,
+            "usd_per_asset_day": 342.3046875,
+            "usd_per_trade": 173.86904761904762
+          }
+        },
+        "drawdown_breach_rate": 0.29743589743589743,
+        "drawdown_p90_usd": 1810.0000000000002,
+        "label": "partial-day (split breaks portfolio days)",
+        "max_drawdown_usd": 20505.0,
+        "occupancy_or_cap_skips": 0,
+        "skipped_ids": [],
+        "status": "OK",
+        "total_usd": -4155.000000000001,
+        "trades": 391,
+        "usd_per_asset_day": -21.307692307692314,
+        "usd_per_trade": -10.626598465473148,
+        "worst_asset_day_usd": -2715.0
+      },
+      "GRAMMAR-S3": {
+        "arrivals": 396,
+        "asset_days": 195,
+        "by_asset": {
+          "HG": {
+            "asset_days": 66,
+            "max_drawdown_usd": 14116.25,
+            "trades": 135,
+            "usd_per_asset_day": -135.41666666666666,
+            "usd_per_trade": -66.20370370370371
+          },
+          "NKD": {
+            "asset_days": 65,
+            "max_drawdown_usd": 17257.5,
+            "trades": 132,
+            "usd_per_asset_day": -197.07692307692307,
+            "usd_per_trade": -97.04545454545455
+          },
+          "SI": {
+            "asset_days": 64,
+            "max_drawdown_usd": 17387.5,
+            "trades": 129,
+            "usd_per_asset_day": 71.17187499999999,
+            "usd_per_trade": 35.31007751937984
+          }
+        },
+        "drawdown_breach_rate": 0.31794871794871793,
+        "drawdown_p90_usd": 1815.0,
+        "label": "partial-day (split breaks portfolio days)",
+        "max_drawdown_usd": 17387.5,
+        "occupancy_or_cap_skips": 0,
+        "skipped_ids": [],
+        "status": "OK",
+        "total_usd": -17192.5,
+        "trades": 396,
+        "usd_per_asset_day": -88.16666666666667,
+        "usd_per_trade": -43.41540404040404,
+        "worst_asset_day_usd": -3215.0
+      },
+      "GRAMMAR-STANDDOWN": {
+        "arrivals": 172,
+        "asset_days": 195,
+        "by_asset": {
+          "HG": {
+            "asset_days": 66,
+            "max_drawdown_usd": 9282.5,
+            "trades": 66,
+            "usd_per_asset_day": -126.5909090909091,
+            "usd_per_trade": -126.5909090909091
+          },
+          "NKD": {
+            "asset_days": 65,
+            "max_drawdown_usd": 7722.5,
+            "trades": 52,
+            "usd_per_asset_day": -92.65384615384616,
+            "usd_per_trade": -115.8173076923077
+          },
+          "SI": {
+            "asset_days": 64,
+            "max_drawdown_usd": 9675.0,
+            "trades": 54,
+            "usd_per_asset_day": 54.57031249999999,
+            "usd_per_trade": 64.67592592592592
+          }
+        },
+        "drawdown_breach_rate": 0.06666666666666667,
+        "drawdown_p90_usd": 905.0000000000001,
+        "label": "partial-day (split breaks portfolio days)",
+        "max_drawdown_usd": 9675.0,
+        "occupancy_or_cap_skips": 0,
+        "skipped_ids": [],
+        "status": "OK",
+        "total_usd": -10885.0,
+        "trades": 172,
+        "usd_per_asset_day": -55.82051282051282,
+        "usd_per_trade": -63.28488372093023,
+        "worst_asset_day_usd": -1415.0
+      },
+      "STAGESHUFFLE": {
+        "arrivals": 396,
+        "asset_days": 195,
+        "by_asset": {
+          "HG": {
+            "asset_days": 66,
+            "max_drawdown_usd": 8518.75,
+            "trades": 135,
+            "usd_per_asset_day": 45.64393939393939,
+            "usd_per_trade": 22.314814814814813
+          },
+          "NKD": {
+            "asset_days": 65,
+            "max_drawdown_usd": 11060.0,
+            "trades": 132,
+            "usd_per_asset_day": 54.84615384615385,
+            "usd_per_trade": 27.007575757575758
+          },
+          "SI": {
+            "asset_days": 64,
+            "max_drawdown_usd": 12417.5,
+            "trades": 129,
+            "usd_per_asset_day": 128.39843749999997,
+            "usd_per_trade": 63.70155038759688
+          }
+        },
+        "drawdown_breach_rate": 0.28717948717948716,
+        "drawdown_p90_usd": 1810.0000000000002,
+        "label": "partial-day (split breaks portfolio days)",
+        "max_drawdown_usd": 12417.5,
+        "occupancy_or_cap_skips": 0,
+        "skipped_ids": [],
+        "status": "OK",
+        "total_usd": 14794.999999999998,
+        "trades": 396,
+        "usd_per_asset_day": 75.87179487179486,
+        "usd_per_trade": 37.36111111111111,
+        "worst_asset_day_usd": -2740.0000000000005
+      }
+    },
+    "standdown_reason": "base MDD is the binding miss on a deciding asset",
+    "standdown_variant_priced": true,
+    "stress": {
+      "GRAMMAR": {
+        "HG": {
+          "clears_rung": false,
+          "coverage": 0.6666666666666666,
+          "damage_usd": 9162.5,
+          "flips_applied": 3,
+          "flips_available": 107,
+          "flips_requested": 3,
+          "mdd_day_usd": 22432.5,
+          "mdd_trade_usd": 22721.25,
+          "rate": 0.02,
+          "total_usd": -22432.5,
+          "trades": 134,
+          "usd_per_asset_day": -339.8863636363636,
+          "usd_per_trade": -167.40671641791045,
+          "wall_rate": 0.3208955223880597,
+          "walls": 43,
+          "win_rate": 0.417910447761194
+        },
+        "NKD": {
+          "clears_rung": false,
+          "coverage": 0.6717948717948717,
+          "damage_usd": 9837.5,
+          "flips_applied": 3,
+          "flips_available": 123,
+          "flips_requested": 3,
+          "mdd_day_usd": 26080.0,
+          "mdd_trade_usd": 27667.5,
+          "rate": 0.02,
+          "total_usd": -22630.0,
+          "trades": 131,
+          "usd_per_asset_day": -348.15384615384613,
+          "usd_per_trade": -172.74809160305344,
+          "wall_rate": 0.3816793893129771,
+          "walls": 50,
+          "win_rate": 0.3816793893129771
+        },
+        "SI": {
+          "clears_rung": false,
+          "coverage": 0.6461538461538462,
+          "damage_usd": 17612.5,
+          "flips_applied": 3,
+          "flips_available": 105,
+          "flips_requested": 3,
+          "mdd_day_usd": 8410.0,
+          "mdd_trade_usd": 8690.0,
+          "rate": 0.02,
+          "total_usd": 4294.999999999999,
+          "trades": 126,
+          "usd_per_asset_day": 67.10937499999999,
+          "usd_per_trade": 34.08730158730158,
+          "wall_rate": 0.36507936507936506,
+          "walls": 46,
+          "win_rate": 0.40476190476190477
+        }
+      },
+      "GRAMMAR-S3": {
+        "HG": {
+          "clears_rung": false,
+          "coverage": 0.6716417910447762,
+          "damage_usd": 8287.5,
+          "flips_applied": 3,
+          "flips_available": 77,
+          "flips_requested": 3,
+          "mdd_day_usd": 22056.25,
+          "mdd_trade_usd": 22403.75,
+          "rate": 0.02,
+          "total_usd": -17225.0,
+          "trades": 135,
+          "usd_per_asset_day": -260.9848484848485,
+          "usd_per_trade": -127.5925925925926,
+          "wall_rate": 0.2814814814814815,
+          "walls": 38,
+          "win_rate": 0.43703703703703706
+        },
+        "NKD": {
+          "clears_rung": false,
+          "coverage": 0.676923076923077,
+          "damage_usd": 10525.0,
+          "flips_applied": 3,
+          "flips_available": 94,
+          "flips_requested": 3,
+          "mdd_day_usd": 25570.0,
+          "mdd_trade_usd": 26475.0,
+          "rate": 0.02,
+          "total_usd": -23335.0,
+          "trades": 132,
+          "usd_per_asset_day": -359.0,
+          "usd_per_trade": -176.78030303030303,
+          "wall_rate": 0.4393939393939394,
+          "walls": 58,
+          "win_rate": 0.3939393939393939
+        },
+        "SI": {
+          "clears_rung": false,
+          "coverage": 0.6615384615384615,
+          "damage_usd": 18025.0,
+          "flips_applied": 3,
+          "flips_available": 66,
+          "flips_requested": 3,
+          "mdd_day_usd": 19005.0,
+          "mdd_trade_usd": 19005.0,
+          "rate": 0.02,
+          "total_usd": -13470.0,
+          "trades": 129,
+          "usd_per_asset_day": -210.46875,
+          "usd_per_trade": -104.4186046511628,
+          "wall_rate": 0.4186046511627907,
+          "walls": 54,
+          "win_rate": 0.37209302325581395
+        }
+      },
+      "GRAMMAR-STANDDOWN": {
+        "HG": {
+          "clears_rung": false,
+          "coverage": 0.3283582089552239,
+          "damage_usd": 2943.75,
+          "flips_applied": 1,
+          "flips_available": 48,
+          "flips_requested": 1,
+          "mdd_day_usd": 11460.0,
+          "mdd_trade_usd": 12226.25,
+          "rate": 0.02,
+          "total_usd": -11298.75,
+          "trades": 66,
+          "usd_per_asset_day": -171.1931818181818,
+          "usd_per_trade": -171.1931818181818,
+          "wall_rate": 0.2727272727272727,
+          "walls": 18,
+          "win_rate": 0.4393939393939394
+        },
+        "NKD": {
+          "clears_rung": false,
+          "coverage": 0.26666666666666666,
+          "damage_usd": 2287.5,
+          "flips_applied": 1,
+          "flips_available": 49,
+          "flips_requested": 1,
+          "mdd_day_usd": 9327.5,
+          "mdd_trade_usd": 10010.0,
+          "rate": 0.02,
+          "total_usd": -8310.0,
+          "trades": 52,
+          "usd_per_asset_day": -127.84615384615384,
+          "usd_per_trade": -159.80769230769232,
+          "wall_rate": 0.36538461538461536,
+          "walls": 19,
+          "win_rate": 0.38461538461538464
+        },
+        "SI": {
+          "clears_rung": false,
+          "coverage": 0.27692307692307694,
+          "damage_usd": 4575.000000000001,
+          "flips_applied": 1,
+          "flips_available": 43,
+          "flips_requested": 1,
+          "mdd_day_usd": 10580.0,
+          "mdd_trade_usd": 10580.0,
+          "rate": 0.02,
+          "total_usd": -1082.5000000000007,
+          "trades": 54,
+          "usd_per_asset_day": -16.91406250000001,
+          "usd_per_trade": -20.04629629629631,
+          "wall_rate": 0.37037037037037035,
+          "walls": 20,
+          "win_rate": 0.37037037037037035
+        }
+      },
+      "STAGESHUFFLE": {
+        "HG": {
+          "clears_rung": false,
+          "coverage": 0.6716417910447762,
+          "damage_usd": 8156.25,
+          "flips_applied": 3,
+          "flips_available": 74,
+          "flips_requested": 3,
+          "mdd_day_usd": 10665.0,
+          "mdd_trade_usd": 11265.0,
+          "rate": 0.02,
+          "total_usd": -5143.75,
+          "trades": 135,
+          "usd_per_asset_day": -77.93560606060606,
+          "usd_per_trade": -38.101851851851855,
+          "wall_rate": 0.2740740740740741,
+          "walls": 37,
+          "win_rate": 0.45185185185185184
+        },
+        "NKD": {
+          "clears_rung": false,
+          "coverage": 0.676923076923077,
+          "damage_usd": 15637.5,
+          "flips_applied": 3,
+          "flips_available": 80,
+          "flips_requested": 3,
+          "mdd_day_usd": 16402.5,
+          "mdd_trade_usd": 17940.0,
+          "rate": 0.02,
+          "total_usd": -12072.5,
+          "trades": 132,
+          "usd_per_asset_day": -185.73076923076923,
+          "usd_per_trade": -91.45833333333333,
+          "wall_rate": 0.38636363636363635,
+          "walls": 51,
+          "win_rate": 0.38636363636363635
+        },
+        "SI": {
+          "clears_rung": false,
+          "coverage": 0.6615384615384615,
+          "damage_usd": 16362.5,
+          "flips_applied": 3,
+          "flips_available": 67,
+          "flips_requested": 3,
+          "mdd_day_usd": 16512.5,
+          "mdd_trade_usd": 17105.0,
+          "rate": 0.02,
+          "total_usd": -8145.000000000002,
+          "trades": 129,
+          "usd_per_asset_day": -127.26562500000003,
+          "usd_per_trade": -63.13953488372094,
+          "wall_rate": 0.3875968992248062,
+          "walls": 50,
+          "win_rate": 0.3953488372093023
+        }
+      }
+    }
+  },
+  "tier": "exploratory: can kill, cannot promote",
+  "year_flags": {
+    "GRAMMAR": [
+      "NKD/2022 vs NKD/2023: cash sign flips (-1376 vs 263)",
+      "NKD/2023 vs NKD/2024: cash sign flips (263 vs -233)",
+      "NKD/2023 vs NKD/2024: wall CIs disjoint (0.152 vs 0.442)",
+      "SI/2022 vs SI/2023: cash sign flips (2203 vs -571)",
+      "SI/2023 vs SI/2024: cash sign flips (-571 vs 469)"
+    ],
+    "GRAMMAR-S3": [
+      "NKD/2022 vs NKD/2023: cash sign flips (-556 vs 354)",
+      "NKD/2023 vs NKD/2024: cash sign flips (354 vs -493)",
+      "NKD/2023 vs NKD/2024: wall CIs disjoint (0.212 vs 0.526)",
+      "SI/2022 vs SI/2023: cash sign flips (2376 vs -10)",
+      "SI/2022 vs SI/2024: cash sign flips (2376 vs -461)"
+    ],
+    "STAGESHUFFLE": [
+      "HG/2022 vs HG/2024: cash sign flips (53 vs -50)",
+      "HG/2023 vs HG/2024: cash sign flips (354 vs -50)",
+      "NKD/2022 vs NKD/2023: cash sign flips (-299 vs 127)",
+      "NKD/2022 vs NKD/2024: cash sign flips (-299 vs 164)",
+      "SI/2022 vs SI/2023: cash sign flips (1498 vs -804)",
+      "SI/2023 vs SI/2024: cash sign flips (-804 vs 222)"
+    ]
+  }
+}

@@ -1,0 +1,2112 @@
+{
+ "asset_days": {
+  "HG": 66,
+  "NKD": 65,
+  "SI": 64
+ },
+ "budget": {
+  "cells_without_ruler": {
+   "HG": 55,
+   "NKD": 57,
+   "SI": 57
+  },
+  "days_with_ruler": 135,
+  "k_median": {
+   "HG": 150233.17111835926,
+   "NKD": 169169.77973994304,
+   "SI": 200036.7320832096
+  },
+  "min_calibration_days": 20,
+  "predicted_range_median_usd": {
+   "HG": 2013.0907840144405,
+   "NKD": 2300.2258316698476,
+   "SI": 2626.4773436822106
+  },
+  "skips": {
+   "HG": {
+    "few_prior_days": 20,
+    "no_forecast": 0
+   },
+   "NKD": {
+    "few_prior_days": 20,
+    "no_forecast": 0
+   },
+   "SI": {
+    "few_prior_days": 20,
+    "no_forecast": 0
+   }
+  }
+ },
+ "cells": {
+  "HG": 204,
+  "NKD": 198,
+  "SI": 198
+ },
+ "code_sha": "1315ff1cc2bce5849d425a99de99b0d69c43d25cef0fda5478e9a893ede833c4",
+ "decision": {
+  "by_asset": {
+   "HG": {
+    "coverage": 0.3835616438356164,
+    "fired_bounds": [
+     "stage-D wall rate not monotone in budget",
+     "stage-D <0.75x900 wall rate > 0.1",
+     "freeze bar failed: rung",
+     "freeze bar failed: mdd_day",
+     "freeze bar failed: mdd_trade",
+     "freeze bar failed: stress_positive",
+     "freeze bar failed: null",
+     "interesting bar failed: wall 0.232 > 0.05",
+     "interesting bar failed: MDD_day 5721 >= 2000.0"
+    ],
+    "mdd_day_usd": 5721.25,
+    "mdd_trade_usd": 5721.25,
+    "null_p": 0.8009950248756219,
+    "priced": true,
+    "rung_usd": 2000.0,
+    "stress_usd_per_asset_day": -44.678030303030305,
+    "theta": "theta=0.5",
+    "usd_per_asset_day": 2.765151515151515,
+    "verdict": "KILL",
+    "wall_rate": 0.23214285714285715
+   },
+   "NKD": {
+    "coverage": 0.6304347826086957,
+    "fired_bounds": [
+     "stage-D wall rate not monotone in budget",
+     "stage-D <0.75x900 wall rate > 0.1",
+     "freeze bar failed: rung",
+     "freeze bar failed: mdd_day",
+     "freeze bar failed: mdd_trade",
+     "freeze bar failed: stress_positive",
+     "freeze bar failed: null",
+     "interesting bar failed: wall 0.391 > 0.05",
+     "interesting bar failed: MDD_day 6155 >= 2000.0"
+    ],
+    "mdd_day_usd": 6155.0,
+    "mdd_trade_usd": 7060.0,
+    "null_p": 0.8656716417910447,
+    "priced": true,
+    "rung_usd": 1500.0,
+    "stress_usd_per_asset_day": -109.96153846153847,
+    "theta": "theta=0.5",
+    "usd_per_asset_day": 73.5,
+    "verdict": "KILL",
+    "wall_rate": 0.39080459770114945
+   },
+   "SI": {
+    "coverage": 0.5362318840579711,
+    "fired_bounds": [
+     "stage-D wall rate not monotone in budget",
+     "stage-D <0.75x900 wall rate > 0.1",
+     "freeze bar failed: rung",
+     "freeze bar failed: mdd_day",
+     "freeze bar failed: mdd_trade",
+     "freeze bar failed: stress_positive",
+     "freeze bar failed: null",
+     "interesting bar failed: wall 0.500 > 0.05",
+     "interesting bar failed: usd/day -24.34 <= 0",
+     "interesting bar failed: MDD_day 15140 >= 2000.0"
+    ],
+    "mdd_day_usd": 15140.0,
+    "mdd_trade_usd": 15140.0,
+    "null_p": 1.0,
+    "priced": true,
+    "rung_usd": 1500.0,
+    "stress_usd_per_asset_day": -122.96875000000004,
+    "theta": "theta=1.0",
+    "usd_per_asset_day": -24.335937500000046,
+    "verdict": "KILL",
+    "wall_rate": 0.5
+   }
+  },
+  "mechanism": "MECHANISM-DEAD",
+  "overall": "KILL"
+ },
+ "family": "F7-RANGEBUDGET",
+ "log": [
+  {
+   "code_sha": "1315ff1cc2bce5849d425a99de99b0d69c43d25cef0fda5478e9a893ede833c4",
+   "coverage": 0.959996029382569,
+   "days": 195,
+   "delay_med_s": -7440.0,
+   "err_rate_hg": 0.4193548387096774,
+   "err_rate_nkd": 0.5123966942148761,
+   "err_rate_si": 0.5,
+   "family": "F7-RANGEBUDGET",
+   "hg_usd_day": 64.92424242424242,
+   "id": "sweep10-001",
+   "mdd_hg": 3105.0,
+   "mdd_nkd": 10810.0,
+   "mdd_si": 22930.0,
+   "nkd_usd_day": -14.038461538461538,
+   "note": "wall 0.254/0.370/0.439",
+   "null_margin": 1.0,
+   "null_seed": 20260827,
+   "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+   "params": "[5, null, 0.15, 1800]",
+   "parent_trial": "sweep8b-004",
+   "registered_utc": "2026-08-27T21:09:34+00:00",
+   "replay_skips": 0,
+   "rule": "STAGE-E/NOBUDGET",
+   "selection_rule": "wall_rate>coverage (no cash in selection)",
+   "si_usd_day": -148.39843750000006,
+   "spec_sha": "85fdeff3184f0ec3778265bdd447982dcc47bc8b8ebe6bb0f94cf74af597f3bf",
+   "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+   "verdict": "",
+   "walls_hg": 35,
+   "walls_nkd": 50,
+   "walls_si": 58
+  },
+  {
+   "code_sha": "1315ff1cc2bce5849d425a99de99b0d69c43d25cef0fda5478e9a893ede833c4",
+   "coverage": 0.4829263450466547,
+   "days": 195,
+   "delay_med_s": -8400.0,
+   "err_rate_hg": 0.4807692307692307,
+   "err_rate_nkd": 0.45333333333333337,
+   "err_rate_si": 0.5714285714285714,
+   "family": "F7-RANGEBUDGET",
+   "hg_usd_day": 2.765151515151515,
+   "id": "sweep10-002",
+   "mdd_hg": 5721.25,
+   "mdd_nkd": 6155.0,
+   "mdd_si": 25060.0,
+   "nkd_usd_day": 73.5,
+   "note": "wall 0.232/0.391/0.583",
+   "null_margin": 1.0,
+   "null_seed": 20260827,
+   "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+   "params": "[5, 0.5, 0.15, 1800]",
+   "parent_trial": "sweep8b-004",
+   "registered_utc": "2026-08-27T21:09:34+00:00",
+   "replay_skips": 0,
+   "rule": "STAGE-E/theta=0.5",
+   "selection_rule": "wall_rate>coverage (no cash in selection)",
+   "si_usd_day": -202.9296875,
+   "spec_sha": "85fdeff3184f0ec3778265bdd447982dcc47bc8b8ebe6bb0f94cf74af597f3bf",
+   "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+   "verdict": "",
+   "walls_hg": 13,
+   "walls_nkd": 34,
+   "walls_si": 35
+  },
+  {
+   "code_sha": "1315ff1cc2bce5849d425a99de99b0d69c43d25cef0fda5478e9a893ede833c4",
+   "coverage": 0.5509893455098934,
+   "days": 195,
+   "delay_med_s": -8670.0,
+   "err_rate_hg": 0.46153846153846156,
+   "err_rate_nkd": 0.49397590361445787,
+   "err_rate_si": 0.47619047619047616,
+   "family": "F7-RANGEBUDGET",
+   "hg_usd_day": -38.80681818181818,
+   "id": "sweep10-003",
+   "mdd_hg": 5392.5,
+   "mdd_nkd": 10580.0,
+   "mdd_si": 19322.5,
+   "nkd_usd_day": 20.846153846153847,
+   "note": "wall 0.282/0.394/0.537",
+   "null_margin": null,
+   "null_seed": 20260827,
+   "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+   "params": "[5, 0.75, 0.15, 1800]",
+   "parent_trial": "sweep8b-004",
+   "registered_utc": "2026-08-27T21:09:34+00:00",
+   "replay_skips": null,
+   "rule": "STAGE-E/theta=0.75",
+   "selection_rule": "wall_rate>coverage (no cash in selection)",
+   "si_usd_day": -79.84375,
+   "spec_sha": "85fdeff3184f0ec3778265bdd447982dcc47bc8b8ebe6bb0f94cf74af597f3bf",
+   "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+   "verdict": "",
+   "walls_hg": 20,
+   "walls_nkd": 37,
+   "walls_si": 36
+  },
+  {
+   "code_sha": "1315ff1cc2bce5849d425a99de99b0d69c43d25cef0fda5478e9a893ede833c4",
+   "coverage": 0.6381113096419827,
+   "days": 195,
+   "delay_med_s": -8400.0,
+   "err_rate_hg": 0.44047619047619047,
+   "err_rate_nkd": 0.5106382978723405,
+   "err_rate_si": 0.4492753623188406,
+   "family": "F7-RANGEBUDGET",
+   "hg_usd_day": 16.53409090909091,
+   "id": "sweep10-004",
+   "mdd_hg": 6055.0,
+   "mdd_nkd": 11015.0,
+   "mdd_si": 15140.0,
+   "nkd_usd_day": -26.884615384615383,
+   "note": "wall 0.284/0.402/0.500",
+   "null_margin": 1.0,
+   "null_seed": 20260827,
+   "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+   "params": "[5, 1.0, 0.15, 1800]",
+   "parent_trial": "sweep8b-004",
+   "registered_utc": "2026-08-27T21:09:34+00:00",
+   "replay_skips": 0,
+   "rule": "STAGE-E/theta=1.0",
+   "selection_rule": "wall_rate>coverage (no cash in selection)",
+   "si_usd_day": -24.335937500000046,
+   "spec_sha": "85fdeff3184f0ec3778265bdd447982dcc47bc8b8ebe6bb0f94cf74af597f3bf",
+   "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+   "verdict": "",
+   "walls_hg": 25,
+   "walls_nkd": 43,
+   "walls_si": 37
+  },
+  {
+   "code_sha": "1315ff1cc2bce5849d425a99de99b0d69c43d25cef0fda5478e9a893ede833c4",
+   "coverage": null,
+   "days": 195,
+   "delay_med_s": null,
+   "err_rate_hg": null,
+   "err_rate_nkd": null,
+   "err_rate_si": null,
+   "family": "F7-RANGEBUDGET",
+   "hg_usd_day": 0.3076923076923077,
+   "id": "sweep10-005",
+   "mdd_hg": null,
+   "mdd_nkd": null,
+   "mdd_si": null,
+   "nkd_usd_day": 0.3387096774193548,
+   "note": "low-budget wall rate in the usd_day columns; MECHANISM-DEAD",
+   "null_margin": null,
+   "null_seed": 20260827,
+   "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+   "params": "[0.5, 0.75, 1.0, 1.5]",
+   "parent_trial": "sweep8b-004",
+   "registered_utc": "2026-08-27T21:09:34+00:00",
+   "replay_skips": null,
+   "rule": "STAGE-D/BUDGET-DIAGNOSTIC",
+   "selection_rule": "wall_rate>coverage (no cash in selection)",
+   "si_usd_day": 0.5,
+   "spec_sha": "85fdeff3184f0ec3778265bdd447982dcc47bc8b8ebe6bb0f94cf74af597f3bf",
+   "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+   "verdict": "",
+   "walls_hg": 12,
+   "walls_nkd": 21,
+   "walls_si": 12
+  }
+ ],
+ "mutant": "",
+ "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+ "parent_trial": "sweep8b-004",
+ "schema": "QRE2MILLSWEEP10",
+ "selection_rule": "wall_rate>coverage (no cash in selection)",
+ "spec_sha": "85fdeff3184f0ec3778265bdd447982dcc47bc8b8ebe6bb0f94cf74af597f3bf",
+ "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+ "stage_d": {
+  "by_asset": {
+   "HG": {
+    "buckets": {
+     "0.5-0.75": {
+      "n": 12,
+      "postx1800": {
+       "ci_high": 0.8618799089087867,
+       "ci_low": 0.39062208887279953,
+       "hits": 8,
+       "n": 12,
+       "rate": 0.6666666666666666
+      },
+      "remaining_median_usd": 579.1105158231396,
+      "usd_per_trade": -168.54166666666666,
+      "wall": {
+       "ci_high": 0.7462184023662939,
+       "ci_low": 0.2537815976337061,
+       "hits": 6,
+       "n": 12,
+       "rate": 0.5
+      }
+     },
+     "0.75-1.0": {
+      "n": 8,
+      "postx1800": {
+       "ci_high": 0.7847839377861224,
+       "ci_low": 0.21521606221387757,
+       "hits": 4,
+       "n": 8,
+       "rate": 0.5
+      },
+      "remaining_median_usd": 789.2332321695473,
+      "usd_per_trade": -65.15625,
+      "wall": {
+       "ci_high": 0.6942576053973727,
+       "ci_low": 0.13684428582359742,
+       "hits": 3,
+       "n": 8,
+       "rate": 0.375
+      }
+     },
+     "1.0-1.5": {
+      "n": 31,
+      "postx1800": {
+       "ci_high": 0.651596045519712,
+       "ci_low": 0.31970251562417307,
+       "hits": 15,
+       "n": 31,
+       "rate": 0.4838709677419355
+      },
+      "remaining_median_usd": 1176.659614878085,
+      "usd_per_trade": 110.9274193548387,
+      "wall": {
+       "ci_high": 0.28852406256306423,
+       "ci_low": 0.051342843746291486,
+       "hits": 4,
+       "n": 31,
+       "rate": 0.12903225806451613
+      }
+     },
+     "<0.5": {
+      "n": 27,
+      "postx1800": {
+       "ci_high": 0.5577076558789761,
+       "ci_low": 0.21532512960965597,
+       "hits": 10,
+       "n": 27,
+       "rate": 0.37037037037037035
+      },
+      "remaining_median_usd": 98.96742764144983,
+      "usd_per_trade": 146.62037037037038,
+      "wall": {
+       "ci_high": 0.4075692886663257,
+       "ci_low": 0.10607239452360037,
+       "hits": 6,
+       "n": 27,
+       "rate": 0.2222222222222222
+      }
+     },
+     ">1.5": {
+      "n": 48,
+      "postx1800": {
+       "ci_high": 0.5571866771602373,
+       "ci_low": 0.2884966777841157,
+       "hits": 20,
+       "n": 48,
+       "rate": 0.4166666666666667
+      },
+      "remaining_median_usd": 1681.5255028663507,
+      "usd_per_trade": -78.30729166666667,
+      "wall": {
+       "ci_high": 0.31939867149284695,
+       "ci_low": 0.10191390954847647,
+       "hits": 9,
+       "n": 48,
+       "rate": 0.1875
+      }
+     }
+    },
+    "entries": 126,
+    "low_budget": {
+     "ci_high": 0.4642125437414931,
+     "ci_low": 0.18565932306911137,
+     "hits": 12,
+     "n": 39,
+     "rate": 0.3076923076923077
+    },
+    "monotone": false
+   },
+   "NKD": {
+    "buckets": {
+     "0.5-0.75": {
+      "n": 8,
+      "postx1800": {
+       "ci_high": 0.6942576053973727,
+       "ci_low": 0.13684428582359742,
+       "hits": 3,
+       "n": 8,
+       "rate": 0.375
+      },
+      "remaining_median_usd": 591.576695953546,
+      "usd_per_trade": 229.375,
+      "wall": {
+       "ci_high": 0.4708881822128535,
+       "ci_low": 0.02241749145005667,
+       "hits": 1,
+       "n": 8,
+       "rate": 0.125
+      }
+     },
+     "0.75-1.0": {
+      "n": 9,
+      "postx1800": {
+       "ci_high": 0.733348706504507,
+       "ci_low": 0.18877852109766452,
+       "hits": 4,
+       "n": 9,
+       "rate": 0.4444444444444444
+      },
+      "remaining_median_usd": 841.0442536646137,
+      "usd_per_trade": -93.88888888888889,
+      "wall": {
+       "ci_high": 0.5474110308930111,
+       "ci_low": 0.06322510711784671,
+       "hits": 2,
+       "n": 9,
+       "rate": 0.2222222222222222
+      }
+     },
+     "1.0-1.5": {
+      "n": 28,
+      "postx1800": {
+       "ci_high": 0.4335567031899896,
+       "ci_low": 0.12676494919293316,
+       "hits": 7,
+       "n": 28,
+       "rate": 0.25
+      },
+      "remaining_median_usd": 1158.6519297126233,
+      "usd_per_trade": 255.71428571428572,
+      "wall": {
+       "ci_high": 0.5066115681914238,
+       "ci_low": 0.1793324692249496,
+       "hits": 9,
+       "n": 28,
+       "rate": 0.32142857142857145
+      }
+     },
+     "<0.5": {
+      "n": 54,
+      "postx1800": {
+       "ci_high": 0.5221170146179233,
+       "ci_low": 0.270419338291165,
+       "hits": 21,
+       "n": 54,
+       "rate": 0.3888888888888889
+      },
+      "remaining_median_usd": 0.0,
+      "usd_per_trade": 153.10185185185185,
+      "wall": {
+       "ci_high": 0.5037253264773334,
+       "ci_low": 0.2542337519166028,
+       "hits": 20,
+       "n": 54,
+       "rate": 0.37037037037037035
+      }
+     },
+     ">1.5": {
+      "n": 30,
+      "postx1800": {
+       "ci_high": 0.7540937188319815,
+       "ci_low": 0.42320360253322475,
+       "hits": 18,
+       "n": 30,
+       "rate": 0.6
+      },
+      "remaining_median_usd": 1662.6741863133482,
+      "usd_per_trade": 74.16666666666667,
+      "wall": {
+       "ci_high": 0.40928326158122164,
+       "ci_low": 0.11792388144489496,
+       "hits": 7,
+       "n": 30,
+       "rate": 0.23333333333333334
+      }
+     }
+    },
+    "entries": 129,
+    "low_budget": {
+     "ci_high": 0.4628230045064181,
+     "ci_low": 0.23341701875208906,
+     "hits": 21,
+     "n": 62,
+     "rate": 0.3387096774193548
+    },
+    "monotone": false
+   },
+   "SI": {
+    "buckets": {
+     "0.5-0.75": {
+      "n": 2,
+      "postx1800": {
+       "ci_high": 1.0,
+       "ci_low": 0.34238022750665303,
+       "hits": 2,
+       "n": 2,
+       "rate": 1.0
+      },
+      "remaining_median_usd": 605.253522381122,
+      "usd_per_trade": 3745.0,
+      "wall": {
+       "ci_high": 0.6576197724933469,
+       "ci_low": 0.0,
+       "hits": 0,
+       "n": 2,
+       "rate": 0.0
+      }
+     },
+     "0.75-1.0": {
+      "n": 10,
+      "postx1800": {
+       "ci_high": 0.6873262302663417,
+       "ci_low": 0.16818032970623614,
+       "hits": 4,
+       "n": 10,
+       "rate": 0.4
+      },
+      "remaining_median_usd": 808.4196944938008,
+      "usd_per_trade": 313.75,
+      "wall": {
+       "ci_high": 0.6032218525388546,
+       "ci_low": 0.10779126740630099,
+       "hits": 3,
+       "n": 10,
+       "rate": 0.3
+      }
+     },
+     "1.0-1.5": {
+      "n": 22,
+      "postx1800": {
+       "ci_high": 0.6534020467926505,
+       "ci_low": 0.2692029418081331,
+       "hits": 10,
+       "n": 22,
+       "rate": 0.45454545454545453
+      },
+      "remaining_median_usd": 1109.6272010417779,
+      "usd_per_trade": -77.72727272727276,
+      "wall": {
+       "ci_high": 0.6927789372627497,
+       "ci_low": 0.3072210627372502,
+       "hits": 11,
+       "n": 22,
+       "rate": 0.5
+      }
+     },
+     "<0.5": {
+      "n": 22,
+      "postx1800": {
+       "ci_high": 0.5704829190986899,
+       "ci_low": 0.19733204670366125,
+       "hits": 8,
+       "n": 22,
+       "rate": 0.36363636363636365
+      },
+      "remaining_median_usd": 0.0,
+      "usd_per_trade": 152.95454545454547,
+      "wall": {
+       "ci_high": 0.7307970581918668,
+       "ci_low": 0.3465979532073494,
+       "hits": 12,
+       "n": 22,
+       "rate": 0.5454545454545454
+      }
+     },
+     ">1.5": {
+      "n": 69,
+      "postx1800": {
+       "ci_high": 0.5941274512638886,
+       "ci_low": 0.36468721213563554,
+       "hits": 33,
+       "n": 69,
+       "rate": 0.4782608695652174
+      },
+      "remaining_median_usd": 1961.3535418189776,
+      "usd_per_trade": -61.34057971014493,
+      "wall": {
+       "ci_high": 0.390472972143331,
+       "ci_low": 0.1839452163184169,
+       "hits": 19,
+       "n": 69,
+       "rate": 0.2753623188405797
+      }
+     }
+    },
+    "entries": 125,
+    "low_budget": {
+     "ci_high": 0.6857257418042665,
+     "ci_low": 0.3142742581957335,
+     "hits": 12,
+     "n": 24,
+     "rate": 0.5
+    },
+    "monotone": false
+   }
+  },
+  "entries_without_ruler": 0,
+  "mechanism_confirmed": false,
+  "per_asset_verdict": {
+   "HG": {
+    "low_wall_clears": false,
+    "monotone": false,
+    "n_low": 39
+   },
+   "NKD": {
+    "low_wall_clears": false,
+    "monotone": false,
+    "n_low": 62
+   },
+   "SI": {
+    "low_wall_clears": false,
+    "monotone": false,
+    "n_low": 24
+   }
+  },
+  "pooled": {
+   "0.5-0.75": {
+    "n": 22,
+    "postx1800": {
+     "ci_high": 0.7674418380352814,
+     "ci_low": 0.3873481847631513,
+     "hits": 13,
+     "n": 22,
+     "rate": 0.5909090909090909
+    },
+    "remaining_median_usd": 582.0472459657767,
+    "usd_per_trade": 331.9318181818182,
+    "wall": {
+     "ci_high": 0.5268140225895723,
+     "ci_low": 0.1636059318135624,
+     "hits": 7,
+     "n": 22,
+     "rate": 0.3181818181818182
+    }
+   },
+   "0.75-1.0": {
+    "n": 27,
+    "postx1800": {
+     "ci_high": 0.6268697548677552,
+     "ci_low": 0.27585858177023004,
+     "hits": 12,
+     "n": 27,
+     "rate": 0.4444444444444444
+    },
+    "remaining_median_usd": 812.1311613287332,
+    "usd_per_trade": 65.60185185185185,
+    "wall": {
+     "ci_high": 0.4848068296414814,
+     "ci_low": 0.1585304046977976,
+     "hits": 8,
+     "n": 27,
+     "rate": 0.2962962962962963
+    }
+   },
+   "1.0-1.5": {
+    "n": 81,
+    "postx1800": {
+     "ci_high": 0.5039452267639383,
+     "ci_low": 0.29568103807990187,
+     "hits": 32,
+     "n": 81,
+     "rate": 0.3950617283950617
+    },
+    "remaining_median_usd": 1155.2062614493125,
+    "usd_per_trade": 109.73765432098766,
+    "wall": {
+     "ci_high": 0.40311964950752444,
+     "ci_low": 0.20791957048345946,
+     "hits": 24,
+     "n": 81,
+     "rate": 0.2962962962962963
+    }
+   },
+   "<0.5": {
+    "n": 103,
+    "postx1800": {
+     "ci_high": 0.47508127999977606,
+     "ci_low": 0.29092715646348816,
+     "hits": 39,
+     "n": 103,
+     "rate": 0.3786407766990291
+    },
+    "remaining_median_usd": 0.0,
+    "usd_per_trade": 151.37135922330097,
+    "wall": {
+     "ci_high": 0.46525916913203796,
+     "ci_low": 0.2820299422482874,
+     "hits": 38,
+     "n": 103,
+     "rate": 0.36893203883495146
+    }
+   },
+   ">1.5": {
+    "n": 147,
+    "postx1800": {
+     "ci_high": 0.5631730162795969,
+     "ci_low": 0.4036795981203771,
+     "hits": 71,
+     "n": 147,
+     "rate": 0.48299319727891155
+    },
+    "remaining_median_usd": 1770.409614878085,
+    "usd_per_trade": -39.226190476190474,
+    "wall": {
+     "ci_high": 0.31306100650853125,
+     "ci_low": 0.1764692552510675,
+     "hits": 35,
+     "n": 147,
+     "rate": 0.23809523809523808
+    }
+   }
+  },
+  "wall_ceiling": 0.1
+ },
+ "stage_e": {
+  "fresh_bars": 5,
+  "lines": {
+   "NOBUDGET": {
+    "by_asset": {
+     "HG": {
+      "cells": 146,
+      "clears_rung": false,
+      "coverage": 0.9452054794520548,
+      "delay_median_s": -7200.0,
+      "delay_p90_s": -162.00000000000017,
+      "depth_median_atr": 0.02228460538671634,
+      "mdd_day_usd": 3105.0,
+      "mdd_trade_usd": 4853.75,
+      "postx1800": {
+       "ci_high": 0.7464929529501275,
+       "ci_low": 0.5919130420183688,
+       "hits": 93,
+       "n": 138,
+       "rate": 0.6739130434782609
+      },
+      "rung_usd": 2000.0,
+      "side_agree": {
+       "ci_high": 0.6637940814667403,
+       "ci_low": 0.49264969025250516,
+       "hits": 72,
+       "n": 124,
+       "rate": 0.5806451612903226
+      },
+      "soft_hit": {
+       "ci_high": 0.988671584157744,
+       "ci_low": 0.927844652215267,
+       "hits": 134,
+       "n": 138,
+       "rate": 0.9710144927536232
+      },
+      "total_usd": 4285.0,
+      "trades": 138,
+      "usd_per_asset_day": 64.92424242424242,
+      "usd_per_trade": 31.05072463768116,
+      "wall": {
+       "ci_high": 0.33220714983296934,
+       "ci_low": 0.1883843572949942,
+       "hits": 35,
+       "n": 138,
+       "rate": 0.2536231884057971
+      },
+      "wall_rate": 0.2536231884057971,
+      "walls": 35,
+      "win_rate": 0.5
+     },
+     "NKD": {
+      "cells": 138,
+      "clears_rung": false,
+      "coverage": 0.9782608695652174,
+      "delay_median_s": -7440.0,
+      "delay_p90_s": 180.0,
+      "depth_median_atr": 0.0271926527996431,
+      "mdd_day_usd": 10810.0,
+      "mdd_trade_usd": 10935.0,
+      "postx1800": {
+       "ci_high": 0.7406027671509253,
+       "ci_low": 0.5835079155098996,
+       "hits": 90,
+       "n": 135,
+       "rate": 0.6666666666666666
+      },
+      "rung_usd": 1500.0,
+      "side_agree": {
+       "ci_high": 0.5756665217326731,
+       "ci_low": 0.4003029997040413,
+       "hits": 59,
+       "n": 121,
+       "rate": 0.48760330578512395
+      },
+      "soft_hit": {
+       "ci_high": 0.9746588280144709,
+       "ci_low": 0.8968387853624143,
+       "hits": 128,
+       "n": 135,
+       "rate": 0.9481481481481482
+      },
+      "total_usd": -912.5,
+      "trades": 135,
+      "usd_per_asset_day": -14.038461538461538,
+      "usd_per_trade": -6.7592592592592595,
+      "wall": {
+       "ci_high": 0.45436170624868144,
+       "ci_low": 0.29355220723734354,
+       "hits": 50,
+       "n": 135,
+       "rate": 0.37037037037037035
+      },
+      "wall_rate": 0.37037037037037035,
+      "walls": 50,
+      "win_rate": 0.3925925925925926
+     },
+     "SI": {
+      "cells": 138,
+      "clears_rung": false,
+      "coverage": 0.9565217391304348,
+      "delay_median_s": -8310.0,
+      "delay_p90_s": 240.0,
+      "depth_median_atr": 0.017814915112181418,
+      "mdd_day_usd": 22930.0,
+      "mdd_trade_usd": 22930.0,
+      "postx1800": {
+       "ci_high": 0.6994300058910196,
+       "ci_low": 0.5361387245820451,
+       "hits": 82,
+       "n": 132,
+       "rate": 0.6212121212121212
+      },
+      "rung_usd": 1500.0,
+      "side_agree": {
+       "ci_high": 0.5887811058481678,
+       "ci_low": 0.41121889415183216,
+       "hits": 59,
+       "n": 118,
+       "rate": 0.5
+      },
+      "soft_hit": {
+       "ci_high": 0.9958350258326641,
+       "ci_low": 0.9464398960595944,
+       "hits": 130,
+       "n": 132,
+       "rate": 0.9848484848484849
+      },
+      "total_usd": -9497.500000000004,
+      "trades": 132,
+      "usd_per_asset_day": -148.39843750000006,
+      "usd_per_trade": -71.9507575757576,
+      "wall": {
+       "ci_high": 0.5245872321150051,
+       "ci_low": 0.3576284026484627,
+       "hits": 58,
+       "n": 132,
+       "rate": 0.4393939393939394
+      },
+      "wall_rate": 0.4393939393939394,
+      "walls": 58,
+      "win_rate": 0.3560606060606061
+     }
+    },
+    "by_phase": {
+     "0": {
+      "entries": 135,
+      "usd_per_trade": -5.2777777777777795,
+      "wall": {
+       "ci_high": 0.38581843629531104,
+       "ci_low": 0.23245120412638393,
+       "hits": 41,
+       "n": 135,
+       "rate": 0.3037037037037037
+      }
+     },
+     "1": {
+      "entries": 135,
+      "usd_per_trade": -52.083333333333336,
+      "wall": {
+       "ci_high": 0.3154231431067912,
+       "ci_low": 0.17320222425057374,
+       "hits": 32,
+       "n": 135,
+       "rate": 0.23703703703703705
+      }
+     },
+     "2": {
+      "entries": 135,
+      "usd_per_trade": 11.990740740740748,
+      "wall": {
+       "ci_high": 0.6011190975052271,
+       "ci_low": 0.4348932005681979,
+       "hits": 70,
+       "n": 135,
+       "rate": 0.5185185185185185
+      }
+     }
+    },
+    "cells": {
+     "HG": 146,
+     "NKD": 138,
+     "SI": 138
+    },
+    "misses": {
+     "HG": {
+      "cancelled": 0,
+      "no_admission": 8,
+      "no_budget": 0,
+      "no_candidate": 0,
+      "no_candidate_in_depth": 0
+     },
+     "NKD": {
+      "cancelled": 0,
+      "no_admission": 3,
+      "no_budget": 0,
+      "no_candidate": 0,
+      "no_candidate_in_depth": 0
+     },
+     "SI": {
+      "cancelled": 0,
+      "no_admission": 6,
+      "no_budget": 0,
+      "no_candidate": 0,
+      "no_candidate_in_depth": 0
+     }
+    }
+   },
+   "theta=0.5": {
+    "by_asset": {
+     "HG": {
+      "cells": 146,
+      "clears_rung": false,
+      "coverage": 0.3835616438356164,
+      "delay_median_s": -4620.0,
+      "delay_p90_s": -90.0,
+      "depth_median_atr": 0.024494140182802687,
+      "mdd_day_usd": 5721.25,
+      "mdd_trade_usd": 5721.25,
+      "postx1800": {
+       "ci_high": 0.8590062089079139,
+       "ci_low": 0.6423184678498916,
+       "hits": 43,
+       "n": 56,
+       "rate": 0.7678571428571429
+      },
+      "rung_usd": 2000.0,
+      "side_agree": {
+       "ci_high": 0.6489588555454449,
+       "ci_low": 0.38685682768056057,
+       "hits": 27,
+       "n": 52,
+       "rate": 0.5192307692307693
+      },
+      "soft_hit": {
+       "ci_high": 0.9816142186178909,
+       "ci_low": 0.8539269093117847,
+       "hits": 53,
+       "n": 56,
+       "rate": 0.9464285714285714
+      },
+      "total_usd": 182.5,
+      "trades": 56,
+      "usd_per_asset_day": 2.765151515151515,
+      "usd_per_trade": 3.2589285714285716,
+      "wall": {
+       "ci_high": 0.35768153215010856,
+       "ci_low": 0.1409937910920862,
+       "hits": 13,
+       "n": 56,
+       "rate": 0.23214285714285715
+      },
+      "wall_rate": 0.23214285714285715,
+      "walls": 13,
+      "win_rate": 0.4642857142857143
+     },
+     "NKD": {
+      "cells": 138,
+      "clears_rung": false,
+      "coverage": 0.6304347826086957,
+      "delay_median_s": -8400.0,
+      "delay_p90_s": -95.99999999999966,
+      "depth_median_atr": 0.023507106754848062,
+      "mdd_day_usd": 6155.0,
+      "mdd_trade_usd": 7060.0,
+      "postx1800": {
+       "ci_high": 0.8168997598655378,
+       "ci_low": 0.6344360127240146,
+       "hits": 64,
+       "n": 87,
+       "rate": 0.735632183908046
+      },
+      "rung_usd": 1500.0,
+      "side_agree": {
+       "ci_high": 0.6543020361586779,
+       "ci_low": 0.4344837385429269,
+       "hits": 41,
+       "n": 75,
+       "rate": 0.5466666666666666
+      },
+      "soft_hit": {
+       "ci_high": 0.981977311532913,
+       "ci_low": 0.8876696649201269,
+       "hits": 83,
+       "n": 87,
+       "rate": 0.9540229885057471
+      },
+      "total_usd": 4777.5,
+      "trades": 87,
+      "usd_per_asset_day": 73.5,
+      "usd_per_trade": 54.91379310344828,
+      "wall": {
+       "ci_high": 0.49586610448831725,
+       "ci_low": 0.2949782935799389,
+       "hits": 34,
+       "n": 87,
+       "rate": 0.39080459770114945
+      },
+      "wall_rate": 0.39080459770114945,
+      "walls": 34,
+      "win_rate": 0.40229885057471265
+     },
+     "SI": {
+      "cells": 138,
+      "clears_rung": false,
+      "coverage": 0.43478260869565216,
+      "delay_median_s": -6420.0,
+      "delay_p90_s": -173.99999999999991,
+      "depth_median_atr": 0.03128631029508141,
+      "mdd_day_usd": 25060.0,
+      "mdd_trade_usd": 25060.0,
+      "postx1800": {
+       "ci_high": 0.9638795433982692,
+       "ci_low": 0.8193105798166558,
+       "hits": 55,
+       "n": 60,
+       "rate": 0.9166666666666666
+      },
+      "rung_usd": 1500.0,
+      "side_agree": {
+       "ci_high": 0.5586237926918696,
+       "ci_low": 0.3076896268393824,
+       "hits": 24,
+       "n": 56,
+       "rate": 0.42857142857142855
+      },
+      "soft_hit": {
+       "ci_high": 0.9908106807438021,
+       "ci_low": 0.886362257256914,
+       "hits": 58,
+       "n": 60,
+       "rate": 0.9666666666666667
+      },
+      "total_usd": -12987.5,
+      "trades": 60,
+      "usd_per_asset_day": -202.9296875,
+      "usd_per_trade": -216.45833333333334,
+      "wall": {
+       "ci_high": 0.6993572144165838,
+       "ci_low": 0.45728081022640116,
+       "hits": 35,
+       "n": 60,
+       "rate": 0.5833333333333334
+      },
+      "wall_rate": 0.5833333333333334,
+      "walls": 35,
+      "win_rate": 0.26666666666666666
+     }
+    },
+    "by_phase": {
+     "0": {
+      "entries": 37,
+      "usd_per_trade": -149.08783783783784,
+      "wall": {
+       "ci_high": 0.5651403526977063,
+       "ci_low": 0.26346518192014284,
+       "hits": 15,
+       "n": 37,
+       "rate": 0.40540540540540543
+      }
+     },
+     "1": {
+      "entries": 58,
+      "usd_per_trade": -45.94827586206897,
+      "wall": {
+       "ci_high": 0.40204655189479327,
+       "ci_low": 0.17752352138912525,
+       "hits": 16,
+       "n": 58,
+       "rate": 0.27586206896551724
+      }
+     },
+     "2": {
+      "entries": 108,
+      "usd_per_trade": 1.42361111111111,
+      "wall": {
+       "ci_high": 0.5657033258661384,
+       "ci_low": 0.38064930523089247,
+       "hits": 51,
+       "n": 108,
+       "rate": 0.4722222222222222
+      }
+     }
+    },
+    "cells": {
+     "HG": 146,
+     "NKD": 138,
+     "SI": 138
+    },
+    "misses": {
+     "HG": {
+      "cancelled": 0,
+      "no_admission": 84,
+      "no_budget": 0,
+      "no_candidate": 0,
+      "no_candidate_in_depth": 0
+     },
+     "NKD": {
+      "cancelled": 0,
+      "no_admission": 50,
+      "no_budget": 0,
+      "no_candidate": 0,
+      "no_candidate_in_depth": 0
+     },
+     "SI": {
+      "cancelled": 0,
+      "no_admission": 73,
+      "no_budget": 0,
+      "no_candidate": 0,
+      "no_candidate_in_depth": 0
+     }
+    }
+   },
+   "theta=0.75": {
+    "by_asset": {
+     "HG": {
+      "cells": 146,
+      "clears_rung": false,
+      "coverage": 0.4863013698630137,
+      "delay_median_s": -4980.0,
+      "delay_p90_s": -120.0,
+      "depth_median_atr": 0.02845634089866895,
+      "mdd_day_usd": 5392.5,
+      "mdd_trade_usd": 5392.5,
+      "postx1800": {
+       "ci_high": 0.8787446769879776,
+       "ci_low": 0.6958031829491169,
+       "hits": 57,
+       "n": 71,
+       "rate": 0.8028169014084507
+      },
+      "rung_usd": 2000.0,
+      "side_agree": {
+       "ci_high": 0.6540966587719579,
+       "ci_low": 0.4185339926647454,
+       "hits": 35,
+       "n": 65,
+       "rate": 0.5384615384615384
+      },
+      "soft_hit": {
+       "ci_high": 0.969546397560289,
+       "ci_low": 0.8455098688621009,
+       "hits": 66,
+       "n": 71,
+       "rate": 0.9295774647887324
+      },
+      "total_usd": -2561.25,
+      "trades": 71,
+      "usd_per_asset_day": -38.80681818181818,
+      "usd_per_trade": -36.07394366197183,
+      "wall": {
+       "ci_high": 0.3954201706880652,
+       "ci_low": 0.19037090703170384,
+       "hits": 20,
+       "n": 71,
+       "rate": 0.28169014084507044
+      },
+      "wall_rate": 0.28169014084507044,
+      "walls": 20,
+      "win_rate": 0.4788732394366197
+     },
+     "NKD": {
+      "cells": 138,
+      "clears_rung": false,
+      "coverage": 0.6811594202898551,
+      "delay_median_s": -8670.0,
+      "delay_p90_s": -360.0,
+      "depth_median_atr": 0.02695345792691061,
+      "mdd_day_usd": 10580.0,
+      "mdd_trade_usd": 11485.0,
+      "postx1800": {
+       "ci_high": 0.8036998027100012,
+       "ci_low": 0.6255660780959044,
+       "hits": 68,
+       "n": 94,
+       "rate": 0.723404255319149
+      },
+      "rung_usd": 1500.0,
+      "side_agree": {
+       "ci_high": 0.6109112829994129,
+       "ci_low": 0.40060395423381634,
+       "hits": 42,
+       "n": 83,
+       "rate": 0.5060240963855421
+      },
+      "soft_hit": {
+       "ci_high": 0.97706825131441,
+       "ci_low": 0.8814635102974011,
+       "hits": 89,
+       "n": 94,
+       "rate": 0.9468085106382979
+      },
+      "total_usd": 1355.0,
+      "trades": 94,
+      "usd_per_asset_day": 20.846153846153847,
+      "usd_per_trade": 14.414893617021276,
+      "wall": {
+       "ci_high": 0.4946887432167085,
+       "ci_low": 0.3008989325900031,
+       "hits": 37,
+       "n": 94,
+       "rate": 0.39361702127659576
+      },
+      "wall_rate": 0.39361702127659576,
+      "walls": 37,
+      "win_rate": 0.3723404255319149
+     },
+     "SI": {
+      "cells": 138,
+      "clears_rung": false,
+      "coverage": 0.4855072463768116,
+      "delay_median_s": -6180.0,
+      "delay_p90_s": -96.00000000000009,
+      "depth_median_atr": 0.031582789756837856,
+      "mdd_day_usd": 19322.5,
+      "mdd_trade_usd": 19322.5,
+      "postx1800": {
+       "ci_high": 0.9057738790547688,
+       "ci_low": 0.7294473706077896,
+       "hits": 56,
+       "n": 67,
+       "rate": 0.835820895522388
+      },
+      "rung_usd": 1500.0,
+      "side_agree": {
+       "ci_high": 0.6421787594617299,
+       "ci_low": 0.4027035643673724,
+       "hits": 33,
+       "n": 63,
+       "rate": 0.5238095238095238
+      },
+      "soft_hit": {
+       "ci_high": 0.991775305161102,
+       "ci_low": 0.8975344443664799,
+       "hits": 65,
+       "n": 67,
+       "rate": 0.9701492537313433
+      },
+      "total_usd": -5110.0,
+      "trades": 67,
+      "usd_per_asset_day": -79.84375,
+      "usd_per_trade": -76.26865671641791,
+      "wall": {
+       "ci_high": 0.6514155628050964,
+       "ci_low": 0.4191645760462989,
+       "hits": 36,
+       "n": 67,
+       "rate": 0.5373134328358209
+      },
+      "wall_rate": 0.5373134328358209,
+      "walls": 36,
+      "win_rate": 0.34328358208955223
+     }
+    },
+    "by_phase": {
+     "0": {
+      "entries": 44,
+      "usd_per_trade": -171.33522727272728,
+      "wall": {
+       "ci_high": 0.5337642460762172,
+       "ci_low": 0.2572120275052556,
+       "hits": 17,
+       "n": 44,
+       "rate": 0.38636363636363635
+      }
+     },
+     "1": {
+      "entries": 70,
+      "usd_per_trade": -41.16071428571429,
+      "wall": {
+       "ci_high": 0.3702613014715483,
+       "ci_low": 0.16929275741343847,
+       "hits": 18,
+       "n": 70,
+       "rate": 0.2571428571428571
+      }
+     },
+     "2": {
+      "entries": 118,
+      "usd_per_trade": 34.777542372881356,
+      "wall": {
+       "ci_high": 0.5805613678470258,
+       "ci_low": 0.4030238582381013,
+       "hits": 58,
+       "n": 118,
+       "rate": 0.4915254237288136
+      }
+     }
+    },
+    "cells": {
+     "HG": 146,
+     "NKD": 138,
+     "SI": 138
+    },
+    "misses": {
+     "HG": {
+      "cancelled": 0,
+      "no_admission": 70,
+      "no_budget": 0,
+      "no_candidate": 0,
+      "no_candidate_in_depth": 0
+     },
+     "NKD": {
+      "cancelled": 0,
+      "no_admission": 44,
+      "no_budget": 0,
+      "no_candidate": 0,
+      "no_candidate_in_depth": 0
+     },
+     "SI": {
+      "cancelled": 0,
+      "no_admission": 66,
+      "no_budget": 0,
+      "no_candidate": 0,
+      "no_candidate_in_depth": 0
+     }
+    }
+   },
+   "theta=1.0": {
+    "by_asset": {
+     "HG": {
+      "cells": 146,
+      "clears_rung": false,
+      "coverage": 0.6027397260273972,
+      "delay_median_s": -3990.0,
+      "delay_p90_s": -180.0,
+      "depth_median_atr": 0.024660485461444205,
+      "mdd_day_usd": 6055.0,
+      "mdd_trade_usd": 6055.0,
+      "postx1800": {
+       "ci_high": 0.8382895739167237,
+       "ci_low": 0.662573550326628,
+       "hits": 67,
+       "n": 88,
+       "rate": 0.7613636363636364
+      },
+      "rung_usd": 2000.0,
+      "side_agree": {
+       "ci_high": 0.6607704436983275,
+       "ci_low": 0.45307101720468923,
+       "hits": 47,
+       "n": 84,
+       "rate": 0.5595238095238095
+      },
+      "soft_hit": {
+       "ci_high": 0.9683790718285327,
+       "ci_low": 0.8591339160517876,
+       "hits": 82,
+       "n": 88,
+       "rate": 0.9318181818181818
+      },
+      "total_usd": 1091.25,
+      "trades": 88,
+      "usd_per_asset_day": 16.53409090909091,
+      "usd_per_trade": 12.400568181818182,
+      "wall": {
+       "ci_high": 0.3857958136049272,
+       "ci_low": 0.20044769245491267,
+       "hits": 25,
+       "n": 88,
+       "rate": 0.2840909090909091
+      },
+      "wall_rate": 0.2840909090909091,
+      "walls": 25,
+      "win_rate": 0.4659090909090909
+     },
+     "NKD": {
+      "cells": 138,
+      "clears_rung": false,
+      "coverage": 0.7753623188405797,
+      "delay_median_s": -8400.0,
+      "delay_p90_s": -251.9999999999976,
+      "depth_median_atr": 0.023564791737347667,
+      "mdd_day_usd": 11015.0,
+      "mdd_trade_usd": 11920.0,
+      "postx1800": {
+       "ci_high": 0.8123028212750834,
+       "ci_low": 0.6478138222860739,
+       "hits": 79,
+       "n": 107,
+       "rate": 0.7383177570093458
+      },
+      "rung_usd": 1500.0,
+      "side_agree": {
+       "ci_high": 0.5888311384891503,
+       "ci_low": 0.3907276290915208,
+       "hits": 46,
+       "n": 94,
+       "rate": 0.48936170212765956
+      },
+      "soft_hit": {
+       "ci_high": 0.9798773427946421,
+       "ci_low": 0.8952464694687352,
+       "hits": 102,
+       "n": 107,
+       "rate": 0.9532710280373832
+      },
+      "total_usd": -1747.5,
+      "trades": 107,
+      "usd_per_asset_day": -26.884615384615383,
+      "usd_per_trade": -16.33177570093458,
+      "wall": {
+       "ci_high": 0.49660541051983426,
+       "ci_low": 0.3139347950726305,
+       "hits": 43,
+       "n": 107,
+       "rate": 0.40186915887850466
+      },
+      "wall_rate": 0.40186915887850466,
+      "walls": 43,
+      "win_rate": 0.38317757009345793
+     },
+     "SI": {
+      "cells": 138,
+      "clears_rung": false,
+      "coverage": 0.5362318840579711,
+      "delay_median_s": -6690.0,
+      "delay_p90_s": -197.99999999999983,
+      "depth_median_atr": 0.02287082404226481,
+      "mdd_day_usd": 15140.0,
+      "mdd_trade_usd": 15140.0,
+      "postx1800": {
+       "ci_high": 0.9149194045150061,
+       "ci_low": 0.753105074828074,
+       "hits": 63,
+       "n": 74,
+       "rate": 0.8513513513513513
+      },
+      "rung_usd": 1500.0,
+      "side_agree": {
+       "ci_high": 0.6623114437075628,
+       "ci_low": 0.43378767502688115,
+       "hits": 38,
+       "n": 69,
+       "rate": 0.5507246376811594
+      },
+      "soft_hit": {
+       "ci_high": 0.9976105365965432,
+       "ci_low": 0.9273464348015678,
+       "hits": 73,
+       "n": 74,
+       "rate": 0.9864864864864865
+      },
+      "total_usd": -1557.500000000003,
+      "trades": 74,
+      "usd_per_asset_day": -24.335937500000046,
+      "usd_per_trade": -21.047297297297337,
+      "wall": {
+       "ci_high": 0.611074051196022,
+       "ci_low": 0.388925948803978,
+       "hits": 37,
+       "n": 74,
+       "rate": 0.5
+      },
+      "wall_rate": 0.5,
+      "walls": 37,
+      "win_rate": 0.33783783783783783
+     }
+    },
+    "by_phase": {
+     "0": {
+      "entries": 57,
+      "usd_per_trade": -138.33333333333334,
+      "wall": {
+       "ci_high": 0.480581046443498,
+       "ci_low": 0.2400042200916009,
+       "hits": 20,
+       "n": 57,
+       "rate": 0.3508771929824561
+      }
+     },
+     "1": {
+      "entries": 87,
+      "usd_per_trade": -36.25,
+      "wall": {
+       "ci_high": 0.3655639872759853,
+       "ci_low": 0.1831002401344622,
+       "hits": 23,
+       "n": 87,
+       "rate": 0.26436781609195403
+      }
+     },
+     "2": {
+      "entries": 125,
+      "usd_per_trade": 70.6,
+      "wall": {
+       "ci_high": 0.5824522541333303,
+       "ci_low": 0.40978626901633625,
+       "hits": 62,
+       "n": 125,
+       "rate": 0.496
+      }
+     }
+    },
+    "cells": {
+     "HG": 146,
+     "NKD": 138,
+     "SI": 138
+    },
+    "misses": {
+     "HG": {
+      "cancelled": 0,
+      "no_admission": 53,
+      "no_budget": 0,
+      "no_candidate": 0,
+      "no_candidate_in_depth": 0
+     },
+     "NKD": {
+      "cancelled": 0,
+      "no_admission": 31,
+      "no_budget": 0,
+      "no_candidate": 0,
+      "no_candidate_in_depth": 0
+     },
+     "SI": {
+      "cancelled": 0,
+      "no_admission": 59,
+      "no_budget": 0,
+      "no_candidate": 0,
+      "no_candidate_in_depth": 0
+     }
+    }
+   }
+  },
+  "phase_matched": {
+   "by_asset": {
+    "HG": {
+     "entries_mean": 80.76,
+     "postx1800_entry": {
+      "ci_high": 0.6887257884506421,
+      "ci_low": 0.6598140326824462,
+      "hits": 2720,
+      "n": 4033,
+      "rate": 0.674435903793702
+     }
+    },
+    "NKD": {
+     "entries_mean": 76.68,
+     "postx1800_entry": {
+      "ci_high": 0.6875970051205427,
+      "ci_low": 0.6579097111489352,
+      "hits": 2580,
+      "n": 3834,
+      "rate": 0.672926447574335
+     }
+    },
+    "SI": {
+     "entries_mean": 68.4,
+     "postx1800_entry": {
+      "ci_high": 0.6856601863297039,
+      "ci_low": 0.6541273086396157,
+      "hits": 2287,
+      "n": 3413,
+      "rate": 0.6700849692352768
+     }
+    }
+   },
+   "cells_unmatched": 11764,
+   "draws": 50,
+   "match_window_s": 300,
+   "seed": 20260827
+  },
+  "random_wall": {
+   "by_asset": {
+    "HG": {
+     "ci_high": 0.1753640256749365,
+     "ci_low": 0.15925069272263234,
+     "hits": 1377,
+     "n": 8238,
+     "rate": 0.16715222141296432
+    },
+    "NKD": {
+     "ci_high": 0.25016413220551065,
+     "ci_low": 0.23101634660081935,
+     "hits": 1840,
+     "n": 7652,
+     "rate": 0.24046001045478307
+    },
+    "SI": {
+     "ci_high": 0.29859254521883244,
+     "ci_low": 0.2782102091697844,
+     "hits": 2187,
+     "n": 7586,
+     "rate": 0.28829422620616924
+    }
+   },
+   "draws": 50,
+   "seed": 20260827
+  },
+  "thetas": [
+   0.5,
+   0.75,
+   1.0
+  ]
+ },
+ "stage_f": {
+  "chosen": {
+   "HG": "theta=0.5",
+   "NKD": "theta=0.5",
+   "SI": "theta=1.0"
+  },
+  "lines": [
+   "theta=0.5",
+   "theta=1.0",
+   "NOBUDGET"
+  ],
+  "null": {
+   "by_line": {
+    "HG/NOBUDGET": {
+     "null_asset_mdd_mean_usd": 6594.03125,
+     "null_asset_mdd_p05_usd": 4113.0,
+     "null_pooled_mdd_mean_usd": 6594.03125,
+     "observed_max_asset_mdd_usd": 3105.0,
+     "observed_pooled_mdd_usd": 3105.0,
+     "p_max_adjusted": 0.014925373134328358,
+     "p_own": 0.004975124378109453,
+     "p_pooled_max_adjusted": 0.014925373134328358,
+     "p_pooled_own": 0.004975124378109453
+    },
+    "HG/theta=0.5": {
+     "null_asset_mdd_mean_usd": 5663.125,
+     "null_asset_mdd_p05_usd": 3497.3125,
+     "null_pooled_mdd_mean_usd": 5663.125,
+     "observed_max_asset_mdd_usd": 5721.25,
+     "observed_pooled_mdd_usd": 5721.25,
+     "p_max_adjusted": 0.8009950248756219,
+     "p_own": 0.5522388059701493,
+     "p_pooled_max_adjusted": 0.8009950248756219,
+     "p_pooled_own": 0.5522388059701493
+    },
+    "HG/theta=1.0": {
+     "null_asset_mdd_mean_usd": 6932.3625,
+     "null_asset_mdd_p05_usd": 4196.1875,
+     "null_pooled_mdd_mean_usd": 6932.3625,
+     "observed_max_asset_mdd_usd": 6055.0,
+     "observed_pooled_mdd_usd": 6055.0,
+     "p_max_adjusted": 0.8656716417910447,
+     "p_own": 0.3681592039800995,
+     "p_pooled_max_adjusted": 0.8656716417910447,
+     "p_pooled_own": 0.3681592039800995
+    },
+    "NKD/NOBUDGET": {
+     "null_asset_mdd_mean_usd": 13253.0875,
+     "null_asset_mdd_p05_usd": 8026.875,
+     "null_pooled_mdd_mean_usd": 13253.0875,
+     "observed_max_asset_mdd_usd": 10810.0,
+     "observed_pooled_mdd_usd": 10810.0,
+     "p_max_adjusted": 1.0,
+     "p_own": 0.26865671641791045,
+     "p_pooled_max_adjusted": 1.0,
+     "p_pooled_own": 0.26865671641791045
+    },
+    "NKD/theta=0.5": {
+     "null_asset_mdd_mean_usd": 8257.175,
+     "null_asset_mdd_p05_usd": 5343.5,
+     "null_pooled_mdd_mean_usd": 8257.175,
+     "observed_max_asset_mdd_usd": 6155.0,
+     "observed_pooled_mdd_usd": 6155.0,
+     "p_max_adjusted": 0.8656716417910447,
+     "p_own": 0.17412935323383086,
+     "p_pooled_max_adjusted": 0.8656716417910447,
+     "p_pooled_own": 0.17412935323383086
+    },
+    "NKD/theta=1.0": {
+     "null_asset_mdd_mean_usd": 11934.7,
+     "null_asset_mdd_p05_usd": 7726.875,
+     "null_pooled_mdd_mean_usd": 11934.7,
+     "observed_max_asset_mdd_usd": 11015.0,
+     "observed_pooled_mdd_usd": 11015.0,
+     "p_max_adjusted": 1.0,
+     "p_own": 0.4527363184079602,
+     "p_pooled_max_adjusted": 1.0,
+     "p_pooled_own": 0.4527363184079602
+    },
+    "SI/NOBUDGET": {
+     "null_asset_mdd_mean_usd": 18181.55,
+     "null_asset_mdd_p05_usd": 12943.625,
+     "null_pooled_mdd_mean_usd": 18181.55,
+     "observed_max_asset_mdd_usd": 22930.0,
+     "observed_pooled_mdd_usd": 22930.0,
+     "p_max_adjusted": 1.0,
+     "p_own": 0.8706467661691543,
+     "p_pooled_max_adjusted": 1.0,
+     "p_pooled_own": 0.8706467661691543
+    },
+    "SI/theta=0.5": {
+     "null_asset_mdd_mean_usd": 18179.3375,
+     "null_asset_mdd_p05_usd": 12987.5,
+     "null_pooled_mdd_mean_usd": 18179.3375,
+     "observed_max_asset_mdd_usd": 25060.0,
+     "observed_pooled_mdd_usd": 25060.0,
+     "p_max_adjusted": 1.0,
+     "p_own": 0.9751243781094527,
+     "p_pooled_max_adjusted": 1.0,
+     "p_pooled_own": 0.9751243781094527
+    },
+    "SI/theta=1.0": {
+     "null_asset_mdd_mean_usd": 12353.675,
+     "null_asset_mdd_p05_usd": 7829.500000000002,
+     "null_pooled_mdd_mean_usd": 12353.675,
+     "observed_max_asset_mdd_usd": 15140.0,
+     "observed_pooled_mdd_usd": 15140.0,
+     "p_max_adjusted": 1.0,
+     "p_own": 0.8109452736318408,
+     "p_pooled_max_adjusted": 1.0,
+     "p_pooled_own": 0.8109452736318408
+    }
+   },
+   "draws": 200,
+   "lines_held_out_empty": [],
+   "seed": 20260827,
+   "statistic": "-asset_day_ordered_mdd and -pooled_day_ordered_mdd",
+   "total_cash_invariant_under_this_null": true
+  },
+  "replays": {
+   "NOBUDGET": {
+    "arrivals": 405,
+    "asset_days": 195,
+    "by_asset": {
+     "HG": {
+      "asset_days": 66,
+      "max_drawdown_usd": 4853.75,
+      "trades": 138,
+      "usd_per_asset_day": 64.92424242424242,
+      "usd_per_trade": 31.05072463768116
+     },
+     "NKD": {
+      "asset_days": 65,
+      "max_drawdown_usd": 10935.0,
+      "trades": 135,
+      "usd_per_asset_day": -14.038461538461538,
+      "usd_per_trade": -6.7592592592592595
+     },
+     "SI": {
+      "asset_days": 64,
+      "max_drawdown_usd": 22930.0,
+      "trades": 132,
+      "usd_per_asset_day": -148.39843750000006,
+      "usd_per_trade": -71.9507575757576
+     }
+    },
+    "drawdown_breach_rate": 0.3128205128205128,
+    "drawdown_p90_usd": 1867.5,
+    "label": "partial-day (split breaks portfolio days)",
+    "max_drawdown_usd": 22930.0,
+    "occupancy_or_cap_skips": 0,
+    "skipped_ids": [],
+    "status": "OK",
+    "total_usd": -6125.000000000005,
+    "trades": 405,
+    "usd_per_asset_day": -31.410256410256434,
+    "usd_per_trade": -15.123456790123468,
+    "worst_asset_day_usd": -2777.5000000000005
+   },
+   "theta=0.5": {
+    "arrivals": 203,
+    "asset_days": 195,
+    "by_asset": {
+     "HG": {
+      "asset_days": 66,
+      "max_drawdown_usd": 5721.25,
+      "trades": 56,
+      "usd_per_asset_day": 2.765151515151515,
+      "usd_per_trade": 3.2589285714285716
+     },
+     "NKD": {
+      "asset_days": 65,
+      "max_drawdown_usd": 7060.0,
+      "trades": 87,
+      "usd_per_asset_day": 73.5,
+      "usd_per_trade": 54.91379310344828
+     },
+     "SI": {
+      "asset_days": 64,
+      "max_drawdown_usd": 25060.0,
+      "trades": 60,
+      "usd_per_asset_day": -202.92968750000003,
+      "usd_per_trade": -216.45833333333337
+     }
+    },
+    "drawdown_breach_rate": 0.1282051282051282,
+    "drawdown_p90_usd": 1222.5,
+    "label": "partial-day (split breaks portfolio days)",
+    "max_drawdown_usd": 25060.0,
+    "occupancy_or_cap_skips": 0,
+    "skipped_ids": [],
+    "status": "OK",
+    "total_usd": -8027.500000000002,
+    "trades": 203,
+    "usd_per_asset_day": -41.16666666666668,
+    "usd_per_trade": -39.544334975369466,
+    "worst_asset_day_usd": -2952.5
+   },
+   "theta=1.0": {
+    "arrivals": 269,
+    "asset_days": 195,
+    "by_asset": {
+     "HG": {
+      "asset_days": 66,
+      "max_drawdown_usd": 6055.0,
+      "trades": 88,
+      "usd_per_asset_day": 16.53409090909091,
+      "usd_per_trade": 12.400568181818182
+     },
+     "NKD": {
+      "asset_days": 65,
+      "max_drawdown_usd": 11920.0,
+      "trades": 107,
+      "usd_per_asset_day": -26.884615384615383,
+      "usd_per_trade": -16.33177570093458
+     },
+     "SI": {
+      "asset_days": 64,
+      "max_drawdown_usd": 15140.0,
+      "trades": 74,
+      "usd_per_asset_day": -24.335937500000032,
+      "usd_per_trade": -21.047297297297327
+     }
+    },
+    "drawdown_breach_rate": 0.17435897435897435,
+    "drawdown_p90_usd": 1810.0,
+    "label": "partial-day (split breaks portfolio days)",
+    "max_drawdown_usd": 15140.0,
+    "occupancy_or_cap_skips": 0,
+    "skipped_ids": [],
+    "status": "OK",
+    "total_usd": -2213.750000000002,
+    "trades": 269,
+    "usd_per_asset_day": -11.352564102564111,
+    "usd_per_trade": -8.229553903345732,
+    "worst_asset_day_usd": -2752.5000000000005
+   }
+  },
+  "stress": {
+   "NOBUDGET": {
+    "HG": {
+     "clears_rung": false,
+     "coverage": 0.9452054794520548,
+     "damage_usd": 8700.0,
+     "flips_applied": 3,
+     "flips_available": 93,
+     "flips_requested": 3,
+     "mdd_day_usd": 7615.0,
+     "mdd_trade_usd": 8481.25,
+     "rate": 0.02,
+     "total_usd": -4415.0,
+     "trades": 138,
+     "usd_per_asset_day": -66.89393939393939,
+     "usd_per_trade": -31.992753623188406,
+     "wall_rate": 0.2753623188405797,
+     "walls": 38,
+     "win_rate": 0.4782608695652174
+    },
+    "NKD": {
+     "clears_rung": false,
+     "coverage": 0.9782608695652174,
+     "damage_usd": 13400.0,
+     "flips_applied": 3,
+     "flips_available": 101,
+     "flips_requested": 3,
+     "mdd_day_usd": 15412.5,
+     "mdd_trade_usd": 16317.5,
+     "rate": 0.02,
+     "total_usd": -14312.5,
+     "trades": 135,
+     "usd_per_asset_day": -220.19230769230768,
+     "usd_per_trade": -106.01851851851852,
+     "wall_rate": 0.3925925925925926,
+     "walls": 53,
+     "win_rate": 0.37037037037037035
+    },
+    "SI": {
+     "clears_rung": false,
+     "coverage": 0.9565217391304348,
+     "damage_usd": 13525.0,
+     "flips_applied": 3,
+     "flips_available": 84,
+     "flips_requested": 3,
+     "mdd_day_usd": 27042.5,
+     "mdd_trade_usd": 27042.5,
+     "rate": 0.02,
+     "total_usd": -23022.500000000007,
+     "trades": 132,
+     "usd_per_asset_day": -359.7265625000001,
+     "usd_per_trade": -174.41287878787884,
+     "wall_rate": 0.4621212121212121,
+     "walls": 61,
+     "win_rate": 0.3333333333333333
+    }
+   },
+   "theta=0.5": {
+    "HG": {
+     "clears_rung": false,
+     "coverage": 0.3835616438356164,
+     "damage_usd": 3131.25,
+     "flips_applied": 1,
+     "flips_available": 44,
+     "flips_requested": 1,
+     "mdd_day_usd": 6900.0,
+     "mdd_trade_usd": 6900.0,
+     "rate": 0.02,
+     "total_usd": -2948.75,
+     "trades": 56,
+     "usd_per_asset_day": -44.678030303030305,
+     "usd_per_trade": -52.65625,
+     "wall_rate": 0.25,
+     "walls": 14,
+     "win_rate": 0.44642857142857145
+    },
+    "NKD": {
+     "clears_rung": false,
+     "coverage": 0.6304347826086957,
+     "damage_usd": 11925.0,
+     "flips_applied": 2,
+     "flips_available": 68,
+     "flips_requested": 2,
+     "mdd_day_usd": 7147.5,
+     "mdd_trade_usd": 7147.5,
+     "rate": 0.02,
+     "total_usd": -7147.5,
+     "trades": 87,
+     "usd_per_asset_day": -109.96153846153847,
+     "usd_per_trade": -82.15517241379311,
+     "wall_rate": 0.41379310344827586,
+     "walls": 36,
+     "win_rate": 0.3793103448275862
+    },
+    "SI": {
+     "clears_rung": false,
+     "coverage": 0.43478260869565216,
+     "damage_usd": 6762.500000000001,
+     "flips_applied": 1,
+     "flips_available": 49,
+     "flips_requested": 1,
+     "mdd_day_usd": 25060.000000000004,
+     "mdd_trade_usd": 25060.000000000004,
+     "rate": 0.02,
+     "total_usd": -19750.0,
+     "trades": 60,
+     "usd_per_asset_day": -308.59375,
+     "usd_per_trade": -329.1666666666667,
+     "wall_rate": 0.6,
+     "walls": 36,
+     "win_rate": 0.25
+    }
+   },
+   "theta=1.0": {
+    "HG": {
+     "clears_rung": false,
+     "coverage": 0.6027397260273972,
+     "damage_usd": 5412.5,
+     "flips_applied": 2,
+     "flips_available": 66,
+     "flips_requested": 2,
+     "mdd_day_usd": 9186.25,
+     "mdd_trade_usd": 9186.25,
+     "rate": 0.02,
+     "total_usd": -4321.25,
+     "trades": 88,
+     "usd_per_asset_day": -65.47348484848484,
+     "usd_per_trade": -49.10511363636363,
+     "wall_rate": 0.3068181818181818,
+     "walls": 27,
+     "win_rate": 0.4431818181818182
+    },
+    "NKD": {
+     "clears_rung": false,
+     "coverage": 0.7753623188405797,
+     "damage_usd": 11500.0,
+     "flips_applied": 2,
+     "flips_available": 84,
+     "flips_requested": 2,
+     "mdd_day_usd": 14995.0,
+     "mdd_trade_usd": 15830.0,
+     "rate": 0.02,
+     "total_usd": -13247.5,
+     "trades": 107,
+     "usd_per_asset_day": -203.80769230769232,
+     "usd_per_trade": -123.80841121495327,
+     "wall_rate": 0.4205607476635514,
+     "walls": 45,
+     "win_rate": 0.3644859813084112
+    },
+    "SI": {
+     "clears_rung": false,
+     "coverage": 0.5362318840579711,
+     "damage_usd": 6312.5,
+     "flips_applied": 1,
+     "flips_available": 54,
+     "flips_requested": 1,
+     "mdd_day_usd": 15140.0,
+     "mdd_trade_usd": 15140.0,
+     "rate": 0.02,
+     "total_usd": -7870.000000000003,
+     "trades": 74,
+     "usd_per_asset_day": -122.96875000000004,
+     "usd_per_trade": -106.35135135135138,
+     "wall_rate": 0.5135135135135135,
+     "walls": 38,
+     "win_rate": 0.32432432432432434
+    }
+   }
+  }
+ },
+ "sweep8_gate": {
+  "by_asset": {
+   "HG": {
+    "match": true,
+    "mdd_day_usd_cents": [
+     1100375,
+     1100375
+    ],
+    "total_usd_cents": [
+     109500,
+     109500
+    ],
+    "trades": [
+     126,
+     126
+    ],
+    "walls": [
+     28,
+     28
+    ]
+   },
+   "NKD": {
+    "match": true,
+    "mdd_day_usd_cents": [
+     527000,
+     527000
+    ],
+    "total_usd_cents": [
+     1864250,
+     1864250
+    ],
+    "trades": [
+     129,
+     129
+    ],
+    "walls": [
+     39,
+     39
+    ]
+   },
+   "SI": {
+    "match": true,
+    "mdd_day_usd_cents": [
+     995250,
+     995250
+    ],
+    "total_usd_cents": [
+     805000,
+     805000
+    ],
+    "trades": [
+     125,
+     125
+    ],
+    "walls": [
+     45,
+     45
+    ]
+   }
+  },
+  "match": true,
+  "source": "/workspace/.audit/mill-sweep8.json"
+ }
+}

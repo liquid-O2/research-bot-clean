@@ -184,6 +184,11 @@ VIEWS = ("CLOCK", "S8", "SEQUENCE", "UNION")
 ELIGIBLE_VIEWS = ("S8", "SEQUENCE", "UNION")
 REGIMES = ("balance", "middle", "trend")
 CUTS = ("pooled",) + REGIMES
+# Sweep 7a put most continuation risk in phase 2, so the phases are reported
+# beside the frozen regimes.  They are REPORTING cuts: the spec's max-statistic
+# family is the pooled line and the three regimes, and stays that way.
+PHASE_CUTS = ("phase0", "phase1", "phase2")
+ALL_CUTS = CUTS + PHASE_CUTS
 CONTROLS = ("E1ONLY", "PHASEMATCH")
 
 FAMILY = "F6-TWINS"
@@ -507,6 +512,23 @@ class Twins:
     risk5: np.ndarray               # mean 1 - label over up to KNN twins
     twins_found: np.ndarray         # how many twins the row actually had
 
+    def score(self, risk: np.ndarray) -> np.ndarray:
+        """The risk with its frozen, label-free tie-break.
+
+        A k=5 risk takes six values, so its cell-coverage curve is a six-step
+        staircase and "the smallest bar reaching 0.35" lands mid-tie and then
+        floods: one bar of 0.0 admits every row whose five twins all survived,
+        which is most cells.  The tie is broken by the row's own nearest-twin
+        distance through a bounded monotone map, so a closer twin is preferred
+        inside one risk level and no row can ever cross into the next level.
+        The map reads no label and no sample statistic, so it adds no fit and
+        no walk-forward exposure.
+        """
+
+        offset = 0.19 * (1.0 - np.exp(-np.where(np.isfinite(self.distance),
+                                                self.distance, 0.0)))
+        return risk + offset
+
 
 def match_twins(plane: Plane, scaled: np.ndarray, view: str,
                 mutant: str = "") -> Twins:
@@ -724,7 +746,12 @@ def _postx(weights: np.ndarray, y: np.ndarray) -> tuple[float | None, float]:
 def bootstrap_delta(plane: Plane, day_keys: np.ndarray, target: np.ndarray,
                     control: np.ndarray, draws: int = BOOT_DRAWS
                     ) -> tuple[float | None, float | None]:
-    """Day-block 95 % interval on postX(control) - postX(target)."""
+    """Day-block 95 % interval on postX(control) - postX(target).
+
+    The blocks are the asset-days that actually carry mass for this cut; days
+    with no weight on either side are not resampled, or the interval would be
+    the interval of a randomly thinned sample rather than of the measurement.
+    """
 
     days = sorted(set(day_keys.tolist()))
     if not days:
@@ -737,6 +764,12 @@ def bootstrap_delta(plane: Plane, day_keys: np.ndarray, target: np.ndarray,
     t_mass = np.bincount(slot, weights=target, minlength=size)
     c_hits = np.bincount(slot, weights=control * y, minlength=size)
     c_mass = np.bincount(slot, weights=control, minlength=size)
+    live = np.flatnonzero((t_mass > 0) | (c_mass > 0))
+    if not len(live):
+        return None, None
+    t_hits, t_mass = t_hits[live], t_mass[live]
+    c_hits, c_mass = c_hits[live], c_mass[live]
+    size = len(live)
     rng = np.random.default_rng(SEED)
     picks = rng.integers(0, size, size=(draws, size))
     th = t_hits[picks].sum(axis=1)
@@ -765,6 +798,7 @@ class ViewRun:
     pm_weights: np.ndarray
     bar_info: dict[str, object]
     e1_bar_info: dict[str, object]
+    k1_weights: np.ndarray          # the 1-NN risk line, reported beside K5
 
 
 def run_views(plane: Plane, scaled: np.ndarray, mutant: str = "") -> dict[str, ViewRun]:
@@ -777,10 +811,13 @@ def run_views(plane: Plane, scaled: np.ndarray, mutant: str = "") -> dict[str, V
     for view in VIEWS:
         twins = match_twins(plane, scaled, view, mutant)
         selected, info = calibrate_and_select(
-            plane, twins.risk5, lower_is_better=True, cell_ids=keys)
+            plane, twins.score(twins.risk5), lower_is_better=True, cell_ids=keys)
+        k1, _k1_info = calibrate_and_select(
+            plane, twins.score(twins.risk1), lower_is_better=True, cell_ids=keys)
         pm = phase_matched_control(plane, selected)
         out[view] = ViewRun(twins, selected, selected.astype(np.float64),
-                            e1_weights, pm, info, e1_info)
+                            e1_weights, pm, info, e1_info,
+                            k1.astype(np.float64))
     return out
 
 
@@ -794,6 +831,17 @@ def _disagreement(plane: Plane, twins: Twins, mask: np.ndarray) -> dict[str, obj
     keep = order[: max(1, int(round(DISAGREE_SHARE * len(order))))]
     hits = int(np.sum(plane.y1800[keep] != twins.twin_label[keep]))
     return _rate(hits, len(keep))
+
+
+def _admit(plane: Plane, in_asset: np.ndarray, regimes: np.ndarray,
+           cut: str) -> np.ndarray:
+    """Which rows one reporting cut admits."""
+
+    if cut == "pooled":
+        return in_asset
+    if cut in PHASE_CUTS:
+        return in_asset & (plane.phase == cut[-1])
+    return in_asset & (regimes == cut)
 
 
 def measure(plane: Plane, runs: Mapping[str, ViewRun], regimes: np.ndarray
@@ -817,8 +865,8 @@ def measure(plane: Plane, runs: Mapping[str, ViewRun], regimes: np.ndarray
             "views": {}}
         for view, run in runs.items():
             per_view: dict[str, object] = {}
-            for cut in CUTS:
-                admit = in_asset if cut == "pooled" else (in_asset & (regimes == cut))
+            for cut in ALL_CUTS:
+                admit = _admit(plane, in_asset, regimes, cut)
                 weights = run.weights * admit
                 e1w = run.e1_weights * admit
                 pmw = run.pm_weights * admit
@@ -868,19 +916,30 @@ def measure(plane: Plane, runs: Mapping[str, ViewRun], regimes: np.ndarray
                             plane.raw[selected_rows, FIELD_INDEX["extreme_age_s"]], 90))
                         if len(selected_rows) else None),
                 }
-            per_view["risk1_line"] = None
+            # The 1-NN risk line, run beside the deciding 5-NN estimate.
+            k1 = run.k1_weights * in_asset
+            k1_postx, k1_mass = _postx(k1, plane.y1800)
+            per_view["k1_pooled"] = {
+                "coverage": _cell_coverage(cell_ids, k1 > 0, denominator),
+                "entries": int(k1_mass), "postx1800": k1_postx}
             block["views"][view] = per_view
         report[asset] = block
     return report
 
 
 def null_test(plane: Plane, runs: Mapping[str, ViewRun], regimes: np.ndarray,
-              report: Mapping[str, object], draws: int = NULL_DRAWS
-              ) -> dict[str, object]:
-    """Block-permuted Y1800 with the row sets held fixed; max-stat adjusted."""
+              draws: int = NULL_DRAWS) -> dict[str, object]:
+    """Block-permuted Y1800 with the row sets held fixed; max-stat adjusted.
+
+    The block is the asset-day; the permutation runs INSIDE (asset, phase,
+    regime), so a day's labels move to another day of the same stratum and
+    regime as one piece.  Reordering blocks preserves each group's label rate
+    exactly, which is what makes this a null about the SELECTION rather than
+    about the base rate.
+    """
 
     rng = np.random.default_rng(SEED)
-    groups: dict[tuple[str, str, str], list[np.ndarray]] = {}
+    groups: list[tuple[np.ndarray, list[np.ndarray]]] = []
     for asset in ASSETS:
         for phase in sorted(set(plane.phase.tolist())):
             for regime in list(REGIMES) + [""]:
@@ -891,18 +950,15 @@ def null_test(plane: Plane, runs: Mapping[str, ViewRun], regimes: np.ndarray,
                     continue
                 blocks = [pick[plane.d8[pick] == day]
                           for day in sorted(set(plane.d8[pick].tolist()))]
-                groups[(asset, phase, regime)] = blocks
+                groups.append((np.concatenate(blocks), blocks))
     y = 1 - plane.y1800
     permuted = np.zeros((plane.n, draws), np.float32)
     for draw in range(draws):
         column = np.array(y, np.float32)
-        for blocks in groups.values():
+        for slots, blocks in groups:
             order = rng.permutation(len(blocks))
-            pool = np.concatenate([y[blocks[position]] for position in order])
-            cursor = 0
-            for block in blocks:
-                column[block] = pool[cursor: cursor + len(block)]
-                cursor += len(block)
+            column[slots] = np.concatenate([y[blocks[position]]
+                                            for position in order])
         permuted[:, draw] = column
 
     cells: list[tuple[str, str, str]] = []
@@ -912,8 +968,8 @@ def null_test(plane: Plane, runs: Mapping[str, ViewRun], regimes: np.ndarray,
         in_asset = plane.asset == asset
         for view in VIEWS:
             run = runs[view]
-            for cut in CUTS:
-                admit = in_asset if cut == "pooled" else (in_asset & (regimes == cut))
+            for cut in ALL_CUTS:
+                admit = _admit(plane, in_asset, regimes, cut)
                 for name, weights in (("SEL", run.weights * admit),
                                       ("E1ONLY", run.e1_weights * admit),
                                       ("PHASEMATCH", run.pm_weights * admit)):
@@ -935,8 +991,11 @@ def null_test(plane: Plane, runs: Mapping[str, ViewRun], regimes: np.ndarray,
                                           rates[pm] - rates[sel])
         observed[position] = float(min(observed_rates[e1] - observed_rates[sel],
                                        observed_rates[pm] - observed_rates[sel]))
+    # The max-statistic family is exactly the spec's: the two deciding assets,
+    # the four views, and the pooled plus three regime cuts.  The phase rows are
+    # reported with an own-p only; they never widen or narrow the family.
     family = [position for position, name in enumerate(names)
-              if name.split("/")[0] in DECIDING]
+              if name.split("/")[0] in DECIDING and name.split("/")[2] in CUTS]
     with np.errstate(invalid="ignore"):
         null_max = np.nanmax(statistics[family], axis=0)
     out: dict[str, object] = {"draws": draws, "seed": SEED,
@@ -1173,11 +1232,11 @@ def print_metrics(report: Mapping[str, object], nulls: Mapping[str, object]) -> 
               f"candidate availability {_n(report[asset]['candidate_availability'])}, "
               f"pool postX_1800 {_n(report[asset]['base_postx1800'])}")
         print(f"{'view':9s} {'cut':8s} {'cov':>6s} {'n':>5s} {'postX':>7s} "
-              f"{'E1ctl':>7s} {'dE1':>7s} {'lo':>7s} {'hi':>7s} "
-              f"{'PMctl':>7s} {'dPM':>7s} {'lo':>7s} {'hi':>7s} "
+              f"{'pClose':>7s} {'E1cov':>6s} {'E1ctl':>7s} {'dE1':>7s} {'lo':>7s} "
+              f"{'hi':>7s} {'PMctl':>7s} {'dPM':>7s} {'lo':>7s} {'hi':>7s} "
               f"{'adjP':>6s} {'twinD':>7s} {'disag':>7s} {'dlo':>6s} {'p90dly':>8s}")
         for view in VIEWS:
-            for cut in CUTS:
+            for cut in ALL_CUTS:
                 row = report[asset]["views"][view][cut]
                 null_p = _get(nulls, "by_cell", f"{asset}/{view}/{cut}",
                               "p_max_adjusted")
@@ -1185,6 +1244,8 @@ def print_metrics(report: Mapping[str, object], nulls: Mapping[str, object]) -> 
                 d2 = row["delta"]["PHASEMATCH"]
                 print(f"{view:9s} {cut:8s} {_n(row['coverage'], 6)} "
                       f"{row['entries']:5d} {_n(row['postx1800'])} "
+                      f"{_n(row['postclose'])} "
+                      f"{_n(row['control_E1ONLY']['coverage'], 6)} "
                       f"{_n(row['control_E1ONLY']['postx1800'])} "
                       f"{_n(d1['delta'])} {_n(d1['ci_low'])} {_n(d1['ci_high'])} "
                       f"{_n(row['control_PHASEMATCH']['postx1800'])} "
@@ -1193,6 +1254,10 @@ def print_metrics(report: Mapping[str, object], nulls: Mapping[str, object]) -> 
                       f"{_n(row['twin_disagreement']['rate'])} "
                       f"{_n(row['twin_disagreement']['ci_low'], 6)} "
                       f"{_n(row['decision_delay_p90_s'], 8, 0)}")
+        print(f"{'':9s} 1-NN line (reported beside the deciding 5-NN): " + "; ".join(
+            f"{view} cov {_n(report[asset]['views'][view]['k1_pooled']['coverage'], 5)}"
+            f" postX {_n(report[asset]['views'][view]['k1_pooled']['postx1800'], 5)}"
+            for view in VIEWS))
 
 
 def print_letters(block: Mapping[str, object]) -> None:
@@ -1291,7 +1356,9 @@ def _synthetic(kind: str, seed: int = SEED) -> Plane:
         delay_s=np.asarray([r["delay_s"] for r in rows], np.float64),
         certifiable={"HG": 0, "NKD": 160, "SI": 160},
         cells_total={"HG": 0, "NKD": 160, "SI": 160},
-        asset_days={"HG": 0, "NKD": 40, "SI": 40}, counters={})
+        asset_days={"HG": 0, "NKD": 40, "SI": 40}, counters={},
+        stratum_day_cells={(asset, "1", day): 4
+                           for asset in ("NKD", "SI") for day in days})
     return plane
 
 
@@ -1300,8 +1367,8 @@ def _synthetic_postx(kind: str, view: str, mutant: str) -> tuple[float, float]:
     scaled = scale_plane(plane)
     twins = match_twins(plane, scaled, view, mutant)
     keys = plane.cell_keys()
-    selected, _info = calibrate_and_select(plane, twins.risk5, lower_is_better=True,
-                                           cell_ids=keys)
+    selected, _info = calibrate_and_select(plane, twins.score(twins.risk5),
+                                           lower_is_better=True, cell_ids=keys)
     weights = selected.astype(np.float64)
     postx, mass = _postx(weights, plane.y1800)
     coverage = _cell_coverage(keys, weights > 0,
@@ -1471,14 +1538,14 @@ def forecast_variance(cells: Sequence[S8.Cell8]) -> dict[tuple[str, int], float]
     return out
 
 
-def run(assets: Sequence[str] = ASSETS) -> dict[str, object]:
+def run(assets: Sequence[str] = ASSETS) -> tuple:
     mutant = _mutant()
     cells, days, skipped = S8.build_cells(assets)
-    # The tape series ride on the cell so the row plane can read the last-10-bar
-    # quote and volume ratios without re-opening the flow shard.
-    attach_tape(cells)
+    # The tape series are read once per cell so the row plane can take the
+    # last-10-bar quote and volume ratios without re-opening the flow shard.
+    tape = load_tape(cells)
     forecast = forecast_variance(cells)
-    plane = build_plane(cells, forecast, mutant)
+    plane = build_plane(cells, forecast, tape, mutant)
     repro = reproduce_sweep8(cells, days, skipped, plane)
     if not repro["matches"]:
         raise SweepRefusal("sweep 8 opportunity counts did not reproduce; "
@@ -1488,7 +1555,7 @@ def run(assets: Sequence[str] = ASSETS) -> dict[str, object]:
     regimes, edges = regime_labels(plane)
     runs = run_views(plane, scaled, mutant)
     metrics = measure(plane, runs, regimes)
-    nulls = null_test(plane, runs, regimes, metrics)
+    nulls = null_test(plane, runs, regimes)
     block = letters(metrics, nulls)
     report = {
         "schema": "QRE2MILLSWEEP9", "spec_sha": SPEC_SHA, "code_sha": code_sha(),
@@ -1506,18 +1573,21 @@ def run(assets: Sequence[str] = ASSETS) -> dict[str, object]:
     return report, plane, repro, metrics, nulls, block
 
 
-def attach_tape(cells: Sequence[S8.Cell8]) -> None:
-    """Bind each cell's quote-event and volume series for the tape ratios."""
+def load_tape(cells: Sequence[S8.Cell8]
+              ) -> dict[int, tuple[np.ndarray, np.ndarray]]:
+    """Each cell's quote-event and volume series, keyed by cell position."""
 
     cache: dict[tuple[str, int], dict] = {}
+    out: dict[int, tuple[np.ndarray, np.ndarray]] = {}
     for cell in cells:
         key = (cell.asset, cell.d8)
         if key not in cache:
             cache[key] = FLOW.load_flow(cell.asset, cell.d8)
-        day = cache[key]
-        arrays = day[(cell.phase, int(cell.rec.phase_open_ts_ns))]
-        cell.quotes = np.asarray(arrays["quote_events"], np.float64)[:cell.n]
-        cell.vols = np.asarray(arrays["vol"], np.float64)[:cell.n]
+        arrays = cache[key][(cell.phase, int(cell.rec.phase_open_ts_ns))]
+        out[cell.position] = (
+            np.asarray(arrays["quote_events"], np.float64)[:cell.n],
+            np.asarray(arrays["vol"], np.float64)[:cell.n])
+    return out
 
 
 def main(argv: Sequence[str] | None = None) -> int:

@@ -650,8 +650,46 @@ certificate and the regime-scoped variant. 7b's lawful influence is
 exactly: branch priority (late-dominated losses tighten the lateness law;
 hard-wrong-dominated opens variant C) - nothing else.
 
+## Sol's blank-slate root cause: argfirst (adopted, Fable, 2026-08-27)
+
+`.audit/briefs/mill-rootcause-sol-out.md`, independent, receipts-proven.
+The load-bearing error across the entire program: every executable policy
+- fixed clocks, event triggers, retests, gates, my grammar, Sol's own
+designs - takes the FIRST occurrence that clears a local predicate and
+spends the cell. `argfirst` where the domain requires an ordered stopping
+process. Receipts: ~15 qualifying occurrences per selected cell with
+first-is-last rates of 3-6%; soft-correct triggers entering before the
+next extension 49-58% of the time; the loss concentrated in early
+continuation; S0/B2 recovering value precisely by ORDERING within a
+side; I4's first-terminal oracle clearing every rung with no side bit.
+This diagnosis supersedes and explains my refuted score-vs-sequence
+claim: sweep 11's grammar was ordered in its stages but still argfirst at
+entry, which is exactly why its stage-shuffled control matched it. The
+occurrence ordinal has never once been policy state in 425 logged trials.
+
+Adopted with it: (1) the resurrection table - family closures were
+overbroad; quiet age, retrace hold, F/S components, held-retest
+vocabulary, prior-level contact, and candidate depth are revived as
+STATE-TRANSITION INGREDIENTS while every priced argfirst policy stays
+dead; (2) the process fix - the log gains mechanism facts (transitions,
+vetoes, availabilities), not just verdicts; (3) Sol's independent
+reachability finding: the goal IS reachable under the frozen inputs,
+costs, exit, occupancy, and cap laws - S0R and I4 prove no lawful change
+is needed before testing the occurrence selector.
+
+The first build is Sol's ordinal-2 ablation (its section C, dispatch-
+grade): the frozen sweep-8 PRIMARY fires unchanged; enter the SECOND
+distinct in-zone candidate occurrence instead of the first; same-side new
+extremes reset the ordinal and void the fire; a TIME-MATCH control prices
+lateness separately so ordinal-2 only gets credit beyond it; hard
+pre-registered bounds (SECOND beats FIRST by 0.10 and TIME-MATCH by 0.05
+on postX_1800 at coverage 0.35, adjusted p 0.05); one gated price read
+under the standing bars. A pass licenses the finite-state grammar; a fail
+kills ordinal two, not every ordered process. Dispatched as sweep 13.
+
 ## The structural diagnosis: score versus sequence (Fable, 2026-08-27,
-USER-forced)
+USER-forced; REFUTED by sweep 11's stage-shuffled control and superseded
+by the argfirst diagnosis above)
 
 USER: the approach is architecturally wrong again; name it. Named:
 

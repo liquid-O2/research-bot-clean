@@ -650,6 +650,123 @@ certificate and the regime-scoped variant. 7b's lawful influence is
 exactly: branch priority (late-dominated losses tighten the lateness law;
 hard-wrong-dominated opens variant C) - nothing else.
 
+## The structural diagnosis: score versus sequence (Fable, 2026-08-27,
+USER-forced)
+
+USER: the approach is architecturally wrong again; name it. Named:
+
+Every unit tonight - the R5 composite, the quiet gates, the retest
+screen, the E1 gate, the survival evidences - collapsed ordered event
+structure into scalar scores and thresholded them. The source material
+the USER supplied specifies ORDERED EVENT GRAMMARS with hard per-stage
+vetoes: arrival, then absorption, then control transfer, then hold, in
+that order, each stage able to kill the setup outright. Averaging stage
+evidence into a composite destroys precisely the ordering information the
+sources insist carries the meaning. The measured pattern of the night
+matches this diagnosis exactly: every individual component separates a
+little (one-sidedness 0.61-0.66, delta-flip 0.64-0.66, quiet recall
+0.74-0.96), every scalar combination of them fails (dilution plus the
+wrong computation class), and the literal ordered conjunction has never
+been run once. The prior CatBoost era made the same class error from the
+other side (atomic features, learned interactions). Two computation
+classes tried; the one the domain specifies, never.
+
+The unit that follows (sweep 11, the grammar automaton) runs the exact
+two-lane sequence the diagram forensics extracted, as an automaton with
+resets - no weights, no averages, no score: per (cell, side, zone):
+stage 1 arrival (attack volume into the zone at or above its stratum
+p60); stage 2 absorption (price yield per attack at or below p40 during
+the arrival, or a one-sided terminal print); stage 3 control transfer
+(signed delta flips toward the fade within 3 bars - the fast lane - OR
+pull-away then a retest that holds beyond the zone edge - the slow
+lane); stage 4 hold (no new same-side extreme for k bars); stage 5 entry
+at the first in-zone fade-side candidate. Any stage failing resets the
+automaton for that side. Precision-first metrics with a per-stage
+attrition table so a failure names its stage. The MDD overlay
+(stand-down cadence after a wall, lawful and entries-only) rides as a
+priced variant on whatever survives.
+
+## Sweep 8b ruling: the safety-payload tension (Fable, 2026-08-27)
+
+`.audit/mill-sweep8.json` sweep8b key, rows sweep8b-001..004 KILL. The
+E1-only gate carries the best safety ever measured (fixed-horizon
+extension 0.143-0.245, the lowest SWIB wall rates of any line) and the
+least cash (-143.7 to +248.4 usd/day; five of six lines stress-negative).
+Mechanism, from its own tables: it fires at median 8.9-11.4k s into the
+phase, where the remaining move is spent. The composite's +211 NKD line
+earned on earlier, riskier fires whose survivors still carried payload.
+
+The tension is now named and measured: on these inputs, causally-knowable
+safety arrives AFTER the payload leaves. Minimizing extension and
+maximizing cash disagree. The decisive instrument is the matched-twins
+certificate (Sol's sweep-9 spec) joined with the O4b decay curve: does
+ANY causal state identify survival early enough that remaining cash still
+clears the per-trade requirement at deployable coverage? Sol's sniper
+audit (in flight) rules on sequencing; the certificate is the leading
+next unit either way.
+
+## Sweep 8 ruling: composite KILLED on credit; E1-only is the survivor
+evidence (Fable, 2026-08-27, overnight)
+
+`.audit/mill-sweep8.json` final, rows sweep8-001..006 KILL. All six priced
+lines miss the rungs (best NKD PRIMARY +210.7, stress positive, adjusted
+null 0.0547; MDD 3.3k-12.5k). The adopted credit law then fired: at the
+fire stamp the composite's fixed-horizon extension (0.430-0.475) is
+indistinguishable from phase-matched random (0.397-0.482) and it fires
+EARLY (median 1.3-2.8k s into phase) - a clock with favorable censoring,
+exactly the failure mode Sol named. Sol's cadence critique is proven: the
+E2-E5 evidences diluted the one real signal. The E1-ONLY control - quiet
+age alone against its own walk-forward percentile - posts extension
+0.159-0.245 at coverage 0.78-0.83, firing late (median 9.4-11.4k s), the
+strongest survival separation measured all night, and it was never
+priced. SWIB's share ROSE under the composite (0.83-0.87) because early
+fires enter before extension resolves; depth still cut SWIB walls to
+0.31-0.51. Ruling: the five-evidence composite is retired; sweep 8b
+prices the E1-only gate with both entry laws under the standing bars,
+dispatched to the same agent. The second-attempt policy and Sol's sniper
+audit queue behind its result.
+
+## Sol co-ideation adopted: the sweep-8 judging law and both branches
+(Fable ruling, 2026-08-27)
+
+`.audit/briefs/mill-sweep8-sol-out.md` reviewed; adopted in full with the
+frozen terms unchanged:
+
+1. **The judging law.** Sweep 8's verdict separates three objects: fixed-
+   horizon extension (postX_1800) measured FROM THE GATE FIRE, the same
+   from the candidate entry, and the fire-to-entry wait. The composite
+   earns belief only if fire-stamp postX_1800 beats BOTH an E1-only
+   control and a phase-time-matched random control by >= 0.05; an
+   entry-time pass without a fire-stamp pass belongs to depth, delay, or
+   censoring - a clock with favorable censoring, not a survival detector.
+   Phase 2 is read first. If sweep 8's tables lack these columns, the
+   agent adds them before any verdict.
+2. **Design critique banked for iteration two** (frozen bar stands now):
+   E1/E2/E4 are one cadence mechanism worth 3/5 of G; the 60th-percentile
+   bar carries a repeated-look mismatch (calibrated per bar, watched over
+   many bars; the correct object is first-crossing per episode); E3 can
+   go stale and resets on same-side extremes next round; E5's polarity is
+   the least secure. Tables must report bar-level crossing frequency AND
+   episode-level coverage.
+3. **No late classifier.** The all-late causal mix ceilings at ~1167/1217
+   usd/day at full coverage; standalone late lines cannot clear, and
+   composition demands the depth line already post >= ~1074-1170. The
+   survival selector judged on fixed exposure IS the late policy done
+   lawfully.
+4. **The hillclimb ladder if sweep 8 is interesting-or-better**, one knob
+   per unit, each with pre-registered bounds (Sol section C): second
+   distinct in-zone candidate (the direct SWIB attack) -> two-bar gate
+   persistence -> inner-half zone -> late composition only when the
+   section-B equation is satisfied. Freeze an asset the moment it clears
+   rung + MDD both orderings + stress + adjusted null.
+5. **The kill branch is ready to paste**: sweep 9, the matched-history
+   survival certificate (Sol's full dispatch text, in its page), with
+   SURVIVOR / REGIME_SURVIVOR / CERTIFICATE / UNRESOLVED letters - the
+   instrument that either routes a scoped successor or closes
+   transformations of the current causal state with a receipt.
+6. **Unsharp band**: third label AMBIGUOUS for diagnostics; ignored for
+   policy (postX needs no side label); hindsight abstention banned.
+
 ## Sweep 7b verdict and the sweep-8 amendments (Fable ruling, 2026-08-27)
 
 `.audit/mill-sweep7b.json`, rows sweep7b-001..006, all KILL. Two rulings

@@ -1,0 +1,5182 @@
+{
+  "asset_days": {
+    "HG": 66,
+    "NKD": 65,
+    "SI": 64
+  },
+  "calibration": {
+    "by_stratum": {
+      "HG/0": {
+        "bar_crossing_freq": 0.4074099023240148,
+        "bars_crossed": 12096,
+        "bars_scored": 29690,
+        "cells_scored": 44,
+        "cells_with_a_crossing": 36,
+        "entries": 42,
+        "episode_crossing_rate": 0.8181818181818182,
+        "episode_entry_coverage": 0.9545454545454546
+      },
+      "HG/1": {
+        "bar_crossing_freq": 0.41933550265456415,
+        "bars_crossed": 4897,
+        "bars_scored": 11678,
+        "cells_scored": 43,
+        "cells_with_a_crossing": 40,
+        "entries": 35,
+        "episode_crossing_rate": 0.9302325581395349,
+        "episode_entry_coverage": 0.813953488372093
+      },
+      "HG/2": {
+        "bar_crossing_freq": 0.404742628259758,
+        "bars_crossed": 18997,
+        "bars_scored": 46936,
+        "cells_scored": 43,
+        "cells_with_a_crossing": 42,
+        "entries": 41,
+        "episode_crossing_rate": 0.9767441860465116,
+        "episode_entry_coverage": 0.9534883720930233
+      },
+      "NKD/0": {
+        "bar_crossing_freq": 0.3794768471879668,
+        "bars_crossed": 10924,
+        "bars_scored": 28787,
+        "cells_scored": 43,
+        "cells_with_a_crossing": 40,
+        "entries": 30,
+        "episode_crossing_rate": 0.9302325581395349,
+        "episode_entry_coverage": 0.6976744186046512
+      },
+      "NKD/1": {
+        "bar_crossing_freq": 0.4057047395124366,
+        "bars_crossed": 6557,
+        "bars_scored": 16162,
+        "cells_scored": 43,
+        "cells_with_a_crossing": 43,
+        "entries": 42,
+        "episode_crossing_rate": 1.0,
+        "episode_entry_coverage": 0.9767441860465116
+      },
+      "NKD/2": {
+        "bar_crossing_freq": 0.33744626071749534,
+        "bars_crossed": 13893,
+        "bars_scored": 41171,
+        "cells_scored": 43,
+        "cells_with_a_crossing": 43,
+        "entries": 39,
+        "episode_crossing_rate": 1.0,
+        "episode_entry_coverage": 0.9069767441860465
+      },
+      "SI/0": {
+        "bar_crossing_freq": 0.4291911992562752,
+        "bars_crossed": 11080,
+        "bars_scored": 25816,
+        "cells_scored": 42,
+        "cells_with_a_crossing": 36,
+        "entries": 39,
+        "episode_crossing_rate": 0.8571428571428571,
+        "episode_entry_coverage": 0.9285714285714286
+      },
+      "SI/1": {
+        "bar_crossing_freq": 0.3744452662721893,
+        "bars_crossed": 6075,
+        "bars_scored": 16224,
+        "cells_scored": 42,
+        "cells_with_a_crossing": 41,
+        "entries": 41,
+        "episode_crossing_rate": 0.9761904761904762,
+        "episode_entry_coverage": 0.9761904761904762
+      },
+      "SI/2": {
+        "bar_crossing_freq": 0.383402169958698,
+        "bars_crossed": 17916,
+        "bars_scored": 46729,
+        "cells_scored": 42,
+        "cells_with_a_crossing": 42,
+        "entries": 41,
+        "episode_crossing_rate": 1.0,
+        "episode_entry_coverage": 0.9761904761904762
+      }
+    }
+  },
+  "cells": {
+    "HG": 201,
+    "NKD": 195,
+    "SI": 195
+  },
+  "cells_scored": {
+    "HG": 138,
+    "NKD": 132,
+    "SI": 132
+  },
+  "code_sha": "d9276b1b6329d077cf47d65b0213cb86b8e6367d002dc38679f7e57986f792b2",
+  "credit": {
+    "by_asset": {
+      "HG": {
+        "beats": {
+          "E1ONLY": {
+            "delta": -0.2616133082234777,
+            "pass": false
+          },
+          "PHASEMATCH": {
+            "delta": 0.007112121116476744,
+            "pass": false
+          }
+        },
+        "composite": {
+          "ci_high": 0.5640477236478817,
+          "ci_low": 0.38670795460749935,
+          "hits": 56,
+          "n": 118,
+          "rate": 0.4745762711864407
+        },
+        "deciding": false,
+        "e1only": {
+          "ci_high": 0.29933435242768675,
+          "ci_low": 0.14630950224163303,
+          "hits": 23,
+          "n": 108,
+          "rate": 0.21296296296296297
+        },
+        "phasematch": {
+          "ci_high": 0.4989529070033369,
+          "ci_low": 0.46446748996709003,
+          "hits": 1552,
+          "n": 3222,
+          "rate": 0.48168839230291743
+        },
+        "verdict": "FAIL"
+      },
+      "NKD": {
+        "beats": {
+          "E1ONLY": {
+            "delta": -0.204995904995905,
+            "pass": false
+          },
+          "PHASEMATCH": {
+            "delta": -0.053391626921038715,
+            "pass": false
+          }
+        },
+        "composite": {
+          "ci_high": 0.5431196894224019,
+          "ci_low": 0.36109608671838495,
+          "hits": 50,
+          "n": 111,
+          "rate": 0.45045045045045046
+        },
+        "deciding": true,
+        "e1only": {
+          "ci_high": 0.33356357575914586,
+          "ci_low": 0.17452424584719226,
+          "hits": 27,
+          "n": 110,
+          "rate": 0.24545454545454545
+        },
+        "phasematch": {
+          "ci_high": 0.41378169762054645,
+          "ci_low": 0.38057303761842415,
+          "hits": 1323,
+          "n": 3332,
+          "rate": 0.39705882352941174
+        },
+        "verdict": "FAIL"
+      },
+      "SI": {
+        "beats": {
+          "E1ONLY": {
+            "delta": -0.2708735614428053,
+            "pass": false
+          },
+          "PHASEMATCH": {
+            "delta": -0.022920715094049526,
+            "pass": false
+          }
+        },
+        "composite": {
+          "ci_high": 0.518778484603885,
+          "ci_low": 0.34504880353749623,
+          "hits": 52,
+          "n": 121,
+          "rate": 0.4297520661157025
+        },
+        "deciding": true,
+        "e1only": {
+          "ci_high": 0.23977489860765425,
+          "ci_low": 0.10162676845186588,
+          "hits": 17,
+          "n": 107,
+          "rate": 0.1588785046728972
+        },
+        "phasematch": {
+          "ci_high": 0.42374498889216694,
+          "ci_low": 0.39013575811792733,
+          "hits": 1334,
+          "n": 3279,
+          "rate": 0.40683135102165296
+        },
+        "verdict": "FAIL"
+      }
+    },
+    "margin": 0.05,
+    "overall": "FAIL"
+  },
+  "decision": {
+    "by_asset": {
+      "HG": {
+        "CONTROL": {
+          "adjusted_null_p": 1.0,
+          "bounds_fired": [
+            "usd/day 16.6 < rung 2000",
+            "mdd_day 11004 >= 1000",
+            "mdd_trade 11909 >= 1000",
+            "stress -112.2 < 0",
+            "adjusted null 1.0 > 0.05"
+          ],
+          "coverage": 0.9130434782608695,
+          "deciding": false,
+          "freeze_candidate": false,
+          "interesting": false,
+          "mdd_day_usd": 11003.75,
+          "mdd_trade_usd": 11908.75,
+          "post_extension": 0.7777777777777778,
+          "stress_usd_per_asset_day": -112.1969696969697,
+          "swib_loss_share": 0.8939535754399102,
+          "usd_per_asset_day": 16.59090909090909,
+          "verdict": "KILL"
+        },
+        "PRIMARY": {
+          "adjusted_null_p": 1.0,
+          "bounds_fired": [
+            "usd/day -43.7 < rung 2000",
+            "mdd_day 11364 >= 1000",
+            "mdd_trade 12465 >= 1000",
+            "stress -116.8 < 0",
+            "adjusted null 1.0 > 0.05"
+          ],
+          "coverage": 0.855072463768116,
+          "deciding": false,
+          "freeze_candidate": false,
+          "interesting": false,
+          "mdd_day_usd": 11363.75,
+          "mdd_trade_usd": 12465.0,
+          "post_extension": 0.7796610169491526,
+          "stress_usd_per_asset_day": -116.79924242424242,
+          "swib_loss_share": 0.868258975514496,
+          "usd_per_asset_day": -43.69318181818182,
+          "verdict": "KILL"
+        }
+      },
+      "NKD": {
+        "CONTROL": {
+          "adjusted_null_p": 0.7661691542288557,
+          "bounds_fired": [
+            "usd/day 286.8 < rung 1500",
+            "mdd_day 5270 >= 1000",
+            "mdd_trade 6175 >= 1000",
+            "adjusted null 0.7661691542288557 > 0.05"
+          ],
+          "coverage": 0.9772727272727273,
+          "deciding": true,
+          "freeze_candidate": false,
+          "interesting": false,
+          "mdd_day_usd": 5270.0,
+          "mdd_trade_usd": 6175.0,
+          "post_extension": 0.7131782945736435,
+          "stress_usd_per_asset_day": 59.30769230769231,
+          "swib_loss_share": 0.7975026014568158,
+          "usd_per_asset_day": 286.8076923076923,
+          "verdict": "KILL"
+        },
+        "PRIMARY": {
+          "adjusted_null_p": 0.05472636815920398,
+          "bounds_fired": [
+            "usd/day 210.7 < rung 1500",
+            "mdd_day 3348 >= 1000",
+            "mdd_trade 4510 >= 1000",
+            "adjusted null 0.05472636815920398 > 0.05"
+          ],
+          "coverage": 0.8409090909090909,
+          "deciding": true,
+          "freeze_candidate": false,
+          "interesting": false,
+          "mdd_day_usd": 3347.5,
+          "mdd_trade_usd": 4510.0,
+          "post_extension": 0.7387387387387387,
+          "stress_usd_per_asset_day": 62.23076923076923,
+          "swib_loss_share": 0.8264383561643835,
+          "usd_per_asset_day": 210.69230769230768,
+          "verdict": "KILL"
+        }
+      },
+      "SI": {
+        "CONTROL": {
+          "adjusted_null_p": 1.0,
+          "bounds_fired": [
+            "usd/day 125.8 < rung 1500",
+            "mdd_day 9952 >= 1000",
+            "mdd_trade 10072 >= 1000",
+            "stress -23.0 < 0",
+            "adjusted null 1.0 > 0.05"
+          ],
+          "coverage": 0.946969696969697,
+          "deciding": true,
+          "freeze_candidate": false,
+          "interesting": false,
+          "mdd_day_usd": 9952.5,
+          "mdd_trade_usd": 10072.5,
+          "post_extension": 0.792,
+          "stress_usd_per_asset_day": -23.046874999999975,
+          "swib_loss_share": 0.8990908459990282,
+          "usd_per_asset_day": 125.78125,
+          "verdict": "KILL"
+        },
+        "PRIMARY": {
+          "adjusted_null_p": 0.9950248756218906,
+          "bounds_fired": [
+            "usd/day 212.8 < rung 1500",
+            "mdd_day 8328 >= 1000",
+            "mdd_trade 9398 >= 1000",
+            "adjusted null 0.9950248756218906 > 0.05"
+          ],
+          "coverage": 0.9166666666666666,
+          "deciding": true,
+          "freeze_candidate": false,
+          "interesting": false,
+          "mdd_day_usd": 8327.5,
+          "mdd_trade_usd": 9397.5,
+          "post_extension": 0.7768595041322314,
+          "stress_usd_per_asset_day": 63.007812499999986,
+          "swib_loss_share": 0.8624051198094954,
+          "usd_per_asset_day": 212.8125,
+          "verdict": "KILL"
+        }
+      }
+    },
+    "keep_to_price": true,
+    "overall": "KILL"
+  },
+  "gate": {
+    "depth_atr": 0.15,
+    "depth_window_bars": 15,
+    "g_percentile": 60.0,
+    "min_components": 4,
+    "min_prior_days": 20,
+    "quiet_min_bars": 5,
+    "remaining_min_s": 1800
+  },
+  "horizon_bars": 30,
+  "horizons": {
+    "CONTROL": {
+      "by_asset": {
+        "HG": {
+          "entry_window_censored": 0,
+          "fire_phase_median_s": 1770.0,
+          "fire_window_censored": 0,
+          "n": 126,
+          "postx1800_entry": {
+            "ci_high": 0.5394130315230174,
+            "ci_low": 0.36816656509433465,
+            "hits": 57,
+            "n": 126,
+            "rate": 0.4523809523809524
+          },
+          "postx1800_fire": {
+            "ci_high": 0.6619616865993871,
+            "ci_low": 0.49207231903835913,
+            "hits": 73,
+            "n": 126,
+            "rate": 0.5793650793650794
+          },
+          "wait_max_s": 9900.0,
+          "wait_median_s": 0.0,
+          "wait_p90_s": 7110.0
+        },
+        "NKD": {
+          "entry_window_censored": 0,
+          "fire_phase_median_s": 1260.0,
+          "fire_window_censored": 0,
+          "n": 129,
+          "postx1800_entry": {
+            "ci_high": 0.4971338989513755,
+            "ci_low": 0.32972738212620745,
+            "hits": 53,
+            "n": 129,
+            "rate": 0.4108527131782946
+          },
+          "postx1800_fire": {
+            "ci_high": 0.5887873120754477,
+            "ci_low": 0.4187404583124836,
+            "hits": 65,
+            "n": 129,
+            "rate": 0.5038759689922481
+          },
+          "wait_max_s": 7020.0,
+          "wait_median_s": 60.0,
+          "wait_p90_s": 3540.000000000001
+        },
+        "SI": {
+          "entry_window_censored": 0,
+          "fire_phase_median_s": 720.0,
+          "fire_window_censored": 0,
+          "n": 125,
+          "postx1800_entry": {
+            "ci_high": 0.543322614135342,
+            "ci_low": 0.37130114051099083,
+            "hits": 57,
+            "n": 125,
+            "rate": 0.456
+          },
+          "postx1800_fire": {
+            "ci_high": 0.6741629027287159,
+            "ci_low": 0.504351064828952,
+            "hits": 74,
+            "n": 125,
+            "rate": 0.592
+          },
+          "wait_max_s": 11460.0,
+          "wait_median_s": 120.0,
+          "wait_p90_s": 7428.000000000002
+        }
+      },
+      "by_phase": {
+        "0": {
+          "entry_window_censored": 0,
+          "fire_phase_median_s": 5220.0,
+          "fire_window_censored": 0,
+          "n": 129,
+          "postx1800_entry": {
+            "ci_high": 0.4737606085143862,
+            "ci_low": 0.3079340502356097,
+            "hits": 50,
+            "n": 129,
+            "rate": 0.3875968992248062
+          },
+          "postx1800_fire": {
+            "ci_high": 0.6335361152935307,
+            "ci_low": 0.46432489974957447,
+            "hits": 71,
+            "n": 129,
+            "rate": 0.5503875968992248
+          },
+          "wait_max_s": 11460.0,
+          "wait_median_s": 4560.0,
+          "wait_p90_s": 8400.0
+        },
+        "1": {
+          "entry_window_censored": 0,
+          "fire_phase_median_s": 690.0,
+          "fire_window_censored": 0,
+          "n": 124,
+          "postx1800_entry": {
+            "ci_high": 0.5552087908658616,
+            "ci_low": 0.3822137004464401,
+            "hits": 58,
+            "n": 124,
+            "rate": 0.46774193548387094
+          },
+          "postx1800_fire": {
+            "ci_high": 0.6408905206868485,
+            "ci_low": 0.4686201195166233,
+            "hits": 69,
+            "n": 124,
+            "rate": 0.5564516129032258
+          },
+          "wait_max_s": 4740.0,
+          "wait_median_s": 0.0,
+          "wait_p90_s": 1500.0
+        },
+        "2": {
+          "entry_window_censored": 0,
+          "fire_phase_median_s": 600.0,
+          "fire_window_censored": 0,
+          "n": 127,
+          "postx1800_entry": {
+            "ci_high": 0.5510714488578552,
+            "ci_low": 0.3801430141944589,
+            "hits": 59,
+            "n": 127,
+            "rate": 0.4645669291338583
+          },
+          "postx1800_fire": {
+            "ci_high": 0.6498891193513585,
+            "ci_low": 0.4800391171053817,
+            "hits": 72,
+            "n": 127,
+            "rate": 0.5669291338582677
+          },
+          "wait_max_s": 6360.0,
+          "wait_median_s": 0.0,
+          "wait_p90_s": 1620.0
+        }
+      }
+    },
+    "E1ONLY": {
+      "by_asset": {
+        "HG": {
+          "entry_window_censored": 0,
+          "fire_phase_median_s": 11070.0,
+          "fire_window_censored": 0,
+          "n": 108,
+          "postx1800_entry": {
+            "ci_high": 0.3094008403067896,
+            "ci_low": 0.15412547066351984,
+            "hits": 24,
+            "n": 108,
+            "rate": 0.2222222222222222
+          },
+          "postx1800_fire": {
+            "ci_high": 0.29933435242768675,
+            "ci_low": 0.14630950224163303,
+            "hits": 23,
+            "n": 108,
+            "rate": 0.21296296296296297
+          },
+          "wait_max_s": 900.0,
+          "wait_median_s": 0.0,
+          "wait_p90_s": 900.0
+        },
+        "NKD": {
+          "entry_window_censored": 1,
+          "fire_phase_median_s": 11370.0,
+          "fire_window_censored": 0,
+          "n": 110,
+          "postx1800_entry": {
+            "ci_high": 0.3849233630304628,
+            "ci_low": 0.216287038976965,
+            "hits": 32,
+            "n": 109,
+            "rate": 0.29357798165137616
+          },
+          "postx1800_fire": {
+            "ci_high": 0.33356357575914586,
+            "ci_low": 0.17452424584719226,
+            "hits": 27,
+            "n": 110,
+            "rate": 0.24545454545454545
+          },
+          "wait_max_s": 900.0,
+          "wait_median_s": 0.0,
+          "wait_p90_s": 900.0
+        },
+        "SI": {
+          "entry_window_censored": 1,
+          "fire_phase_median_s": 9420.0,
+          "fire_window_censored": 0,
+          "n": 107,
+          "postx1800_entry": {
+            "ci_high": 0.25251823806319285,
+            "ci_low": 0.11019962137211899,
+            "hits": 18,
+            "n": 106,
+            "rate": 0.16981132075471697
+          },
+          "postx1800_fire": {
+            "ci_high": 0.23977489860765425,
+            "ci_low": 0.10162676845186588,
+            "hits": 17,
+            "n": 107,
+            "rate": 0.1588785046728972
+          },
+          "wait_max_s": 900.0,
+          "wait_median_s": 60.0,
+          "wait_p90_s": 900.0
+        }
+      },
+      "by_phase": {
+        "0": {
+          "entry_window_censored": 0,
+          "fire_phase_median_s": 12240.0,
+          "fire_window_censored": 0,
+          "n": 118,
+          "postx1800_entry": {
+            "ci_high": 0.2567887901789861,
+            "ci_low": 0.11944980105584081,
+            "hits": 21,
+            "n": 118,
+            "rate": 0.17796610169491525
+          },
+          "postx1800_fire": {
+            "ci_high": 0.23783623129395476,
+            "ci_low": 0.10557281211112612,
+            "hits": 19,
+            "n": 118,
+            "rate": 0.16101694915254236
+          },
+          "wait_max_s": 900.0,
+          "wait_median_s": 60.0,
+          "wait_p90_s": 900.0
+        },
+        "1": {
+          "entry_window_censored": 2,
+          "fire_phase_median_s": 5820.0,
+          "fire_window_censored": 0,
+          "n": 112,
+          "postx1800_entry": {
+            "ci_high": 0.2942509446430563,
+            "ci_low": 0.14356370862133006,
+            "hits": 23,
+            "n": 110,
+            "rate": 0.20909090909090908
+          },
+          "postx1800_fire": {
+            "ci_high": 0.2795411051917831,
+            "ci_low": 0.13344971267029,
+            "hits": 22,
+            "n": 112,
+            "rate": 0.19642857142857142
+          },
+          "wait_max_s": 900.0,
+          "wait_median_s": 0.0,
+          "wait_p90_s": 840.0
+        },
+        "2": {
+          "entry_window_censored": 0,
+          "fire_phase_median_s": 14580.0,
+          "fire_window_censored": 0,
+          "n": 95,
+          "postx1800_entry": {
+            "ci_high": 0.41486531599937426,
+            "ci_low": 0.23103226162043158,
+            "hits": 30,
+            "n": 95,
+            "rate": 0.3157894736842105
+          },
+          "postx1800_fire": {
+            "ci_high": 0.37081433740421976,
+            "ci_low": 0.1941455436715417,
+            "hits": 26,
+            "n": 95,
+            "rate": 0.2736842105263158
+          },
+          "wait_max_s": 900.0,
+          "wait_median_s": 0.0,
+          "wait_p90_s": 900.0
+        }
+      }
+    },
+    "PRIMARY": {
+      "by_asset": {
+        "HG": {
+          "entry_window_censored": 0,
+          "fire_phase_median_s": 2760.0,
+          "fire_window_censored": 0,
+          "n": 118,
+          "postx1800_entry": {
+            "ci_high": 0.5474348776922883,
+            "ci_low": 0.3704912527333468,
+            "hits": 54,
+            "n": 118,
+            "rate": 0.4576271186440678
+          },
+          "postx1800_fire": {
+            "ci_high": 0.5640477236478817,
+            "ci_low": 0.38670795460749935,
+            "hits": 56,
+            "n": 118,
+            "rate": 0.4745762711864407
+          },
+          "wait_max_s": 900.0,
+          "wait_median_s": 60.0,
+          "wait_p90_s": 900.0
+        },
+        "NKD": {
+          "entry_window_censored": 0,
+          "fire_phase_median_s": 1800.0,
+          "fire_window_censored": 0,
+          "n": 111,
+          "postx1800_entry": {
+            "ci_high": 0.5253287821124847,
+            "ci_low": 0.34405636717040633,
+            "hits": 48,
+            "n": 111,
+            "rate": 0.43243243243243246
+          },
+          "postx1800_fire": {
+            "ci_high": 0.5431196894224019,
+            "ci_low": 0.36109608671838495,
+            "hits": 50,
+            "n": 111,
+            "rate": 0.45045045045045046
+          },
+          "wait_max_s": 900.0,
+          "wait_median_s": 0.0,
+          "wait_p90_s": 840.0
+        },
+        "SI": {
+          "entry_window_censored": 1,
+          "fire_phase_median_s": 1920.0,
+          "fire_window_censored": 0,
+          "n": 121,
+          "postx1800_entry": {
+            "ci_high": 0.4977921683685844,
+            "ci_low": 0.3245613454748446,
+            "hits": 49,
+            "n": 120,
+            "rate": 0.4083333333333333
+          },
+          "postx1800_fire": {
+            "ci_high": 0.518778484603885,
+            "ci_low": 0.34504880353749623,
+            "hits": 52,
+            "n": 121,
+            "rate": 0.4297520661157025
+          },
+          "wait_max_s": 900.0,
+          "wait_median_s": 60.0,
+          "wait_p90_s": 900.0
+        }
+      },
+      "by_phase": {
+        "0": {
+          "entry_window_censored": 0,
+          "fire_phase_median_s": 9300.0,
+          "fire_window_censored": 0,
+          "n": 111,
+          "postx1800_entry": {
+            "ci_high": 0.36904825124916796,
+            "ci_low": 0.2042765697416089,
+            "hits": 31,
+            "n": 111,
+            "rate": 0.27927927927927926
+          },
+          "postx1800_fire": {
+            "ci_high": 0.3973403848572213,
+            "ci_low": 0.22823037642039917,
+            "hits": 34,
+            "n": 111,
+            "rate": 0.3063063063063063
+          },
+          "wait_max_s": 900.0,
+          "wait_median_s": 360.0,
+          "wait_p90_s": 900.0
+        },
+        "1": {
+          "entry_window_censored": 1,
+          "fire_phase_median_s": 1050.0,
+          "fire_window_censored": 0,
+          "n": 118,
+          "postx1800_entry": {
+            "ci_high": 0.5767063574717819,
+            "ci_low": 0.3984677257503395,
+            "hits": 57,
+            "n": 117,
+            "rate": 0.48717948717948717
+          },
+          "postx1800_fire": {
+            "ci_high": 0.5887811058481678,
+            "ci_low": 0.41121889415183216,
+            "hits": 59,
+            "n": 118,
+            "rate": 0.5
+          },
+          "wait_max_s": 900.0,
+          "wait_median_s": 0.0,
+          "wait_p90_s": 677.9999999999998
+        },
+        "2": {
+          "entry_window_censored": 0,
+          "fire_phase_median_s": 720.0,
+          "fire_window_censored": 0,
+          "n": 121,
+          "postx1800_entry": {
+            "ci_high": 0.6076606837907541,
+            "ci_low": 0.4323901138147221,
+            "hits": 63,
+            "n": 121,
+            "rate": 0.5206611570247934
+          },
+          "postx1800_fire": {
+            "ci_high": 0.6235181422779343,
+            "ci_low": 0.4485732934119226,
+            "hits": 65,
+            "n": 121,
+            "rate": 0.5371900826446281
+          },
+          "wait_max_s": 900.0,
+          "wait_median_s": 0.0,
+          "wait_p90_s": 540.0
+        }
+      }
+    }
+  },
+  "log": [
+    {
+      "code_sha": "d9276b1b6329d077cf47d65b0213cb86b8e6367d002dc38679f7e57986f792b2",
+      "coverage": 0.8708827404479579,
+      "days": 195,
+      "delay_med_s": -6130.0,
+      "err_rate_hg": 0.47572815533980584,
+      "err_rate_nkd": 0.36458333333333337,
+      "err_rate_si": 0.47619047619047616,
+      "family": "F5-SURVGATE",
+      "id": "sweep8-001",
+      "note": "postX 0.780/0.739/0.777",
+      "null_seed": 20260827,
+      "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+      "params": "[5, 60.0, 0.15, 1800]",
+      "parent_trial": "sweep8-006",
+      "registered_utc": "2026-08-27T20:49:35+00:00",
+      "rule": "STAGE-A/PRIMARY",
+      "selection_rule": "none: frozen gate, pre-registered entry law and reading",
+      "spec_sha": "939e57b6df1ab372fd7e251a297e53776bb3704f07a72ee72ed8aa01a2b17772",
+      "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+      "verdict": ""
+    },
+    {
+      "code_sha": "d9276b1b6329d077cf47d65b0213cb86b8e6367d002dc38679f7e57986f792b2",
+      "coverage": 0.945761967501098,
+      "days": 195,
+      "delay_med_s": -6470.0,
+      "err_rate_hg": 0.5045871559633027,
+      "err_rate_nkd": 0.4181818181818182,
+      "err_rate_si": 0.5636363636363637,
+      "family": "F5-SURVGATE",
+      "id": "sweep8-002",
+      "note": "postX 0.778/0.713/0.792",
+      "null_seed": 20260827,
+      "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+      "params": "[5, 60.0, 0.15, 1800]",
+      "parent_trial": "sweep8-006",
+      "registered_utc": "2026-08-27T20:49:35+00:00",
+      "rule": "STAGE-A/CONTROL",
+      "selection_rule": "none: frozen gate, pre-registered entry law and reading",
+      "spec_sha": "939e57b6df1ab372fd7e251a297e53776bb3704f07a72ee72ed8aa01a2b17772",
+      "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+      "verdict": ""
+    },
+    {
+      "code_sha": "d9276b1b6329d077cf47d65b0213cb86b8e6367d002dc38679f7e57986f792b2",
+      "coverage": 0.8708827404479579,
+      "days": 195,
+      "family": "F5-SURVGATE",
+      "hg_usd_day": -43.69318181818182,
+      "id": "sweep8-003",
+      "mdd_hg": 11363.75,
+      "mdd_nkd": 3347.5,
+      "mdd_si": 8327.5,
+      "nkd_usd_day": 210.69230769230768,
+      "note": "verdict KILL",
+      "null_margin": 1.0,
+      "null_seed": 20260827,
+      "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+      "params": "[5, 60.0, 0.15, 1800]",
+      "parent_trial": "sweep8-006",
+      "registered_utc": "2026-08-27T20:49:35+00:00",
+      "replay_skips": 0,
+      "rule": "PRICED/PRIMARY",
+      "selection_rule": "none: frozen gate, pre-registered entry law and reading",
+      "si_usd_day": 212.8125,
+      "spec_sha": "939e57b6df1ab372fd7e251a297e53776bb3704f07a72ee72ed8aa01a2b17772",
+      "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+      "verdict": "",
+      "walls_hg": 28,
+      "walls_nkd": 34,
+      "walls_si": 46
+    },
+    {
+      "code_sha": "d9276b1b6329d077cf47d65b0213cb86b8e6367d002dc38679f7e57986f792b2",
+      "coverage": 0.945761967501098,
+      "days": 195,
+      "family": "F5-SURVGATE",
+      "hg_usd_day": 16.59090909090909,
+      "id": "sweep8-004",
+      "mdd_hg": 11003.75,
+      "mdd_nkd": 5270.0,
+      "mdd_si": 9952.5,
+      "nkd_usd_day": 286.8076923076923,
+      "note": "verdict KILL",
+      "null_margin": 1.0,
+      "null_seed": 20260827,
+      "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+      "params": "[5, 60.0, 0.15, 1800]",
+      "parent_trial": "sweep8-006",
+      "registered_utc": "2026-08-27T20:49:35+00:00",
+      "replay_skips": 0,
+      "rule": "PRICED/CONTROL",
+      "selection_rule": "none: frozen gate, pre-registered entry law and reading",
+      "si_usd_day": 125.78125,
+      "spec_sha": "939e57b6df1ab372fd7e251a297e53776bb3704f07a72ee72ed8aa01a2b17772",
+      "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+      "verdict": "",
+      "walls_hg": 28,
+      "walls_nkd": 39,
+      "walls_si": 45
+    },
+    {
+      "code_sha": "d9276b1b6329d077cf47d65b0213cb86b8e6367d002dc38679f7e57986f792b2",
+      "coverage": 0.8088493631971893,
+      "days": 195,
+      "delay_med_s": -1640.0,
+      "family": "F5-SURVGATE",
+      "id": "sweep8-005",
+      "note": "fire-stamp postX_1800 0.213/0.245/0.159; credit FAIL",
+      "null_seed": 20260827,
+      "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+      "params": "[60.0, 30, 300]",
+      "parent_trial": "sweep8-006",
+      "registered_utc": "2026-08-27T20:49:35+00:00",
+      "rule": "CONTROL/E1ONLY",
+      "selection_rule": "none: frozen gate, pre-registered entry law and reading",
+      "spec_sha": "939e57b6df1ab372fd7e251a297e53776bb3704f07a72ee72ed8aa01a2b17772",
+      "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+      "verdict": ""
+    },
+    {
+      "code_sha": "d9276b1b6329d077cf47d65b0213cb86b8e6367d002dc38679f7e57986f792b2",
+      "coverage": null,
+      "days": 195,
+      "delay_med_s": null,
+      "family": "F5-SURVGATE",
+      "id": "sweep8-006",
+      "note": "fire-stamp postX_1800 0.482/0.397/0.407; credit FAIL",
+      "null_seed": 20260827,
+      "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+      "params": "[60.0, 30, 300]",
+      "parent_trial": "sweep8-006",
+      "registered_utc": "2026-08-27T20:49:35+00:00",
+      "rule": "CONTROL/PHASEMATCH",
+      "selection_rule": "none: frozen gate, pre-registered entry law and reading",
+      "spec_sha": "939e57b6df1ab372fd7e251a297e53776bb3704f07a72ee72ed8aa01a2b17772",
+      "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+      "verdict": ""
+    }
+  ],
+  "log_8b": [
+    {
+      "code_sha": "d9276b1b6329d077cf47d65b0213cb86b8e6367d002dc38679f7e57986f792b2",
+      "coverage": 0.8088493631971893,
+      "days": 195,
+      "delay_med_s": -1640.0,
+      "err_rate_hg": 0.4782608695652174,
+      "err_rate_nkd": 0.43956043956043955,
+      "err_rate_si": 0.4505494505494505,
+      "family": "F5-E1GATE",
+      "id": "sweep8b-001",
+      "note": "fire-stamp postX_1800 0.213/0.245/0.159",
+      "null_seed": 20260827,
+      "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+      "params": "[60.0, 0.15, 1800, 30]",
+      "parent_trial": "sweep8-006",
+      "registered_utc": "2026-08-27T20:49:35+00:00",
+      "rule": "STAGE-A/E1PRIMARY",
+      "selection_rule": "none: one knob off sweep 8 (E1-only fires)",
+      "spec_sha": "939e57b6df1ab372fd7e251a297e53776bb3704f07a72ee72ed8aa01a2b17772",
+      "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+      "verdict": ""
+    },
+    {
+      "code_sha": "d9276b1b6329d077cf47d65b0213cb86b8e6367d002dc38679f7e57986f792b2",
+      "coverage": 0.9505928853754941,
+      "days": 195,
+      "delay_med_s": 3290.0,
+      "err_rate_hg": 0.5267857142857143,
+      "err_rate_nkd": 0.48245614035087714,
+      "err_rate_si": 0.4821428571428571,
+      "family": "F5-E1GATE",
+      "id": "sweep8b-002",
+      "note": "fire-stamp postX_1800 0.164/0.180/0.143",
+      "null_seed": 20260827,
+      "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+      "params": "[60.0, 0.15, 1800, 30]",
+      "parent_trial": "sweep8-006",
+      "registered_utc": "2026-08-27T20:49:35+00:00",
+      "rule": "STAGE-A/E1CONTROL",
+      "selection_rule": "none: one knob off sweep 8 (E1-only fires)",
+      "spec_sha": "939e57b6df1ab372fd7e251a297e53776bb3704f07a72ee72ed8aa01a2b17772",
+      "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+      "verdict": ""
+    },
+    {
+      "code_sha": "d9276b1b6329d077cf47d65b0213cb86b8e6367d002dc38679f7e57986f792b2",
+      "coverage": 0.8088493631971893,
+      "days": 195,
+      "family": "F5-E1GATE",
+      "hg_usd_day": -72.95454545454545,
+      "id": "sweep8b-003",
+      "mdd_hg": 5907.5,
+      "mdd_nkd": 8595.0,
+      "mdd_si": 9312.5,
+      "nkd_usd_day": 41.73076923076923,
+      "note": "verdict KILL",
+      "null_margin": 1.0,
+      "null_seed": 20260827,
+      "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+      "params": "[60.0, 0.15, 1800, 30]",
+      "parent_trial": "sweep8-006",
+      "registered_utc": "2026-08-27T20:49:35+00:00",
+      "replay_skips": 0,
+      "rule": "PRICED/E1PRIMARY",
+      "selection_rule": "none: one knob off sweep 8 (E1-only fires)",
+      "si_usd_day": -11.875000000000007,
+      "spec_sha": "939e57b6df1ab372fd7e251a297e53776bb3704f07a72ee72ed8aa01a2b17772",
+      "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+      "verdict": "",
+      "walls_hg": 10,
+      "walls_nkd": 19,
+      "walls_si": 28
+    },
+    {
+      "code_sha": "d9276b1b6329d077cf47d65b0213cb86b8e6367d002dc38679f7e57986f792b2",
+      "coverage": 0.9505928853754941,
+      "days": 195,
+      "family": "F5-E1GATE",
+      "hg_usd_day": -143.6931818181818,
+      "id": "sweep8b-004",
+      "mdd_hg": 10548.75,
+      "mdd_nkd": 14045.0,
+      "mdd_si": 4475.0,
+      "nkd_usd_day": -130.23076923076923,
+      "note": "verdict KILL",
+      "null_margin": 1.0,
+      "null_seed": 20260827,
+      "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+      "params": "[60.0, 0.15, 1800, 30]",
+      "parent_trial": "sweep8-006",
+      "registered_utc": "2026-08-27T20:49:35+00:00",
+      "replay_skips": 0,
+      "rule": "PRICED/E1CONTROL",
+      "selection_rule": "none: one knob off sweep 8 (E1-only fires)",
+      "si_usd_day": 248.359375,
+      "spec_sha": "939e57b6df1ab372fd7e251a297e53776bb3704f07a72ee72ed8aa01a2b17772",
+      "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+      "verdict": "",
+      "walls_hg": 18,
+      "walls_nkd": 35,
+      "walls_si": 37
+    }
+  ],
+  "mutant": "",
+  "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+  "parent_trial": "sweep8-006",
+  "phase_matched_control": {
+    "by_asset": {
+      "HG": {
+        "entries_mean": 64.58,
+        "fire_phase_median_s": 3054.6,
+        "postx1800_fire": {
+          "ci_high": 0.4989529070033369,
+          "ci_low": 0.46446748996709003,
+          "hits": 1552,
+          "n": 3222,
+          "rate": 0.48168839230291743
+        }
+      },
+      "NKD": {
+        "entries_mean": 66.64,
+        "fire_phase_median_s": 3370.8,
+        "postx1800_fire": {
+          "ci_high": 0.41378169762054645,
+          "ci_low": 0.38057303761842415,
+          "hits": 1323,
+          "n": 3332,
+          "rate": 0.39705882352941174
+        }
+      },
+      "SI": {
+        "entries_mean": 65.82,
+        "fire_phase_median_s": 2859.0,
+        "postx1800_fire": {
+          "ci_high": 0.42374498889216694,
+          "ci_low": 0.39013575811792733,
+          "hits": 1334,
+          "n": 3279,
+          "rate": 0.40683135102165296
+        }
+      }
+    },
+    "cells_unmatched": 3142,
+    "draws": 50,
+    "match_window_s": 300,
+    "seed": 20260827
+  },
+  "random_control": {
+    "CONTROL": {
+      "by_asset": {
+        "HG": {
+          "cells_scored": 122,
+          "coverage_mean": 0.9980327868852459,
+          "delay_median_s_mean": 973.8,
+          "depth_median_atr_mean": 0.13469267796034054,
+          "entries_mean": 121.76,
+          "post_extension_mean": 0.44182360113805713,
+          "soft_hit_mean": 0.9311624441132639
+        },
+        "NKD": {
+          "cells_scored": 126,
+          "coverage_mean": 0.9973015873015874,
+          "delay_median_s_mean": 1753.2,
+          "depth_median_atr_mean": 0.14111765092965303,
+          "entries_mean": 125.66,
+          "post_extension_mean": 0.3956673015873015,
+          "soft_hit_mean": 0.9078565079365081
+        },
+        "SI": {
+          "cells_scored": 120,
+          "coverage_mean": 0.9985,
+          "delay_median_s_mean": 1066.2,
+          "depth_median_atr_mean": 0.1128416023896898,
+          "entries_mean": 119.82,
+          "post_extension_mean": 0.43999859943977593,
+          "soft_hit_mean": 0.9070238095238097
+        }
+      },
+      "draws": 50,
+      "seed": 20260827
+    },
+    "PRIMARY": {
+      "by_asset": {
+        "HG": {
+          "cells_scored": 122,
+          "coverage_mean": 0.559672131147541,
+          "delay_median_s_mean": -2478.0,
+          "depth_median_atr_mean": 0.08058136021463738,
+          "entries_mean": 68.28,
+          "post_extension_mean": 0.6289491282341304,
+          "soft_hit_mean": 0.9421099236595423
+        },
+        "NKD": {
+          "cells_scored": 126,
+          "coverage_mean": 0.5677777777777778,
+          "delay_median_s_mean": -1514.4,
+          "depth_median_atr_mean": 0.08205870351263587,
+          "entries_mean": 71.54,
+          "post_extension_mean": 0.5628098410027526,
+          "soft_hit_mean": 0.9121639664476737
+        },
+        "SI": {
+          "cells_scored": 120,
+          "coverage_mean": 0.5786666666666667,
+          "delay_median_s_mean": -2323.8,
+          "depth_median_atr_mean": 0.07276569035853424,
+          "entries_mean": 69.44,
+          "post_extension_mean": 0.5992868537060972,
+          "soft_hit_mean": 0.9066178013812112
+        }
+      },
+      "draws": 50,
+      "seed": 20260827
+    }
+  },
+  "schema": "QRE2MILLSWEEP8",
+  "seed": 20260827,
+  "skipped_no_context": {
+    "HG": 3,
+    "NKD": 3,
+    "SI": 3
+  },
+  "spec_sha": "939e57b6df1ab372fd7e251a297e53776bb3704f07a72ee72ed8aa01a2b17772",
+  "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+  "stage_a": {
+    "CONTROL": {
+      "by_asset": {
+        "HG": {
+          "before_terminal": {
+            "ci_high": 0.8415395685651008,
+            "ci_low": 0.697579451167011,
+            "hits": 98,
+            "n": 126,
+            "rate": 0.7777777777777778
+          },
+          "cells_scored": 138,
+          "coverage": 0.9130434782608695,
+          "delay_median_s": -6390.0,
+          "delay_p90_s": 1140.0,
+          "depth_median_atr": 0.03799588470234913,
+          "depth_p90_atr": 0.1816511027151331,
+          "entries": 126,
+          "miss_branches": {
+            "cancelled": 0,
+            "no_candidate": 0,
+            "no_candidate_in_depth": 0,
+            "no_fire": 12,
+            "unscored": 63
+          },
+          "post_extension": {
+            "ci_high": 0.8415395685651008,
+            "ci_low": 0.697579451167011,
+            "hits": 98,
+            "n": 126,
+            "rate": 0.7777777777777778
+          },
+          "side_agree": {
+            "ci_high": 0.5878189448009481,
+            "ci_low": 0.40331906413255036,
+            "hits": 54,
+            "n": 109,
+            "rate": 0.4954128440366973
+          },
+          "soft_hit": {
+            "ci_high": 0.9875867210273106,
+            "ci_low": 0.9212139122353924,
+            "hits": 122,
+            "n": 126,
+            "rate": 0.9682539682539683
+          },
+          "wait_median_s": 0.0,
+          "wait_p90_s": 7110.0
+        },
+        "NKD": {
+          "before_terminal": {
+            "ci_high": 0.7841709703467565,
+            "ci_low": 0.6298564009894583,
+            "hits": 92,
+            "n": 129,
+            "rate": 0.7131782945736435
+          },
+          "cells_scored": 132,
+          "coverage": 0.9772727272727273,
+          "delay_median_s": -4860.0,
+          "delay_p90_s": 2040.0,
+          "depth_median_atr": 0.046804446924283254,
+          "depth_p90_atr": 0.26893855933593164,
+          "entries": 129,
+          "miss_branches": {
+            "cancelled": 0,
+            "no_candidate": 0,
+            "no_candidate_in_depth": 0,
+            "no_fire": 3,
+            "unscored": 63
+          },
+          "post_extension": {
+            "ci_high": 0.7841709703467565,
+            "ci_low": 0.6298564009894583,
+            "hits": 92,
+            "n": 129,
+            "rate": 0.7131782945736435
+          },
+          "side_agree": {
+            "ci_high": 0.6697089390798849,
+            "ci_low": 0.4884056896895063,
+            "hits": 64,
+            "n": 110,
+            "rate": 0.5818181818181818
+          },
+          "soft_hit": {
+            "ci_high": 0.9785114139999394,
+            "ci_low": 0.9022377213880084,
+            "hits": 123,
+            "n": 129,
+            "rate": 0.9534883720930233
+          },
+          "wait_median_s": 60.0,
+          "wait_p90_s": 3540.000000000001
+        },
+        "SI": {
+          "before_terminal": {
+            "ci_high": 0.8539158901936107,
+            "ci_low": 0.7126719198807269,
+            "hits": 99,
+            "n": 125,
+            "rate": 0.792
+          },
+          "cells_scored": 132,
+          "coverage": 0.946969696969697,
+          "delay_median_s": -8160.0,
+          "delay_p90_s": 996.0000000000005,
+          "depth_median_atr": 0.03333187959311064,
+          "depth_p90_atr": 0.1552320330732628,
+          "entries": 125,
+          "miss_branches": {
+            "cancelled": 0,
+            "no_candidate": 0,
+            "no_candidate_in_depth": 0,
+            "no_fire": 7,
+            "unscored": 63
+          },
+          "post_extension": {
+            "ci_high": 0.8539158901936107,
+            "ci_low": 0.7126719198807269,
+            "hits": 99,
+            "n": 125,
+            "rate": 0.792
+          },
+          "side_agree": {
+            "ci_high": 0.5296369668870647,
+            "ci_low": 0.3473849885145197,
+            "hits": 48,
+            "n": 110,
+            "rate": 0.43636363636363634
+          },
+          "soft_hit": {
+            "ci_high": 0.9778179944047111,
+            "ci_low": 0.8992288896829618,
+            "hits": 119,
+            "n": 125,
+            "rate": 0.952
+          },
+          "wait_median_s": 120.0,
+          "wait_p90_s": 7428.000000000002
+        }
+      },
+      "by_phase": {
+        "0": {
+          "before_terminal": {
+            "ci_high": 0.8184563445581876,
+            "ci_low": 0.6708487306573387,
+            "hits": 97,
+            "n": 129,
+            "rate": 0.751937984496124
+          },
+          "cells_scored": 146,
+          "coverage": 0.8835616438356164,
+          "delay_median_s": -5220.0,
+          "delay_p90_s": 1644.0000000000005,
+          "depth_median_atr": 0.04574812168278183,
+          "depth_p90_atr": 0.2042571520169401,
+          "entries": 129,
+          "post_extension": {
+            "ci_high": 0.8184563445581876,
+            "ci_low": 0.6708487306573387,
+            "hits": 97,
+            "n": 129,
+            "rate": 0.751937984496124
+          },
+          "side_agree": {
+            "ci_high": 0.5605373034408769,
+            "ci_low": 0.3795524551888723,
+            "hits": 53,
+            "n": 113,
+            "rate": 0.4690265486725664
+          },
+          "soft_hit": {
+            "ci_high": 0.9833324968045654,
+            "ci_low": 0.9124721793592447,
+            "hits": 124,
+            "n": 129,
+            "rate": 0.9612403100775194
+          },
+          "wait_median_s": 4560.0,
+          "wait_p90_s": 8400.0
+        },
+        "1": {
+          "before_terminal": {
+            "ci_high": 0.7823121575763984,
+            "ci_low": 0.6244416488936401,
+            "hits": 88,
+            "n": 124,
+            "rate": 0.7096774193548387
+          },
+          "cells_scored": 128,
+          "coverage": 0.96875,
+          "delay_median_s": -3570.0,
+          "delay_p90_s": 1602.0000000000002,
+          "depth_median_atr": 0.04088133725107103,
+          "depth_p90_atr": 0.18114700998831945,
+          "entries": 124,
+          "post_extension": {
+            "ci_high": 0.7823121575763984,
+            "ci_low": 0.6244416488936401,
+            "hits": 88,
+            "n": 124,
+            "rate": 0.7096774193548387
+          },
+          "side_agree": {
+            "ci_high": 0.5524200191111854,
+            "ci_low": 0.36173607809276237,
+            "hits": 46,
+            "n": 101,
+            "rate": 0.45544554455445546
+          },
+          "soft_hit": {
+            "ci_high": 0.9776375894656152,
+            "ci_low": 0.8984475321621598,
+            "hits": 118,
+            "n": 124,
+            "rate": 0.9516129032258065
+          },
+          "wait_median_s": 0.0,
+          "wait_p90_s": 1500.0
+        },
+        "2": {
+          "before_terminal": {
+            "ci_high": 0.8761819124341866,
+            "ci_low": 0.7428879200949879,
+            "hits": 104,
+            "n": 127,
+            "rate": 0.8188976377952756
+          },
+          "cells_scored": 128,
+          "coverage": 0.9921875,
+          "delay_median_s": -9060.0,
+          "delay_p90_s": 300.0,
+          "depth_median_atr": 0.03441411960324802,
+          "depth_p90_atr": 0.16593565381462486,
+          "entries": 127,
+          "post_extension": {
+            "ci_high": 0.8761819124341866,
+            "ci_low": 0.7428879200949879,
+            "hits": 104,
+            "n": 127,
+            "rate": 0.8188976377952756
+          },
+          "side_agree": {
+            "ci_high": 0.6686379327957415,
+            "ci_low": 0.49123893331263274,
+            "hits": 67,
+            "n": 115,
+            "rate": 0.5826086956521739
+          },
+          "soft_hit": {
+            "ci_high": 0.9830682025247811,
+            "ci_low": 0.9111437777951378,
+            "hits": 122,
+            "n": 127,
+            "rate": 0.9606299212598425
+          },
+          "wait_median_s": 0.0,
+          "wait_p90_s": 1620.0
+        }
+      }
+    },
+    "E1ONLY": {
+      "by_asset": {
+        "HG": {
+          "before_terminal": {
+            "ci_high": 0.6369869633489315,
+            "ci_low": 0.45242531815601683,
+            "hits": 59,
+            "n": 108,
+            "rate": 0.5462962962962963
+          },
+          "cells_scored": 138,
+          "coverage": 0.782608695652174,
+          "delay_median_s": -1350.0,
+          "delay_p90_s": 10278.0,
+          "depth_median_atr": 0.11294350092390046,
+          "depth_p90_atr": 0.14683919068668058,
+          "entries": 108,
+          "miss_branches": {
+            "cancelled": 0,
+            "no_candidate": 0,
+            "no_candidate_in_depth": 19,
+            "no_fire": 10,
+            "unscored": 63
+          },
+          "post_extension": {
+            "ci_high": 0.6369869633489315,
+            "ci_low": 0.45242531815601683,
+            "hits": 59,
+            "n": 108,
+            "rate": 0.5462962962962963
+          },
+          "side_agree": {
+            "ci_high": 0.6208786177489061,
+            "ci_low": 0.4208569740212842,
+            "hits": 48,
+            "n": 92,
+            "rate": 0.5217391304347826
+          },
+          "soft_hit": {
+            "ci_high": 0.9619897513019287,
+            "ci_low": 0.8606032385435969,
+            "hits": 100,
+            "n": 108,
+            "rate": 0.9259259259259259
+          },
+          "wait_median_s": 0.0,
+          "wait_p90_s": 900.0
+        },
+        "NKD": {
+          "before_terminal": {
+            "ci_high": 0.6267491892092099,
+            "ci_low": 0.44352397913274194,
+            "hits": 59,
+            "n": 110,
+            "rate": 0.5363636363636364
+          },
+          "cells_scored": 132,
+          "coverage": 0.8333333333333334,
+          "delay_median_s": -810.0,
+          "delay_p90_s": 9618.000000000002,
+          "depth_median_atr": 0.10670307565194768,
+          "depth_p90_atr": 0.14645826086278246,
+          "entries": 110,
+          "miss_branches": {
+            "cancelled": 0,
+            "no_candidate": 0,
+            "no_candidate_in_depth": 17,
+            "no_fire": 4,
+            "unscored": 63
+          },
+          "post_extension": {
+            "ci_high": 0.6267491892092099,
+            "ci_low": 0.44352397913274194,
+            "hits": 59,
+            "n": 110,
+            "rate": 0.5363636363636364
+          },
+          "side_agree": {
+            "ci_high": 0.6579116602992026,
+            "ci_low": 0.45807137219291083,
+            "hits": 51,
+            "n": 91,
+            "rate": 0.5604395604395604
+          },
+          "soft_hit": {
+            "ci_high": 0.9498696710288924,
+            "ci_low": 0.8407034728180641,
+            "hits": 100,
+            "n": 110,
+            "rate": 0.9090909090909091
+          },
+          "wait_median_s": 0.0,
+          "wait_p90_s": 900.0
+        },
+        "SI": {
+          "before_terminal": {
+            "ci_high": 0.6686272924062772,
+            "ci_low": 0.4847449221141086,
+            "hits": 62,
+            "n": 107,
+            "rate": 0.5794392523364486
+          },
+          "cells_scored": 132,
+          "coverage": 0.8106060606060606,
+          "delay_median_s": -2760.0,
+          "delay_p90_s": 8940.0,
+          "depth_median_atr": 0.11620514853725313,
+          "depth_p90_atr": 0.14762076439567923,
+          "entries": 107,
+          "miss_branches": {
+            "cancelled": 0,
+            "no_candidate": 0,
+            "no_candidate_in_depth": 19,
+            "no_fire": 6,
+            "unscored": 63
+          },
+          "post_extension": {
+            "ci_high": 0.6686272924062772,
+            "ci_low": 0.4847449221141086,
+            "hits": 62,
+            "n": 107,
+            "rate": 0.5794392523364486
+          },
+          "side_agree": {
+            "ci_high": 0.6476023146686639,
+            "ci_low": 0.44729289373397435,
+            "hits": 50,
+            "n": 91,
+            "rate": 0.5494505494505495
+          },
+          "soft_hit": {
+            "ci_high": 0.9798773427946421,
+            "ci_low": 0.8952464694687352,
+            "hits": 102,
+            "n": 107,
+            "rate": 0.9532710280373832
+          },
+          "wait_median_s": 60.0,
+          "wait_p90_s": 900.0
+        }
+      },
+      "by_phase": {
+        "0": {
+          "before_terminal": {
+            "ci_high": 0.7090682146624346,
+            "ci_low": 0.53715339406066,
+            "hits": 74,
+            "n": 118,
+            "rate": 0.6271186440677966
+          },
+          "cells_scored": 144,
+          "coverage": 0.8194444444444444,
+          "delay_median_s": -4140.0,
+          "delay_p90_s": 9414.0,
+          "depth_median_atr": 0.1035513106298444,
+          "depth_p90_atr": 0.14635347437764554,
+          "entries": 118,
+          "post_extension": {
+            "ci_high": 0.7090682146624346,
+            "ci_low": 0.53715339406066,
+            "hits": 74,
+            "n": 118,
+            "rate": 0.6271186440677966
+          },
+          "side_agree": {
+            "ci_high": 0.6046859727362758,
+            "ci_low": 0.4142102142804601,
+            "hits": 52,
+            "n": 102,
+            "rate": 0.5098039215686274
+          },
+          "soft_hit": {
+            "ci_high": 0.9471483992277607,
+            "ci_low": 0.8407607486861424,
+            "hits": 107,
+            "n": 118,
+            "rate": 0.9067796610169492
+          },
+          "wait_median_s": 60.0,
+          "wait_p90_s": 900.0
+        },
+        "1": {
+          "before_terminal": {
+            "ci_high": 0.5122148152994445,
+            "ci_low": 0.33240040119345726,
+            "hits": 47,
+            "n": 112,
+            "rate": 0.41964285714285715
+          },
+          "cells_scored": 128,
+          "coverage": 0.875,
+          "delay_median_s": 3300.0,
+          "delay_p90_s": 5214.0,
+          "depth_median_atr": 0.11196415510490038,
+          "depth_p90_atr": 0.14760229080845128,
+          "entries": 112,
+          "post_extension": {
+            "ci_high": 0.5122148152994445,
+            "ci_low": 0.33240040119345726,
+            "hits": 47,
+            "n": 112,
+            "rate": 0.41964285714285715
+          },
+          "side_agree": {
+            "ci_high": 0.736272696869657,
+            "ci_low": 0.5389320425142164,
+            "hits": 56,
+            "n": 87,
+            "rate": 0.6436781609195402
+          },
+          "soft_hit": {
+            "ci_high": 0.9860253876053231,
+            "ci_low": 0.9117533615468005,
+            "hits": 108,
+            "n": 112,
+            "rate": 0.9642857142857143
+          },
+          "wait_median_s": 0.0,
+          "wait_p90_s": 840.0
+        },
+        "2": {
+          "before_terminal": {
+            "ci_high": 0.7121019573679593,
+            "ci_low": 0.5205939201961683,
+            "hits": 59,
+            "n": 95,
+            "rate": 0.6210526315789474
+          },
+          "cells_scored": 128,
+          "coverage": 0.7421875,
+          "delay_median_s": -4080.0,
+          "delay_p90_s": 13332.000000000002,
+          "depth_median_atr": 0.1223160672852152,
+          "depth_p90_atr": 0.14698067681098614,
+          "entries": 95,
+          "post_extension": {
+            "ci_high": 0.7121019573679593,
+            "ci_low": 0.5205939201961683,
+            "hits": 59,
+            "n": 95,
+            "rate": 0.6210526315789474
+          },
+          "side_agree": {
+            "ci_high": 0.587024544990991,
+            "ci_low": 0.3792074367906816,
+            "hits": 41,
+            "n": 85,
+            "rate": 0.4823529411764706
+          },
+          "soft_hit": {
+            "ci_high": 0.9567118846157054,
+            "ci_low": 0.8425478687567327,
+            "hits": 87,
+            "n": 95,
+            "rate": 0.9157894736842105
+          },
+          "wait_median_s": 0.0,
+          "wait_p90_s": 900.0
+        }
+      }
+    },
+    "PRIMARY": {
+      "by_asset": {
+        "HG": {
+          "before_terminal": {
+            "ci_high": 0.8449652121399152,
+            "ci_low": 0.6967223270508931,
+            "hits": 92,
+            "n": 118,
+            "rate": 0.7796610169491526
+          },
+          "cells_scored": 138,
+          "coverage": 0.855072463768116,
+          "delay_median_s": -5130.0,
+          "delay_p90_s": 2987.9999999999955,
+          "depth_median_atr": 0.06264036461309483,
+          "depth_p90_atr": 0.1417354368523145,
+          "entries": 118,
+          "miss_branches": {
+            "cancelled": 0,
+            "no_candidate": 0,
+            "no_candidate_in_depth": 8,
+            "no_fire": 12,
+            "unscored": 63
+          },
+          "post_extension": {
+            "ci_high": 0.8449652121399152,
+            "ci_low": 0.6967223270508931,
+            "hits": 92,
+            "n": 118,
+            "rate": 0.7796610169491526
+          },
+          "side_agree": {
+            "ci_high": 0.6181001034821461,
+            "ci_low": 0.42869820922520113,
+            "hits": 54,
+            "n": 103,
+            "rate": 0.5242718446601942
+          },
+          "soft_hit": {
+            "ci_high": 0.9867401663528403,
+            "ci_low": 0.9160723989651733,
+            "hits": 114,
+            "n": 118,
+            "rate": 0.9661016949152542
+          },
+          "wait_median_s": 60.0,
+          "wait_p90_s": 900.0
+        },
+        "NKD": {
+          "before_terminal": {
+            "ci_high": 0.8114980042026286,
+            "ci_low": 0.6500078016644905,
+            "hits": 82,
+            "n": 111,
+            "rate": 0.7387387387387387
+          },
+          "cells_scored": 132,
+          "coverage": 0.8409090909090909,
+          "delay_median_s": -5100.0,
+          "delay_p90_s": 1260.0,
+          "depth_median_atr": 0.04532522848512601,
+          "depth_p90_atr": 0.1427661002259669,
+          "entries": 111,
+          "miss_branches": {
+            "cancelled": 0,
+            "no_candidate": 0,
+            "no_candidate_in_depth": 17,
+            "no_fire": 3,
+            "unscored": 63
+          },
+          "post_extension": {
+            "ci_high": 0.8114980042026286,
+            "ci_low": 0.6500078016644905,
+            "hits": 82,
+            "n": 111,
+            "rate": 0.7387387387387387
+          },
+          "side_agree": {
+            "ci_high": 0.7247605991482561,
+            "ci_low": 0.5356522624736236,
+            "hits": 61,
+            "n": 96,
+            "rate": 0.6354166666666666
+          },
+          "soft_hit": {
+            "ci_high": 0.980608239917851,
+            "ci_low": 0.8988650882440173,
+            "hits": 106,
+            "n": 111,
+            "rate": 0.954954954954955
+          },
+          "wait_median_s": 0.0,
+          "wait_p90_s": 840.0
+        },
+        "SI": {
+          "before_terminal": {
+            "ci_high": 0.8418702026206545,
+            "ci_low": 0.6948104852927252,
+            "hits": 94,
+            "n": 121,
+            "rate": 0.7768595041322314
+          },
+          "cells_scored": 132,
+          "coverage": 0.9166666666666666,
+          "delay_median_s": -8160.0,
+          "delay_p90_s": 1740.0,
+          "depth_median_atr": 0.04712440211346054,
+          "depth_p90_atr": 0.1406791769704979,
+          "entries": 121,
+          "miss_branches": {
+            "cancelled": 0,
+            "no_candidate": 0,
+            "no_candidate_in_depth": 3,
+            "no_fire": 7,
+            "unscored": 63
+          },
+          "post_extension": {
+            "ci_high": 0.8418702026206545,
+            "ci_low": 0.6948104852927252,
+            "hits": 94,
+            "n": 121,
+            "rate": 0.7768595041322314
+          },
+          "side_agree": {
+            "ci_high": 0.6167999800477322,
+            "ci_low": 0.4291383972413578,
+            "hits": 55,
+            "n": 105,
+            "rate": 0.5238095238095238
+          },
+          "soft_hit": {
+            "ci_high": 0.9716972465177242,
+            "ci_low": 0.8853898222394644,
+            "hits": 114,
+            "n": 121,
+            "rate": 0.9421487603305785
+          },
+          "wait_median_s": 60.0,
+          "wait_p90_s": 900.0
+        }
+      },
+      "by_phase": {
+        "0": {
+          "before_terminal": {
+            "ci_high": 0.7957234302583911,
+            "ci_low": 0.630951748750832,
+            "hits": 80,
+            "n": 111,
+            "rate": 0.7207207207207207
+          },
+          "cells_scored": 144,
+          "coverage": 0.7708333333333334,
+          "delay_median_s": -4080.0,
+          "delay_p90_s": 6960.0,
+          "depth_median_atr": 0.09532850514807373,
+          "depth_p90_atr": 0.14545532674031855,
+          "entries": 111,
+          "post_extension": {
+            "ci_high": 0.7957234302583911,
+            "ci_low": 0.630951748750832,
+            "hits": 80,
+            "n": 111,
+            "rate": 0.7207207207207207
+          },
+          "side_agree": {
+            "ci_high": 0.6872814318177571,
+            "ci_low": 0.49746896182579103,
+            "hits": 59,
+            "n": 99,
+            "rate": 0.5959595959595959
+          },
+          "soft_hit": {
+            "ci_high": 0.9630299157344726,
+            "ci_low": 0.8641974721405519,
+            "hits": 103,
+            "n": 111,
+            "rate": 0.9279279279279279
+          },
+          "wait_median_s": 360.0,
+          "wait_p90_s": 900.0
+        },
+        "1": {
+          "before_terminal": {
+            "ci_high": 0.7783342739461174,
+            "ci_low": 0.615620300010834,
+            "hits": 83,
+            "n": 118,
+            "rate": 0.7033898305084746
+          },
+          "cells_scored": 128,
+          "coverage": 0.921875,
+          "delay_median_s": -2940.0,
+          "delay_p90_s": 1793.9999999999995,
+          "depth_median_atr": 0.04144538070611373,
+          "depth_p90_atr": 0.1370736680053347,
+          "entries": 118,
+          "post_extension": {
+            "ci_high": 0.7783342739461174,
+            "ci_low": 0.615620300010834,
+            "hits": 83,
+            "n": 118,
+            "rate": 0.7033898305084746
+          },
+          "side_agree": {
+            "ci_high": 0.6295410597764227,
+            "ci_low": 0.4317826374815637,
+            "hits": 50,
+            "n": 94,
+            "rate": 0.5319148936170213
+          },
+          "soft_hit": {
+            "ci_high": 0.9953395574957996,
+            "ci_low": 0.9403025556519603,
+            "hits": 116,
+            "n": 118,
+            "rate": 0.9830508474576272
+          },
+          "wait_median_s": 0.0,
+          "wait_p90_s": 677.9999999999998
+        },
+        "2": {
+          "before_terminal": {
+            "ci_high": 0.9169408217054055,
+            "ci_low": 0.7959633756720691,
+            "hits": 105,
+            "n": 121,
+            "rate": 0.8677685950413223
+          },
+          "cells_scored": 128,
+          "coverage": 0.9453125,
+          "delay_median_s": -10800.0,
+          "delay_p90_s": 0.0,
+          "depth_median_atr": 0.03416463231468878,
+          "depth_p90_atr": 0.13172499553792408,
+          "entries": 121,
+          "post_extension": {
+            "ci_high": 0.9169408217054055,
+            "ci_low": 0.7959633756720691,
+            "hits": 105,
+            "n": 121,
+            "rate": 0.8677685950413223
+          },
+          "side_agree": {
+            "ci_high": 0.6389039132816152,
+            "ci_low": 0.4568803105775983,
+            "hits": 61,
+            "n": 111,
+            "rate": 0.5495495495495496
+          },
+          "soft_hit": {
+            "ci_high": 0.9770783259286766,
+            "ci_low": 0.8960290618707025,
+            "hits": 115,
+            "n": 121,
+            "rate": 0.9504132231404959
+          },
+          "wait_median_s": 0.0,
+          "wait_p90_s": 540.0
+        }
+      }
+    }
+  },
+  "stage_b": {
+    "bleed": {
+      "CONTROL": {
+        "budget_minutes": {
+          "HG": 60,
+          "NKD": 45,
+          "SI": 60
+        },
+        "by_asset": {
+          "HG": {
+            "entries": 126,
+            "gross_loss_usd": -26710.0,
+            "table": {
+              "HARD-WRONG/IN-BUDGET": {
+                "cash_usd": -2127.5,
+                "n": 3,
+                "share_of_gross_loss": 0.07965181579932609,
+                "usd_per_asset_day": -32.234848484848484,
+                "usd_per_trade": -709.1666666666666,
+                "wall_rate": 0.6666666666666666,
+                "win_rate": 0.0
+              },
+              "HARD-WRONG/LATE": {
+                "cash_usd": -705.0,
+                "n": 1,
+                "share_of_gross_loss": 0.026394608760763758,
+                "usd_per_asset_day": -10.681818181818182,
+                "usd_per_trade": -705.0,
+                "wall_rate": 0.0,
+                "win_rate": 0.0
+              },
+              "RIGHT/IN-BUDGET": {
+                "cash_usd": 27533.75,
+                "n": 52,
+                "share_of_gross_loss": -1.0308405091725945,
+                "usd_per_asset_day": 417.1780303030303,
+                "usd_per_trade": 529.4951923076923,
+                "wall_rate": 0.09615384615384616,
+                "win_rate": 0.8846153846153846
+              },
+              "RIGHT/LATE": {
+                "cash_usd": 271.25,
+                "n": 2,
+                "share_of_gross_loss": -0.01015537251965556,
+                "usd_per_asset_day": 4.109848484848484,
+                "usd_per_trade": 135.625,
+                "wall_rate": 0.0,
+                "win_rate": 1.0
+              },
+              "SOFT-WRONG/IN-BUDGET": {
+                "cash_usd": -23877.5,
+                "n": 68,
+                "share_of_gross_loss": 0.8939535754399102,
+                "usd_per_asset_day": -361.780303030303,
+                "usd_per_trade": -351.1397058823529,
+                "wall_rate": 0.3088235294117647,
+                "win_rate": 0.23529411764705882
+              },
+              "SOFT-WRONG/LATE": {
+                "cash_usd": 0.0,
+                "n": 0,
+                "share_of_gross_loss": -0.0,
+                "usd_per_asset_day": 0.0,
+                "usd_per_trade": null,
+                "wall_rate": null,
+                "win_rate": null
+              }
+            }
+          },
+          "NKD": {
+            "entries": 129,
+            "gross_loss_usd": -24025.0,
+            "table": {
+              "HARD-WRONG/IN-BUDGET": {
+                "cash_usd": -4555.0,
+                "n": 6,
+                "share_of_gross_loss": 0.18959417273673257,
+                "usd_per_asset_day": -70.07692307692308,
+                "usd_per_trade": -759.1666666666666,
+                "wall_rate": 0.6666666666666666,
+                "win_rate": 0.0
+              },
+              "HARD-WRONG/LATE": {
+                "cash_usd": 0.0,
+                "n": 0,
+                "share_of_gross_loss": -0.0,
+                "usd_per_asset_day": 0.0,
+                "usd_per_trade": null,
+                "wall_rate": null,
+                "win_rate": null
+              },
+              "RIGHT/IN-BUDGET": {
+                "cash_usd": 35175.0,
+                "n": 60,
+                "share_of_gross_loss": -1.4640998959417273,
+                "usd_per_asset_day": 541.1538461538462,
+                "usd_per_trade": 586.25,
+                "wall_rate": 0.21666666666666667,
+                "win_rate": 0.7333333333333333
+              },
+              "RIGHT/LATE": {
+                "cash_usd": 7492.5,
+                "n": 4,
+                "share_of_gross_loss": -0.31186264308012485,
+                "usd_per_asset_day": 115.26923076923077,
+                "usd_per_trade": 1873.125,
+                "wall_rate": 0.0,
+                "win_rate": 1.0
+              },
+              "SOFT-WRONG/IN-BUDGET": {
+                "cash_usd": -19160.0,
+                "n": 52,
+                "share_of_gross_loss": 0.7975026014568158,
+                "usd_per_asset_day": -294.7692307692308,
+                "usd_per_trade": -368.46153846153845,
+                "wall_rate": 0.40384615384615385,
+                "win_rate": 0.23076923076923078
+              },
+              "SOFT-WRONG/LATE": {
+                "cash_usd": -310.0,
+                "n": 7,
+                "share_of_gross_loss": 0.012903225806451613,
+                "usd_per_asset_day": -4.769230769230769,
+                "usd_per_trade": -44.285714285714285,
+                "wall_rate": 0.14285714285714285,
+                "win_rate": 0.5714285714285714
+              }
+            }
+          },
+          "SI": {
+            "entries": 125,
+            "gross_loss_usd": -36022.50000000001,
+            "table": {
+              "HARD-WRONG/IN-BUDGET": {
+                "cash_usd": -3467.5,
+                "n": 6,
+                "share_of_gross_loss": 0.09625928239294883,
+                "usd_per_asset_day": -54.1796875,
+                "usd_per_trade": -577.9166666666666,
+                "wall_rate": 0.3333333333333333,
+                "win_rate": 0.0
+              },
+              "HARD-WRONG/LATE": {
+                "cash_usd": 0.0,
+                "n": 0,
+                "share_of_gross_loss": -0.0,
+                "usd_per_asset_day": 0.0,
+                "usd_per_trade": null,
+                "wall_rate": null,
+                "win_rate": null
+              },
+              "RIGHT/IN-BUDGET": {
+                "cash_usd": 41765.0,
+                "n": 47,
+                "share_of_gross_loss": -1.1594142549795265,
+                "usd_per_asset_day": 652.578125,
+                "usd_per_trade": 888.6170212765958,
+                "wall_rate": 0.23404255319148937,
+                "win_rate": 0.7446808510638298
+              },
+              "RIGHT/LATE": {
+                "cash_usd": 2307.5,
+                "n": 1,
+                "share_of_gross_loss": -0.0640571864806718,
+                "usd_per_asset_day": 36.0546875,
+                "usd_per_trade": 2307.5,
+                "wall_rate": 0.0,
+                "win_rate": 1.0
+              },
+              "SOFT-WRONG/IN-BUDGET": {
+                "cash_usd": -32387.5,
+                "n": 70,
+                "share_of_gross_loss": 0.8990908459990282,
+                "usd_per_asset_day": -506.0546875,
+                "usd_per_trade": -462.67857142857144,
+                "wall_rate": 0.45714285714285713,
+                "win_rate": 0.17142857142857143
+              },
+              "SOFT-WRONG/LATE": {
+                "cash_usd": -167.5,
+                "n": 1,
+                "share_of_gross_loss": 0.004649871608022762,
+                "usd_per_asset_day": -2.6171875,
+                "usd_per_trade": -167.5,
+                "wall_rate": 0.0,
+                "win_rate": 0.0
+              }
+            }
+          }
+        }
+      },
+      "PRIMARY": {
+        "budget_minutes": {
+          "HG": 60,
+          "NKD": 45,
+          "SI": 60
+        },
+        "by_asset": {
+          "HG": {
+            "entries": 118,
+            "gross_loss_usd": -24963.75,
+            "table": {
+              "HARD-WRONG/IN-BUDGET": {
+                "cash_usd": -3288.75,
+                "n": 4,
+                "share_of_gross_loss": 0.13174102448550398,
+                "usd_per_asset_day": -49.82954545454545,
+                "usd_per_trade": -822.1875,
+                "wall_rate": 0.75,
+                "win_rate": 0.0
+              },
+              "HARD-WRONG/LATE": {
+                "cash_usd": 0.0,
+                "n": 0,
+                "share_of_gross_loss": -0.0,
+                "usd_per_asset_day": 0.0,
+                "usd_per_trade": null,
+                "wall_rate": null,
+                "win_rate": null
+              },
+              "RIGHT/IN-BUDGET": {
+                "cash_usd": 16627.5,
+                "n": 47,
+                "share_of_gross_loss": -0.6660657954033349,
+                "usd_per_asset_day": 251.9318181818182,
+                "usd_per_trade": 353.77659574468083,
+                "wall_rate": 0.1276595744680851,
+                "win_rate": 0.8297872340425532
+              },
+              "RIGHT/LATE": {
+                "cash_usd": 5283.75,
+                "n": 7,
+                "share_of_gross_loss": -0.21165690250863753,
+                "usd_per_asset_day": 80.05681818181819,
+                "usd_per_trade": 754.8214285714286,
+                "wall_rate": 0.0,
+                "win_rate": 1.0
+              },
+              "SOFT-WRONG/IN-BUDGET": {
+                "cash_usd": -21675.0,
+                "n": 55,
+                "share_of_gross_loss": 0.868258975514496,
+                "usd_per_asset_day": -328.40909090909093,
+                "usd_per_trade": -394.09090909090907,
+                "wall_rate": 0.34545454545454546,
+                "win_rate": 0.23636363636363636
+              },
+              "SOFT-WRONG/LATE": {
+                "cash_usd": 168.75,
+                "n": 5,
+                "share_of_gross_loss": -0.0067598017124831005,
+                "usd_per_asset_day": 2.5568181818181817,
+                "usd_per_trade": 33.75,
+                "wall_rate": 0.0,
+                "win_rate": 0.6
+              }
+            }
+          },
+          "NKD": {
+            "entries": 111,
+            "gross_loss_usd": -18250.0,
+            "table": {
+              "HARD-WRONG/IN-BUDGET": {
+                "cash_usd": -2907.5,
+                "n": 4,
+                "share_of_gross_loss": 0.1593150684931507,
+                "usd_per_asset_day": -44.73076923076923,
+                "usd_per_trade": -726.875,
+                "wall_rate": 0.5,
+                "win_rate": 0.0
+              },
+              "HARD-WRONG/LATE": {
+                "cash_usd": -192.5,
+                "n": 1,
+                "share_of_gross_loss": 0.010547945205479452,
+                "usd_per_asset_day": -2.9615384615384617,
+                "usd_per_trade": -192.5,
+                "wall_rate": 0.0,
+                "win_rate": 0.0
+              },
+              "RIGHT/IN-BUDGET": {
+                "cash_usd": 29387.5,
+                "n": 55,
+                "share_of_gross_loss": -1.6102739726027397,
+                "usd_per_asset_day": 452.11538461538464,
+                "usd_per_trade": 534.3181818181819,
+                "wall_rate": 0.23636363636363636,
+                "win_rate": 0.7272727272727273
+              },
+              "RIGHT/LATE": {
+                "cash_usd": 2557.5,
+                "n": 6,
+                "share_of_gross_loss": -0.14013698630136986,
+                "usd_per_asset_day": 39.34615384615385,
+                "usd_per_trade": 426.25,
+                "wall_rate": 0.0,
+                "win_rate": 1.0
+              },
+              "SOFT-WRONG/IN-BUDGET": {
+                "cash_usd": -15082.5,
+                "n": 44,
+                "share_of_gross_loss": 0.8264383561643835,
+                "usd_per_asset_day": -232.03846153846155,
+                "usd_per_trade": -342.78409090909093,
+                "wall_rate": 0.4318181818181818,
+                "win_rate": 0.20454545454545456
+              },
+              "SOFT-WRONG/LATE": {
+                "cash_usd": -67.5,
+                "n": 1,
+                "share_of_gross_loss": 0.0036986301369863013,
+                "usd_per_asset_day": -1.0384615384615385,
+                "usd_per_trade": -67.5,
+                "wall_rate": 0.0,
+                "win_rate": 0.0
+              }
+            }
+          },
+          "SI": {
+            "entries": 121,
+            "gross_loss_usd": -33595.0,
+            "table": {
+              "HARD-WRONG/IN-BUDGET": {
+                "cash_usd": -4622.5,
+                "n": 7,
+                "share_of_gross_loss": 0.13759488019050453,
+                "usd_per_asset_day": -72.2265625,
+                "usd_per_trade": -660.3571428571429,
+                "wall_rate": 0.42857142857142855,
+                "win_rate": 0.0
+              },
+              "HARD-WRONG/LATE": {
+                "cash_usd": 0.0,
+                "n": 0,
+                "share_of_gross_loss": -0.0,
+                "usd_per_asset_day": 0.0,
+                "usd_per_trade": null,
+                "wall_rate": null,
+                "win_rate": null
+              },
+              "RIGHT/IN-BUDGET": {
+                "cash_usd": 41830.0,
+                "n": 49,
+                "share_of_gross_loss": -1.2451257627623158,
+                "usd_per_asset_day": 653.59375,
+                "usd_per_trade": 853.6734693877551,
+                "wall_rate": 0.2857142857142857,
+                "win_rate": 0.6530612244897959
+              },
+              "RIGHT/LATE": {
+                "cash_usd": 5270.0,
+                "n": 6,
+                "share_of_gross_loss": -0.15686858163417175,
+                "usd_per_asset_day": 82.34375,
+                "usd_per_trade": 878.3333333333334,
+                "wall_rate": 0.0,
+                "win_rate": 1.0
+              },
+              "SOFT-WRONG/IN-BUDGET": {
+                "cash_usd": -28972.5,
+                "n": 57,
+                "share_of_gross_loss": 0.8624051198094954,
+                "usd_per_asset_day": -452.6953125,
+                "usd_per_trade": -508.2894736842105,
+                "wall_rate": 0.5087719298245614,
+                "win_rate": 0.14035087719298245
+              },
+              "SOFT-WRONG/LATE": {
+                "cash_usd": 115.00000000000003,
+                "n": 2,
+                "share_of_gross_loss": -0.0034231284417324016,
+                "usd_per_asset_day": 1.7968750000000004,
+                "usd_per_trade": 57.500000000000014,
+                "wall_rate": 0.0,
+                "win_rate": 0.5
+              }
+            }
+          }
+        }
+      }
+    },
+    "bleed_baseline_7b": {
+      "HG": {
+        "n": 38,
+        "share_of_gross_loss": 0.6716556087023607,
+        "usd_per_asset_day": -329.77272727272725,
+        "wall_rate": 0.47368421052631576
+      },
+      "NKD": {
+        "n": 71,
+        "share_of_gross_loss": 0.8442011890157591,
+        "usd_per_asset_day": -688.1538461538462,
+        "wall_rate": 0.6338028169014085
+      },
+      "SI": {
+        "n": 42,
+        "share_of_gross_loss": 0.7733514703977199,
+        "usd_per_asset_day": -466.3671875,
+        "wall_rate": 0.7380952380952381
+      }
+    },
+    "lines": {
+      "CONTROL": {
+        "HG": {
+          "clears_rung": false,
+          "coverage": 0.9130434782608695,
+          "mdd_day_usd": 11003.75,
+          "mdd_trade_usd": 11908.75,
+          "total_usd": 1095.0,
+          "trades": 126,
+          "usd_per_asset_day": 16.59090909090909,
+          "usd_per_trade": 8.69047619047619,
+          "wall_rate": 0.2222222222222222,
+          "walls": 28,
+          "win_rate": 0.5079365079365079
+        },
+        "NKD": {
+          "clears_rung": false,
+          "coverage": 0.9772727272727273,
+          "mdd_day_usd": 5270.0,
+          "mdd_trade_usd": 6175.0,
+          "total_usd": 18642.5,
+          "trades": 129,
+          "usd_per_asset_day": 286.8076923076923,
+          "usd_per_trade": 144.515503875969,
+          "wall_rate": 0.3023255813953488,
+          "walls": 39,
+          "win_rate": 0.49612403100775193
+        },
+        "SI": {
+          "clears_rung": false,
+          "coverage": 0.946969696969697,
+          "mdd_day_usd": 9952.5,
+          "mdd_trade_usd": 10072.5,
+          "total_usd": 8050.0,
+          "trades": 125,
+          "usd_per_asset_day": 125.78125,
+          "usd_per_trade": 64.4,
+          "wall_rate": 0.36,
+          "walls": 45,
+          "win_rate": 0.384
+        }
+      },
+      "PRIMARY": {
+        "HG": {
+          "clears_rung": false,
+          "coverage": 0.855072463768116,
+          "mdd_day_usd": 11363.75,
+          "mdd_trade_usd": 12465.0,
+          "total_usd": -2883.75,
+          "trades": 118,
+          "usd_per_asset_day": -43.69318181818182,
+          "usd_per_trade": -24.4385593220339,
+          "wall_rate": 0.23728813559322035,
+          "walls": 28,
+          "win_rate": 0.5254237288135594
+        },
+        "NKD": {
+          "clears_rung": false,
+          "coverage": 0.8409090909090909,
+          "mdd_day_usd": 3347.5,
+          "mdd_trade_usd": 4510.0,
+          "total_usd": 13695.0,
+          "trades": 111,
+          "usd_per_asset_day": 210.69230769230768,
+          "usd_per_trade": 123.37837837837837,
+          "wall_rate": 0.3063063063063063,
+          "walls": 34,
+          "win_rate": 0.4954954954954955
+        },
+        "SI": {
+          "clears_rung": false,
+          "coverage": 0.9166666666666666,
+          "mdd_day_usd": 8327.5,
+          "mdd_trade_usd": 9397.5,
+          "total_usd": 13620.0,
+          "trades": 121,
+          "usd_per_asset_day": 212.8125,
+          "usd_per_trade": 112.56198347107438,
+          "wall_rate": 0.38016528925619836,
+          "walls": 46,
+          "win_rate": 0.3884297520661157
+        }
+      }
+    },
+    "null": {
+      "by_line": {
+        "HG/CONTROL": {
+          "null_asset_mdd_mean_usd": 7693.61875,
+          "null_asset_mdd_p05_usd": 4759.4375,
+          "null_pooled_mdd_mean_usd": 7693.61875,
+          "observed_max_asset_mdd_usd": 11003.75,
+          "observed_pooled_mdd_usd": 11003.75,
+          "p_max_adjusted": 1.0,
+          "p_own": 0.9104477611940298,
+          "p_pooled_max_adjusted": 1.0,
+          "p_pooled_own": 0.9104477611940298
+        },
+        "HG/PRIMARY": {
+          "null_asset_mdd_mean_usd": 9401.625,
+          "null_asset_mdd_p05_usd": 6103.0625,
+          "null_pooled_mdd_mean_usd": 9401.625,
+          "observed_max_asset_mdd_usd": 11363.75,
+          "observed_pooled_mdd_usd": 11363.75,
+          "p_max_adjusted": 1.0,
+          "p_own": 0.8308457711442786,
+          "p_pooled_max_adjusted": 1.0,
+          "p_pooled_own": 0.8308457711442786
+        },
+        "NKD/CONTROL": {
+          "null_asset_mdd_mean_usd": 5739.3,
+          "null_asset_mdd_p05_usd": 3469.25,
+          "null_pooled_mdd_mean_usd": 5739.3,
+          "observed_max_asset_mdd_usd": 5270.0,
+          "observed_pooled_mdd_usd": 5270.0,
+          "p_max_adjusted": 0.7661691542288557,
+          "p_own": 0.4577114427860697,
+          "p_pooled_max_adjusted": 0.7661691542288557,
+          "p_pooled_own": 0.4577114427860697
+        },
+        "NKD/PRIMARY": {
+          "null_asset_mdd_mean_usd": 5655.05,
+          "null_asset_mdd_p05_usd": 3590.0,
+          "null_pooled_mdd_mean_usd": 5655.05,
+          "observed_max_asset_mdd_usd": 3347.5,
+          "observed_pooled_mdd_usd": 3347.5,
+          "p_max_adjusted": 0.05472636815920398,
+          "p_own": 0.024875621890547265,
+          "p_pooled_max_adjusted": 0.05472636815920398,
+          "p_pooled_own": 0.024875621890547265
+        },
+        "SI/CONTROL": {
+          "null_asset_mdd_mean_usd": 10618.1625,
+          "null_asset_mdd_p05_usd": 6536.625,
+          "null_pooled_mdd_mean_usd": 10618.1625,
+          "observed_max_asset_mdd_usd": 9952.5,
+          "observed_pooled_mdd_usd": 9952.5,
+          "p_max_adjusted": 1.0,
+          "p_own": 0.527363184079602,
+          "p_pooled_max_adjusted": 1.0,
+          "p_pooled_own": 0.527363184079602
+        },
+        "SI/PRIMARY": {
+          "null_asset_mdd_mean_usd": 8463.9875,
+          "null_asset_mdd_p05_usd": 5359.125000000001,
+          "null_pooled_mdd_mean_usd": 8463.9875,
+          "observed_max_asset_mdd_usd": 8327.5,
+          "observed_pooled_mdd_usd": 8327.5,
+          "p_max_adjusted": 0.9950248756218906,
+          "p_own": 0.5522388059701493,
+          "p_pooled_max_adjusted": 0.9950248756218906,
+          "p_pooled_own": 0.5522388059701493
+        }
+      },
+      "draws": 200,
+      "lines_held_out_empty": [],
+      "seed": 20260827,
+      "statistic": "-asset_day_ordered_mdd and -pooled_day_ordered_mdd",
+      "total_cash_invariant_under_this_null": true
+    },
+    "priced_lines": [
+      "PRIMARY",
+      "CONTROL"
+    ],
+    "replays": {
+      "CONTROL": {
+        "arrivals": 380,
+        "asset_days": 195,
+        "by_asset": {
+          "HG": {
+            "asset_days": 66,
+            "max_drawdown_usd": 11908.75,
+            "trades": 126,
+            "usd_per_asset_day": 16.59090909090909,
+            "usd_per_trade": 8.69047619047619
+          },
+          "NKD": {
+            "asset_days": 65,
+            "max_drawdown_usd": 6175.0,
+            "trades": 129,
+            "usd_per_asset_day": 286.8076923076923,
+            "usd_per_trade": 144.515503875969
+          },
+          "SI": {
+            "asset_days": 64,
+            "max_drawdown_usd": 10072.5,
+            "trades": 125,
+            "usd_per_asset_day": 125.78124999999999,
+            "usd_per_trade": 64.39999999999999
+          }
+        },
+        "drawdown_breach_rate": 0.2512820512820513,
+        "drawdown_p90_usd": 1810.0,
+        "label": "partial-day (split breaks portfolio days)",
+        "max_drawdown_usd": 11908.75,
+        "occupancy_or_cap_skips": 0,
+        "skipped_ids": [],
+        "status": "OK",
+        "total_usd": 27787.5,
+        "trades": 380,
+        "usd_per_asset_day": 142.5,
+        "usd_per_trade": 73.125,
+        "worst_asset_day_usd": -2740.0
+      },
+      "PRIMARY": {
+        "arrivals": 350,
+        "asset_days": 195,
+        "by_asset": {
+          "HG": {
+            "asset_days": 66,
+            "max_drawdown_usd": 12465.0,
+            "trades": 118,
+            "usd_per_asset_day": -43.69318181818182,
+            "usd_per_trade": -24.4385593220339
+          },
+          "NKD": {
+            "asset_days": 65,
+            "max_drawdown_usd": 4510.0,
+            "trades": 111,
+            "usd_per_asset_day": 210.69230769230768,
+            "usd_per_trade": 123.37837837837837
+          },
+          "SI": {
+            "asset_days": 64,
+            "max_drawdown_usd": 9397.5,
+            "trades": 121,
+            "usd_per_asset_day": 212.81249999999997,
+            "usd_per_trade": 112.56198347107437
+          }
+        },
+        "drawdown_breach_rate": 0.21025641025641026,
+        "drawdown_p90_usd": 1810.0,
+        "label": "partial-day (split breaks portfolio days)",
+        "max_drawdown_usd": 12465.0,
+        "occupancy_or_cap_skips": 0,
+        "skipped_ids": [],
+        "status": "OK",
+        "total_usd": 24431.25,
+        "trades": 350,
+        "usd_per_asset_day": 125.28846153846153,
+        "usd_per_trade": 69.80357142857143,
+        "worst_asset_day_usd": -2765.0000000000005
+      }
+    },
+    "stress": {
+      "CONTROL": {
+        "HG": {
+          "clears_rung": false,
+          "coverage": 0.9130434782608695,
+          "damage_usd": 8500.0,
+          "flips_applied": 3,
+          "flips_available": 85,
+          "flips_requested": 3,
+          "mdd_day_usd": 14656.25,
+          "mdd_trade_usd": 15105.0,
+          "rate": 0.02,
+          "total_usd": -7405.0,
+          "trades": 126,
+          "usd_per_asset_day": -112.1969696969697,
+          "usd_per_trade": -58.76984126984127,
+          "wall_rate": 0.24603174603174602,
+          "walls": 31,
+          "win_rate": 0.48412698412698413
+        },
+        "NKD": {
+          "clears_rung": false,
+          "coverage": 0.9772727272727273,
+          "damage_usd": 14787.5,
+          "flips_applied": 3,
+          "flips_available": 103,
+          "flips_requested": 3,
+          "mdd_day_usd": 12830.0,
+          "mdd_trade_usd": 13930.0,
+          "rate": 0.02,
+          "total_usd": 3855.0,
+          "trades": 129,
+          "usd_per_asset_day": 59.30769230769231,
+          "usd_per_trade": 29.88372093023256,
+          "wall_rate": 0.32558139534883723,
+          "walls": 42,
+          "win_rate": 0.4728682170542636
+        },
+        "SI": {
+          "clears_rung": false,
+          "coverage": 0.946969696969697,
+          "damage_usd": 9525.0,
+          "flips_applied": 2,
+          "flips_available": 71,
+          "flips_requested": 2,
+          "mdd_day_usd": 11305.0,
+          "mdd_trade_usd": 11882.5,
+          "rate": 0.02,
+          "total_usd": -1474.9999999999984,
+          "trades": 125,
+          "usd_per_asset_day": -23.046874999999975,
+          "usd_per_trade": -11.799999999999986,
+          "wall_rate": 0.376,
+          "walls": 47,
+          "win_rate": 0.368
+        }
+      },
+      "PRIMARY": {
+        "HG": {
+          "clears_rung": false,
+          "coverage": 0.855072463768116,
+          "damage_usd": 4825.0,
+          "flips_applied": 2,
+          "flips_available": 74,
+          "flips_requested": 2,
+          "mdd_day_usd": 16188.75,
+          "mdd_trade_usd": 17290.0,
+          "rate": 0.02,
+          "total_usd": -7708.75,
+          "trades": 118,
+          "usd_per_asset_day": -116.79924242424242,
+          "usd_per_trade": -65.32838983050847,
+          "wall_rate": 0.2542372881355932,
+          "walls": 30,
+          "win_rate": 0.5084745762711864
+        },
+        "NKD": {
+          "clears_rung": false,
+          "coverage": 0.8409090909090909,
+          "damage_usd": 9650.0,
+          "flips_applied": 2,
+          "flips_available": 80,
+          "flips_requested": 2,
+          "mdd_day_usd": 7825.0,
+          "mdd_trade_usd": 8527.5,
+          "rate": 0.02,
+          "total_usd": 4045.0,
+          "trades": 111,
+          "usd_per_asset_day": 62.23076923076923,
+          "usd_per_trade": 36.44144144144144,
+          "wall_rate": 0.32432432432432434,
+          "walls": 36,
+          "win_rate": 0.4774774774774775
+        },
+        "SI": {
+          "clears_rung": false,
+          "coverage": 0.9166666666666666,
+          "damage_usd": 9587.5,
+          "flips_applied": 2,
+          "flips_available": 55,
+          "flips_requested": 2,
+          "mdd_day_usd": 8362.5,
+          "mdd_trade_usd": 9397.5,
+          "rate": 0.02,
+          "total_usd": 4032.499999999999,
+          "trades": 121,
+          "usd_per_asset_day": 63.007812499999986,
+          "usd_per_trade": 33.326446280991725,
+          "wall_rate": 0.39669421487603307,
+          "walls": 48,
+          "win_rate": 0.371900826446281
+        }
+      }
+    }
+  },
+  "sweep7a_first_quiet": {
+    "HG": {
+      "cells": 204,
+      "coverage": 0.7990196078431373,
+      "delay_median_s": -7500.0,
+      "delay_p90_s": 2700.0,
+      "post_new_extreme": 0.7239263803680982,
+      "selections": 163,
+      "soft_hit": 0.950920245398773
+    },
+    "NKD": {
+      "cells": 198,
+      "coverage": 0.8888888888888888,
+      "delay_median_s": -9000.0,
+      "delay_p90_s": 0.0,
+      "post_new_extreme": 0.8295454545454546,
+      "selections": 176,
+      "soft_hit": 0.9545454545454546
+    },
+    "SI": {
+      "cells": 198,
+      "coverage": 0.7525252525252525,
+      "delay_median_s": -7440.0,
+      "delay_p90_s": 1800.0,
+      "post_new_extreme": 0.7449664429530202,
+      "selections": 149,
+      "soft_hit": 0.9530201342281879
+    }
+  },
+  "sweep8b": {
+    "decision": {
+      "bars": {
+        "freeze": "rung + both MDD < 1000 + stress > 0 + adj null <= 0.05",
+        "interesting": "usd/day > 300.0 and mdd_day < 5000.0 and stress > 0 on a deciding asset"
+      },
+      "by_asset": {
+        "HG": {
+          "E1CONTROL": {
+            "adjusted_null_p": 1.0,
+            "bounds_fired": [
+              "usd/day -143.7 < rung 2000",
+              "mdd_day 10549 >= 1000",
+              "mdd_trade 10549 >= 1000",
+              "stress -246.9 <= 0",
+              "adjusted null 1.0 > 0.05"
+            ],
+            "coverage": 0.927536231884058,
+            "deciding": false,
+            "freeze_candidate": false,
+            "interesting": false,
+            "mdd_day_usd": 10548.75,
+            "mdd_trade_usd": 10548.75,
+            "stress_usd_per_asset_day": -246.91287878787878,
+            "trades": 128,
+            "usd_per_asset_day": -143.6931818181818,
+            "verdict": "KILL"
+          },
+          "E1PRIMARY": {
+            "adjusted_null_p": 0.9850746268656716,
+            "bounds_fired": [
+              "usd/day -73.0 < rung 2000",
+              "mdd_day 5908 >= 1000",
+              "mdd_trade 6961 >= 1000",
+              "stress -140.9 <= 0",
+              "adjusted null 0.9850746268656716 > 0.05"
+            ],
+            "coverage": 0.782608695652174,
+            "deciding": false,
+            "freeze_candidate": false,
+            "interesting": false,
+            "mdd_day_usd": 5907.5,
+            "mdd_trade_usd": 6961.25,
+            "stress_usd_per_asset_day": -140.85227272727272,
+            "trades": 108,
+            "usd_per_asset_day": -72.95454545454545,
+            "verdict": "KILL"
+          }
+        },
+        "NKD": {
+          "E1CONTROL": {
+            "adjusted_null_p": 1.0,
+            "bounds_fired": [
+              "usd/day -130.2 < rung 1500",
+              "mdd_day 14045 >= 1000",
+              "mdd_trade 14950 >= 1000",
+              "stress -252.7 <= 0",
+              "adjusted null 1.0 > 0.05"
+            ],
+            "coverage": 0.9696969696969697,
+            "deciding": true,
+            "freeze_candidate": false,
+            "interesting": false,
+            "mdd_day_usd": 14045.0,
+            "mdd_trade_usd": 14950.0,
+            "stress_usd_per_asset_day": -252.73076923076923,
+            "trades": 128,
+            "usd_per_asset_day": -130.23076923076923,
+            "verdict": "KILL"
+          },
+          "E1PRIMARY": {
+            "adjusted_null_p": 1.0,
+            "bounds_fired": [
+              "usd/day 41.7 < rung 1500",
+              "mdd_day 8595 >= 1000",
+              "mdd_trade 9168 >= 1000",
+              "stress -61.7 <= 0",
+              "adjusted null 1.0 > 0.05"
+            ],
+            "coverage": 0.8333333333333334,
+            "deciding": true,
+            "freeze_candidate": false,
+            "interesting": false,
+            "mdd_day_usd": 8595.0,
+            "mdd_trade_usd": 9167.5,
+            "stress_usd_per_asset_day": -61.73076923076923,
+            "trades": 110,
+            "usd_per_asset_day": 41.73076923076923,
+            "verdict": "KILL"
+          }
+        },
+        "SI": {
+          "E1CONTROL": {
+            "adjusted_null_p": 0.5970149253731343,
+            "bounds_fired": [
+              "usd/day 248.4 < rung 1500",
+              "mdd_day 4475 >= 1000",
+              "mdd_trade 6410 >= 1000",
+              "adjusted null 0.5970149253731343 > 0.05"
+            ],
+            "coverage": 0.9545454545454546,
+            "deciding": true,
+            "freeze_candidate": false,
+            "interesting": false,
+            "mdd_day_usd": 4475.0,
+            "mdd_trade_usd": 6410.0,
+            "stress_usd_per_asset_day": 57.5390625,
+            "trades": 126,
+            "usd_per_asset_day": 248.359375,
+            "verdict": "KILL"
+          },
+          "E1PRIMARY": {
+            "adjusted_null_p": 1.0,
+            "bounds_fired": [
+              "usd/day -11.9 < rung 1500",
+              "mdd_day 9312 >= 1000",
+              "mdd_trade 9312 >= 1000",
+              "stress -108.0 <= 0",
+              "adjusted null 1.0 > 0.05"
+            ],
+            "coverage": 0.8106060606060606,
+            "deciding": true,
+            "freeze_candidate": false,
+            "interesting": false,
+            "mdd_day_usd": 9312.5,
+            "mdd_trade_usd": 9312.5,
+            "stress_usd_per_asset_day": -107.96875000000001,
+            "trades": 107,
+            "usd_per_asset_day": -11.875000000000007,
+            "verdict": "KILL"
+          }
+        }
+      },
+      "overall": "KILL"
+    },
+    "horizons": {
+      "E1CONTROL": {
+        "by_asset": {
+          "HG": {
+            "entry_window_censored": 0,
+            "fire_phase_median_s": 8940.0,
+            "fire_window_censored": 0,
+            "n": 128,
+            "postx1800_entry": {
+              "ci_high": 0.20242016694495388,
+              "ci_low": 0.08460228531840389,
+              "hits": 17,
+              "n": 128,
+              "rate": 0.1328125
+            },
+            "postx1800_fire": {
+              "ci_high": 0.23781807603707017,
+              "ci_low": 0.1098833164591933,
+              "hits": 21,
+              "n": 128,
+              "rate": 0.1640625
+            },
+            "wait_max_s": 7680.0,
+            "wait_median_s": 0.0,
+            "wait_p90_s": 2615.9999999999995
+          },
+          "NKD": {
+            "entry_window_censored": 0,
+            "fire_phase_median_s": 10890.0,
+            "fire_window_censored": 0,
+            "n": 128,
+            "postx1800_entry": {
+              "ci_high": 0.25521626286755583,
+              "ci_low": 0.12282459974516051,
+              "hits": 23,
+              "n": 128,
+              "rate": 0.1796875
+            },
+            "postx1800_fire": {
+              "ci_high": 0.25521626286755583,
+              "ci_low": 0.12282459974516051,
+              "hits": 23,
+              "n": 128,
+              "rate": 0.1796875
+            },
+            "wait_max_s": 120.0,
+            "wait_median_s": 0.0,
+            "wait_p90_s": 0.0
+          },
+          "SI": {
+            "entry_window_censored": 0,
+            "fire_phase_median_s": 8970.0,
+            "fire_window_censored": 0,
+            "n": 126,
+            "postx1800_entry": {
+              "ci_high": 0.196343712850961,
+              "ci_low": 0.07969646065163147,
+              "hits": 16,
+              "n": 126,
+              "rate": 0.12698412698412698
+            },
+            "postx1800_fire": {
+              "ci_high": 0.21453317808906505,
+              "ci_low": 0.09231379654107666,
+              "hits": 18,
+              "n": 126,
+              "rate": 0.14285714285714285
+            },
+            "wait_max_s": 6960.0,
+            "wait_median_s": 0.0,
+            "wait_p90_s": 1800.0
+          }
+        },
+        "by_phase": {
+          "0": {
+            "entry_window_censored": 0,
+            "fire_phase_median_s": 9780.0,
+            "fire_window_censored": 0,
+            "n": 129,
+            "postx1800_entry": {
+              "ci_high": 0.2009289688142454,
+              "ci_low": 0.0839328443322929,
+              "hits": 17,
+              "n": 129,
+              "rate": 0.13178294573643412
+            },
+            "postx1800_fire": {
+              "ci_high": 0.25334810896117865,
+              "ci_low": 0.12184694884053376,
+              "hits": 23,
+              "n": 129,
+              "rate": 0.17829457364341086
+            },
+            "wait_max_s": 7680.0,
+            "wait_median_s": 0.0,
+            "wait_p90_s": 3792.0
+          },
+          "1": {
+            "entry_window_censored": 0,
+            "fire_phase_median_s": 5340.0,
+            "fire_window_censored": 0,
+            "n": 127,
+            "postx1800_entry": {
+              "ci_high": 0.2129309843475323,
+              "ci_low": 0.09157080873697535,
+              "hits": 18,
+              "n": 127,
+              "rate": 0.14173228346456693
+            },
+            "postx1800_fire": {
+              "ci_high": 0.2129309843475323,
+              "ci_low": 0.09157080873697535,
+              "hits": 18,
+              "n": 127,
+              "rate": 0.14173228346456693
+            },
+            "wait_max_s": 0.0,
+            "wait_median_s": 0.0,
+            "wait_p90_s": 0.0
+          },
+          "2": {
+            "entry_window_censored": 0,
+            "fire_phase_median_s": 13290.0,
+            "fire_window_censored": 0,
+            "n": 126,
+            "postx1800_entry": {
+              "ci_high": 0.2413852875172065,
+              "ci_low": 0.11167188880425905,
+              "hits": 21,
+              "n": 126,
+              "rate": 0.16666666666666666
+            },
+            "postx1800_fire": {
+              "ci_high": 0.2413852875172065,
+              "ci_low": 0.11167188880425905,
+              "hits": 21,
+              "n": 126,
+              "rate": 0.16666666666666666
+            },
+            "wait_max_s": 0.0,
+            "wait_median_s": 0.0,
+            "wait_p90_s": 0.0
+          }
+        }
+      },
+      "E1PRIMARY": {
+        "by_asset": {
+          "HG": {
+            "entry_window_censored": 0,
+            "fire_phase_median_s": 11070.0,
+            "fire_window_censored": 0,
+            "n": 108,
+            "postx1800_entry": {
+              "ci_high": 0.3094008403067896,
+              "ci_low": 0.15412547066351984,
+              "hits": 24,
+              "n": 108,
+              "rate": 0.2222222222222222
+            },
+            "postx1800_fire": {
+              "ci_high": 0.29933435242768675,
+              "ci_low": 0.14630950224163303,
+              "hits": 23,
+              "n": 108,
+              "rate": 0.21296296296296297
+            },
+            "wait_max_s": 900.0,
+            "wait_median_s": 0.0,
+            "wait_p90_s": 900.0
+          },
+          "NKD": {
+            "entry_window_censored": 1,
+            "fire_phase_median_s": 11370.0,
+            "fire_window_censored": 0,
+            "n": 110,
+            "postx1800_entry": {
+              "ci_high": 0.3849233630304628,
+              "ci_low": 0.216287038976965,
+              "hits": 32,
+              "n": 109,
+              "rate": 0.29357798165137616
+            },
+            "postx1800_fire": {
+              "ci_high": 0.33356357575914586,
+              "ci_low": 0.17452424584719226,
+              "hits": 27,
+              "n": 110,
+              "rate": 0.24545454545454545
+            },
+            "wait_max_s": 900.0,
+            "wait_median_s": 0.0,
+            "wait_p90_s": 900.0
+          },
+          "SI": {
+            "entry_window_censored": 1,
+            "fire_phase_median_s": 9420.0,
+            "fire_window_censored": 0,
+            "n": 107,
+            "postx1800_entry": {
+              "ci_high": 0.25251823806319285,
+              "ci_low": 0.11019962137211899,
+              "hits": 18,
+              "n": 106,
+              "rate": 0.16981132075471697
+            },
+            "postx1800_fire": {
+              "ci_high": 0.23977489860765425,
+              "ci_low": 0.10162676845186588,
+              "hits": 17,
+              "n": 107,
+              "rate": 0.1588785046728972
+            },
+            "wait_max_s": 900.0,
+            "wait_median_s": 60.0,
+            "wait_p90_s": 900.0
+          }
+        },
+        "by_phase": {
+          "0": {
+            "entry_window_censored": 0,
+            "fire_phase_median_s": 12240.0,
+            "fire_window_censored": 0,
+            "n": 118,
+            "postx1800_entry": {
+              "ci_high": 0.2567887901789861,
+              "ci_low": 0.11944980105584081,
+              "hits": 21,
+              "n": 118,
+              "rate": 0.17796610169491525
+            },
+            "postx1800_fire": {
+              "ci_high": 0.23783623129395476,
+              "ci_low": 0.10557281211112612,
+              "hits": 19,
+              "n": 118,
+              "rate": 0.16101694915254236
+            },
+            "wait_max_s": 900.0,
+            "wait_median_s": 60.0,
+            "wait_p90_s": 900.0
+          },
+          "1": {
+            "entry_window_censored": 2,
+            "fire_phase_median_s": 5820.0,
+            "fire_window_censored": 0,
+            "n": 112,
+            "postx1800_entry": {
+              "ci_high": 0.2942509446430563,
+              "ci_low": 0.14356370862133006,
+              "hits": 23,
+              "n": 110,
+              "rate": 0.20909090909090908
+            },
+            "postx1800_fire": {
+              "ci_high": 0.2795411051917831,
+              "ci_low": 0.13344971267029,
+              "hits": 22,
+              "n": 112,
+              "rate": 0.19642857142857142
+            },
+            "wait_max_s": 900.0,
+            "wait_median_s": 0.0,
+            "wait_p90_s": 840.0
+          },
+          "2": {
+            "entry_window_censored": 0,
+            "fire_phase_median_s": 14580.0,
+            "fire_window_censored": 0,
+            "n": 95,
+            "postx1800_entry": {
+              "ci_high": 0.41486531599937426,
+              "ci_low": 0.23103226162043158,
+              "hits": 30,
+              "n": 95,
+              "rate": 0.3157894736842105
+            },
+            "postx1800_fire": {
+              "ci_high": 0.37081433740421976,
+              "ci_low": 0.1941455436715417,
+              "hits": 26,
+              "n": 95,
+              "rate": 0.2736842105263158
+            },
+            "wait_max_s": 900.0,
+            "wait_median_s": 0.0,
+            "wait_p90_s": 900.0
+          }
+        }
+      }
+    },
+    "knob": "E1-ONLY fires (sweep 8 fires the 5-evidence composite G)",
+    "lines": [
+      "E1PRIMARY",
+      "E1CONTROL"
+    ],
+    "null_lines": [
+      "PRIMARY",
+      "CONTROL",
+      "E1PRIMARY",
+      "E1CONTROL"
+    ],
+    "stage_a": {
+      "E1CONTROL": {
+        "by_asset": {
+          "HG": {
+            "before_terminal": {
+              "ci_high": 0.5006814085843652,
+              "ci_low": 0.33245150577514415,
+              "hits": 53,
+              "n": 128,
+              "rate": 0.4140625
+            },
+            "cells_scored": 138,
+            "coverage": 0.927536231884058,
+            "delay_median_s": 2790.0,
+            "delay_p90_s": 10500.0,
+            "depth_median_atr": 0.17503808525380882,
+            "depth_p90_atr": 0.43965024558603044,
+            "entries": 128,
+            "miss_branches": {
+              "cancelled": 0,
+              "no_candidate": 0,
+              "no_candidate_in_depth": 0,
+              "no_fire": 10,
+              "unscored": 63
+            },
+            "post_extension": {
+              "ci_high": 0.5006814085843652,
+              "ci_low": 0.33245150577514415,
+              "hits": 53,
+              "n": 128,
+              "rate": 0.4140625
+            },
+            "side_agree": {
+              "ci_high": 0.5650274135078811,
+              "ci_low": 0.3831776586564194,
+              "hits": 53,
+              "n": 112,
+              "rate": 0.4732142857142857
+            },
+            "soft_hit": {
+              "ci_high": 0.9832013892021962,
+              "ci_low": 0.9118129792331631,
+              "hits": 123,
+              "n": 128,
+              "rate": 0.9609375
+            },
+            "wait_median_s": 0.0,
+            "wait_p90_s": 2615.9999999999995
+          },
+          "NKD": {
+            "before_terminal": {
+              "ci_high": 0.46926771554970104,
+              "ci_low": 0.3031862585769025,
+              "hits": 49,
+              "n": 128,
+              "rate": 0.3828125
+            },
+            "cells_scored": 132,
+            "coverage": 0.9696969696969697,
+            "delay_median_s": 4440.0,
+            "delay_p90_s": 9540.0,
+            "depth_median_atr": 0.18782474771742502,
+            "depth_p90_atr": 0.5433882673316145,
+            "entries": 128,
+            "miss_branches": {
+              "cancelled": 0,
+              "no_candidate": 0,
+              "no_candidate_in_depth": 0,
+              "no_fire": 4,
+              "unscored": 63
+            },
+            "post_extension": {
+              "ci_high": 0.46926771554970104,
+              "ci_low": 0.3031862585769025,
+              "hits": 49,
+              "n": 128,
+              "rate": 0.3828125
+            },
+            "side_agree": {
+              "ci_high": 0.6071935006875335,
+              "ci_low": 0.4267504103946124,
+              "hits": 59,
+              "n": 114,
+              "rate": 0.5175438596491229
+            },
+            "soft_hit": {
+              "ci_high": 0.96257023169606,
+              "ci_low": 0.8717651965063937,
+              "hits": 119,
+              "n": 128,
+              "rate": 0.9296875
+            },
+            "wait_median_s": 0.0,
+            "wait_p90_s": 0.0
+          },
+          "SI": {
+            "before_terminal": {
+              "ci_high": 0.5237134295521993,
+              "ci_low": 0.35305936593760356,
+              "hits": 55,
+              "n": 126,
+              "rate": 0.4365079365079365
+            },
+            "cells_scored": 132,
+            "coverage": 0.9545454545454546,
+            "delay_median_s": 2640.0,
+            "delay_p90_s": 8940.0,
+            "depth_median_atr": 0.1475369772382121,
+            "depth_p90_atr": 0.4880266171995822,
+            "entries": 126,
+            "miss_branches": {
+              "cancelled": 0,
+              "no_candidate": 0,
+              "no_candidate_in_depth": 0,
+              "no_fire": 6,
+              "unscored": 63
+            },
+            "post_extension": {
+              "ci_high": 0.5237134295521993,
+              "ci_low": 0.35305936593760356,
+              "hits": 55,
+              "n": 126,
+              "rate": 0.4365079365079365
+            },
+            "side_agree": {
+              "ci_high": 0.6082601022941003,
+              "ci_low": 0.42626984959636616,
+              "hits": 58,
+              "n": 112,
+              "rate": 0.5178571428571429
+            },
+            "soft_hit": {
+              "ci_high": 0.9875867210273106,
+              "ci_low": 0.9212139122353924,
+              "hits": 122,
+              "n": 126,
+              "rate": 0.9682539682539683
+            },
+            "wait_median_s": 0.0,
+            "wait_p90_s": 1800.0
+          }
+        },
+        "by_phase": {
+          "0": {
+            "before_terminal": {
+              "ci_high": 0.5737119217209439,
+              "ci_low": 0.40370476711526254,
+              "hits": 63,
+              "n": 129,
+              "rate": 0.4883720930232558
+            },
+            "cells_scored": 146,
+            "coverage": 0.8835616438356164,
+            "delay_median_s": 0.0,
+            "delay_p90_s": 9540.0,
+            "depth_median_atr": 0.11781100528365135,
+            "depth_p90_atr": 0.42420398134126264,
+            "entries": 129,
+            "post_extension": {
+              "ci_high": 0.5737119217209439,
+              "ci_low": 0.40370476711526254,
+              "hits": 63,
+              "n": 129,
+              "rate": 0.4883720930232558
+            },
+            "side_agree": {
+              "ci_high": 0.5643698033056708,
+              "ci_low": 0.3855640504787933,
+              "hits": 55,
+              "n": 116,
+              "rate": 0.47413793103448276
+            },
+            "soft_hit": {
+              "ci_high": 0.9734690446691078,
+              "ci_low": 0.8922245499429776,
+              "hits": 122,
+              "n": 129,
+              "rate": 0.9457364341085271
+            },
+            "wait_median_s": 0.0,
+            "wait_p90_s": 3792.0
+          },
+          "1": {
+            "before_terminal": {
+              "ci_high": 0.40831965120457614,
+              "ci_low": 0.2477526640569936,
+              "hits": 41,
+              "n": 127,
+              "rate": 0.3228346456692913
+            },
+            "cells_scored": 128,
+            "coverage": 0.9921875,
+            "delay_median_s": 3360.0,
+            "delay_p90_s": 4800.0,
+            "depth_median_atr": 0.1367460856208068,
+            "depth_p90_atr": 0.29978438757889736,
+            "entries": 127,
+            "post_extension": {
+              "ci_high": 0.40831965120457614,
+              "ci_low": 0.2477526640569936,
+              "hits": 41,
+              "n": 127,
+              "rate": 0.3228346456692913
+            },
+            "side_agree": {
+              "ci_high": 0.6311899524823574,
+              "ci_low": 0.44299302025822307,
+              "hits": 56,
+              "n": 104,
+              "rate": 0.5384615384615384
+            },
+            "soft_hit": {
+              "ci_high": 0.9781702098787735,
+              "ci_low": 0.9007560955638818,
+              "hits": 121,
+              "n": 127,
+              "rate": 0.952755905511811
+            },
+            "wait_median_s": 0.0,
+            "wait_p90_s": 0.0
+          },
+          "2": {
+            "before_terminal": {
+              "ci_high": 0.5079276809616408,
+              "ci_low": 0.3380383134006128,
+              "hits": 53,
+              "n": 126,
+              "rate": 0.42063492063492064
+            },
+            "cells_scored": 128,
+            "coverage": 0.984375,
+            "delay_median_s": 8940.0,
+            "delay_p90_s": 10500.0,
+            "depth_median_atr": 0.27084187018453476,
+            "depth_p90_atr": 0.7288892189864421,
+            "entries": 126,
+            "post_extension": {
+              "ci_high": 0.5079276809616408,
+              "ci_low": 0.3380383134006128,
+              "hits": 53,
+              "n": 126,
+              "rate": 0.42063492063492064
+            },
+            "side_agree": {
+              "ci_high": 0.5887811058481678,
+              "ci_low": 0.41121889415183216,
+              "hits": 59,
+              "n": 118,
+              "rate": 0.5
+            },
+            "soft_hit": {
+              "ci_high": 0.9829328869198303,
+              "ci_low": 0.9104643457790981,
+              "hits": 121,
+              "n": 126,
+              "rate": 0.9603174603174603
+            },
+            "wait_median_s": 0.0,
+            "wait_p90_s": 0.0
+          }
+        }
+      },
+      "E1PRIMARY": {
+        "by_asset": {
+          "HG": {
+            "before_terminal": {
+              "ci_high": 0.6369869633489315,
+              "ci_low": 0.45242531815601683,
+              "hits": 59,
+              "n": 108,
+              "rate": 0.5462962962962963
+            },
+            "cells_scored": 138,
+            "coverage": 0.782608695652174,
+            "delay_median_s": -1350.0,
+            "delay_p90_s": 10278.0,
+            "depth_median_atr": 0.11294350092390046,
+            "depth_p90_atr": 0.14683919068668058,
+            "entries": 108,
+            "miss_branches": {
+              "cancelled": 0,
+              "no_candidate": 0,
+              "no_candidate_in_depth": 19,
+              "no_fire": 10,
+              "unscored": 63
+            },
+            "post_extension": {
+              "ci_high": 0.6369869633489315,
+              "ci_low": 0.45242531815601683,
+              "hits": 59,
+              "n": 108,
+              "rate": 0.5462962962962963
+            },
+            "side_agree": {
+              "ci_high": 0.6208786177489061,
+              "ci_low": 0.4208569740212842,
+              "hits": 48,
+              "n": 92,
+              "rate": 0.5217391304347826
+            },
+            "soft_hit": {
+              "ci_high": 0.9619897513019287,
+              "ci_low": 0.8606032385435969,
+              "hits": 100,
+              "n": 108,
+              "rate": 0.9259259259259259
+            },
+            "wait_median_s": 0.0,
+            "wait_p90_s": 900.0
+          },
+          "NKD": {
+            "before_terminal": {
+              "ci_high": 0.6267491892092099,
+              "ci_low": 0.44352397913274194,
+              "hits": 59,
+              "n": 110,
+              "rate": 0.5363636363636364
+            },
+            "cells_scored": 132,
+            "coverage": 0.8333333333333334,
+            "delay_median_s": -810.0,
+            "delay_p90_s": 9618.000000000002,
+            "depth_median_atr": 0.10670307565194768,
+            "depth_p90_atr": 0.14645826086278246,
+            "entries": 110,
+            "miss_branches": {
+              "cancelled": 0,
+              "no_candidate": 0,
+              "no_candidate_in_depth": 17,
+              "no_fire": 4,
+              "unscored": 63
+            },
+            "post_extension": {
+              "ci_high": 0.6267491892092099,
+              "ci_low": 0.44352397913274194,
+              "hits": 59,
+              "n": 110,
+              "rate": 0.5363636363636364
+            },
+            "side_agree": {
+              "ci_high": 0.6579116602992026,
+              "ci_low": 0.45807137219291083,
+              "hits": 51,
+              "n": 91,
+              "rate": 0.5604395604395604
+            },
+            "soft_hit": {
+              "ci_high": 0.9498696710288924,
+              "ci_low": 0.8407034728180641,
+              "hits": 100,
+              "n": 110,
+              "rate": 0.9090909090909091
+            },
+            "wait_median_s": 0.0,
+            "wait_p90_s": 900.0
+          },
+          "SI": {
+            "before_terminal": {
+              "ci_high": 0.6686272924062772,
+              "ci_low": 0.4847449221141086,
+              "hits": 62,
+              "n": 107,
+              "rate": 0.5794392523364486
+            },
+            "cells_scored": 132,
+            "coverage": 0.8106060606060606,
+            "delay_median_s": -2760.0,
+            "delay_p90_s": 8940.0,
+            "depth_median_atr": 0.11620514853725313,
+            "depth_p90_atr": 0.14762076439567923,
+            "entries": 107,
+            "miss_branches": {
+              "cancelled": 0,
+              "no_candidate": 0,
+              "no_candidate_in_depth": 19,
+              "no_fire": 6,
+              "unscored": 63
+            },
+            "post_extension": {
+              "ci_high": 0.6686272924062772,
+              "ci_low": 0.4847449221141086,
+              "hits": 62,
+              "n": 107,
+              "rate": 0.5794392523364486
+            },
+            "side_agree": {
+              "ci_high": 0.6476023146686639,
+              "ci_low": 0.44729289373397435,
+              "hits": 50,
+              "n": 91,
+              "rate": 0.5494505494505495
+            },
+            "soft_hit": {
+              "ci_high": 0.9798773427946421,
+              "ci_low": 0.8952464694687352,
+              "hits": 102,
+              "n": 107,
+              "rate": 0.9532710280373832
+            },
+            "wait_median_s": 60.0,
+            "wait_p90_s": 900.0
+          }
+        },
+        "by_phase": {
+          "0": {
+            "before_terminal": {
+              "ci_high": 0.7090682146624346,
+              "ci_low": 0.53715339406066,
+              "hits": 74,
+              "n": 118,
+              "rate": 0.6271186440677966
+            },
+            "cells_scored": 144,
+            "coverage": 0.8194444444444444,
+            "delay_median_s": -4140.0,
+            "delay_p90_s": 9414.0,
+            "depth_median_atr": 0.1035513106298444,
+            "depth_p90_atr": 0.14635347437764554,
+            "entries": 118,
+            "post_extension": {
+              "ci_high": 0.7090682146624346,
+              "ci_low": 0.53715339406066,
+              "hits": 74,
+              "n": 118,
+              "rate": 0.6271186440677966
+            },
+            "side_agree": {
+              "ci_high": 0.6046859727362758,
+              "ci_low": 0.4142102142804601,
+              "hits": 52,
+              "n": 102,
+              "rate": 0.5098039215686274
+            },
+            "soft_hit": {
+              "ci_high": 0.9471483992277607,
+              "ci_low": 0.8407607486861424,
+              "hits": 107,
+              "n": 118,
+              "rate": 0.9067796610169492
+            },
+            "wait_median_s": 60.0,
+            "wait_p90_s": 900.0
+          },
+          "1": {
+            "before_terminal": {
+              "ci_high": 0.5122148152994445,
+              "ci_low": 0.33240040119345726,
+              "hits": 47,
+              "n": 112,
+              "rate": 0.41964285714285715
+            },
+            "cells_scored": 128,
+            "coverage": 0.875,
+            "delay_median_s": 3300.0,
+            "delay_p90_s": 5214.0,
+            "depth_median_atr": 0.11196415510490038,
+            "depth_p90_atr": 0.14760229080845128,
+            "entries": 112,
+            "post_extension": {
+              "ci_high": 0.5122148152994445,
+              "ci_low": 0.33240040119345726,
+              "hits": 47,
+              "n": 112,
+              "rate": 0.41964285714285715
+            },
+            "side_agree": {
+              "ci_high": 0.736272696869657,
+              "ci_low": 0.5389320425142164,
+              "hits": 56,
+              "n": 87,
+              "rate": 0.6436781609195402
+            },
+            "soft_hit": {
+              "ci_high": 0.9860253876053231,
+              "ci_low": 0.9117533615468005,
+              "hits": 108,
+              "n": 112,
+              "rate": 0.9642857142857143
+            },
+            "wait_median_s": 0.0,
+            "wait_p90_s": 840.0
+          },
+          "2": {
+            "before_terminal": {
+              "ci_high": 0.7121019573679593,
+              "ci_low": 0.5205939201961683,
+              "hits": 59,
+              "n": 95,
+              "rate": 0.6210526315789474
+            },
+            "cells_scored": 128,
+            "coverage": 0.7421875,
+            "delay_median_s": -4080.0,
+            "delay_p90_s": 13332.000000000002,
+            "depth_median_atr": 0.1223160672852152,
+            "depth_p90_atr": 0.14698067681098614,
+            "entries": 95,
+            "post_extension": {
+              "ci_high": 0.7121019573679593,
+              "ci_low": 0.5205939201961683,
+              "hits": 59,
+              "n": 95,
+              "rate": 0.6210526315789474
+            },
+            "side_agree": {
+              "ci_high": 0.587024544990991,
+              "ci_low": 0.3792074367906816,
+              "hits": 41,
+              "n": 85,
+              "rate": 0.4823529411764706
+            },
+            "soft_hit": {
+              "ci_high": 0.9567118846157054,
+              "ci_low": 0.8425478687567327,
+              "hits": 87,
+              "n": 95,
+              "rate": 0.9157894736842105
+            },
+            "wait_median_s": 0.0,
+            "wait_p90_s": 900.0
+          }
+        }
+      }
+    },
+    "stage_b": {
+      "bleed": {
+        "CONTROL": {
+          "budget_minutes": {
+            "HG": 60,
+            "NKD": 45,
+            "SI": 60
+          },
+          "by_asset": {
+            "HG": {
+              "entries": 126,
+              "gross_loss_usd": -26710.0,
+              "table": {
+                "HARD-WRONG/IN-BUDGET": {
+                  "cash_usd": -2127.5,
+                  "n": 3,
+                  "share_of_gross_loss": 0.07965181579932609,
+                  "usd_per_asset_day": -32.234848484848484,
+                  "usd_per_trade": -709.1666666666666,
+                  "wall_rate": 0.6666666666666666,
+                  "win_rate": 0.0
+                },
+                "HARD-WRONG/LATE": {
+                  "cash_usd": -705.0,
+                  "n": 1,
+                  "share_of_gross_loss": 0.026394608760763758,
+                  "usd_per_asset_day": -10.681818181818182,
+                  "usd_per_trade": -705.0,
+                  "wall_rate": 0.0,
+                  "win_rate": 0.0
+                },
+                "RIGHT/IN-BUDGET": {
+                  "cash_usd": 27533.75,
+                  "n": 52,
+                  "share_of_gross_loss": -1.0308405091725945,
+                  "usd_per_asset_day": 417.1780303030303,
+                  "usd_per_trade": 529.4951923076923,
+                  "wall_rate": 0.09615384615384616,
+                  "win_rate": 0.8846153846153846
+                },
+                "RIGHT/LATE": {
+                  "cash_usd": 271.25,
+                  "n": 2,
+                  "share_of_gross_loss": -0.01015537251965556,
+                  "usd_per_asset_day": 4.109848484848484,
+                  "usd_per_trade": 135.625,
+                  "wall_rate": 0.0,
+                  "win_rate": 1.0
+                },
+                "SOFT-WRONG/IN-BUDGET": {
+                  "cash_usd": -23877.5,
+                  "n": 68,
+                  "share_of_gross_loss": 0.8939535754399102,
+                  "usd_per_asset_day": -361.780303030303,
+                  "usd_per_trade": -351.1397058823529,
+                  "wall_rate": 0.3088235294117647,
+                  "win_rate": 0.23529411764705882
+                },
+                "SOFT-WRONG/LATE": {
+                  "cash_usd": 0.0,
+                  "n": 0,
+                  "share_of_gross_loss": -0.0,
+                  "usd_per_asset_day": 0.0,
+                  "usd_per_trade": null,
+                  "wall_rate": null,
+                  "win_rate": null
+                }
+              }
+            },
+            "NKD": {
+              "entries": 129,
+              "gross_loss_usd": -24025.0,
+              "table": {
+                "HARD-WRONG/IN-BUDGET": {
+                  "cash_usd": -4555.0,
+                  "n": 6,
+                  "share_of_gross_loss": 0.18959417273673257,
+                  "usd_per_asset_day": -70.07692307692308,
+                  "usd_per_trade": -759.1666666666666,
+                  "wall_rate": 0.6666666666666666,
+                  "win_rate": 0.0
+                },
+                "HARD-WRONG/LATE": {
+                  "cash_usd": 0.0,
+                  "n": 0,
+                  "share_of_gross_loss": -0.0,
+                  "usd_per_asset_day": 0.0,
+                  "usd_per_trade": null,
+                  "wall_rate": null,
+                  "win_rate": null
+                },
+                "RIGHT/IN-BUDGET": {
+                  "cash_usd": 35175.0,
+                  "n": 60,
+                  "share_of_gross_loss": -1.4640998959417273,
+                  "usd_per_asset_day": 541.1538461538462,
+                  "usd_per_trade": 586.25,
+                  "wall_rate": 0.21666666666666667,
+                  "win_rate": 0.7333333333333333
+                },
+                "RIGHT/LATE": {
+                  "cash_usd": 7492.5,
+                  "n": 4,
+                  "share_of_gross_loss": -0.31186264308012485,
+                  "usd_per_asset_day": 115.26923076923077,
+                  "usd_per_trade": 1873.125,
+                  "wall_rate": 0.0,
+                  "win_rate": 1.0
+                },
+                "SOFT-WRONG/IN-BUDGET": {
+                  "cash_usd": -19160.0,
+                  "n": 52,
+                  "share_of_gross_loss": 0.7975026014568158,
+                  "usd_per_asset_day": -294.7692307692308,
+                  "usd_per_trade": -368.46153846153845,
+                  "wall_rate": 0.40384615384615385,
+                  "win_rate": 0.23076923076923078
+                },
+                "SOFT-WRONG/LATE": {
+                  "cash_usd": -310.0,
+                  "n": 7,
+                  "share_of_gross_loss": 0.012903225806451613,
+                  "usd_per_asset_day": -4.769230769230769,
+                  "usd_per_trade": -44.285714285714285,
+                  "wall_rate": 0.14285714285714285,
+                  "win_rate": 0.5714285714285714
+                }
+              }
+            },
+            "SI": {
+              "entries": 125,
+              "gross_loss_usd": -36022.50000000001,
+              "table": {
+                "HARD-WRONG/IN-BUDGET": {
+                  "cash_usd": -3467.5,
+                  "n": 6,
+                  "share_of_gross_loss": 0.09625928239294883,
+                  "usd_per_asset_day": -54.1796875,
+                  "usd_per_trade": -577.9166666666666,
+                  "wall_rate": 0.3333333333333333,
+                  "win_rate": 0.0
+                },
+                "HARD-WRONG/LATE": {
+                  "cash_usd": 0.0,
+                  "n": 0,
+                  "share_of_gross_loss": -0.0,
+                  "usd_per_asset_day": 0.0,
+                  "usd_per_trade": null,
+                  "wall_rate": null,
+                  "win_rate": null
+                },
+                "RIGHT/IN-BUDGET": {
+                  "cash_usd": 41765.0,
+                  "n": 47,
+                  "share_of_gross_loss": -1.1594142549795265,
+                  "usd_per_asset_day": 652.578125,
+                  "usd_per_trade": 888.6170212765958,
+                  "wall_rate": 0.23404255319148937,
+                  "win_rate": 0.7446808510638298
+                },
+                "RIGHT/LATE": {
+                  "cash_usd": 2307.5,
+                  "n": 1,
+                  "share_of_gross_loss": -0.0640571864806718,
+                  "usd_per_asset_day": 36.0546875,
+                  "usd_per_trade": 2307.5,
+                  "wall_rate": 0.0,
+                  "win_rate": 1.0
+                },
+                "SOFT-WRONG/IN-BUDGET": {
+                  "cash_usd": -32387.5,
+                  "n": 70,
+                  "share_of_gross_loss": 0.8990908459990282,
+                  "usd_per_asset_day": -506.0546875,
+                  "usd_per_trade": -462.67857142857144,
+                  "wall_rate": 0.45714285714285713,
+                  "win_rate": 0.17142857142857143
+                },
+                "SOFT-WRONG/LATE": {
+                  "cash_usd": -167.5,
+                  "n": 1,
+                  "share_of_gross_loss": 0.004649871608022762,
+                  "usd_per_asset_day": -2.6171875,
+                  "usd_per_trade": -167.5,
+                  "wall_rate": 0.0,
+                  "win_rate": 0.0
+                }
+              }
+            }
+          }
+        },
+        "E1CONTROL": {
+          "budget_minutes": {
+            "HG": 60,
+            "NKD": 45,
+            "SI": 60
+          },
+          "by_asset": {
+            "HG": {
+              "entries": 128,
+              "gross_loss_usd": -24218.75,
+              "table": {
+                "HARD-WRONG/IN-BUDGET": {
+                  "cash_usd": -2281.25,
+                  "n": 5,
+                  "share_of_gross_loss": 0.09419354838709677,
+                  "usd_per_asset_day": -34.56439393939394,
+                  "usd_per_trade": -456.25,
+                  "wall_rate": 0.2,
+                  "win_rate": 0.0
+                },
+                "HARD-WRONG/LATE": {
+                  "cash_usd": 0.0,
+                  "n": 0,
+                  "share_of_gross_loss": -0.0,
+                  "usd_per_asset_day": 0.0,
+                  "usd_per_trade": null,
+                  "wall_rate": null,
+                  "win_rate": null
+                },
+                "RIGHT/IN-BUDGET": {
+                  "cash_usd": 5433.75,
+                  "n": 32,
+                  "share_of_gross_loss": -0.22436129032258065,
+                  "usd_per_asset_day": 82.32954545454545,
+                  "usd_per_trade": 169.8046875,
+                  "wall_rate": 0.0625,
+                  "win_rate": 0.71875
+                },
+                "RIGHT/LATE": {
+                  "cash_usd": 9301.25,
+                  "n": 21,
+                  "share_of_gross_loss": -0.3840516129032258,
+                  "usd_per_asset_day": 140.9280303030303,
+                  "usd_per_trade": 442.9166666666667,
+                  "wall_rate": 0.0,
+                  "win_rate": 0.9047619047619048
+                },
+                "SOFT-WRONG/IN-BUDGET": {
+                  "cash_usd": -18863.75,
+                  "n": 44,
+                  "share_of_gross_loss": 0.7788903225806452,
+                  "usd_per_asset_day": -285.81439393939394,
+                  "usd_per_trade": -428.72159090909093,
+                  "wall_rate": 0.29545454545454547,
+                  "win_rate": 0.1590909090909091
+                },
+                "SOFT-WRONG/LATE": {
+                  "cash_usd": -3073.75,
+                  "n": 26,
+                  "share_of_gross_loss": 0.12691612903225807,
+                  "usd_per_asset_day": -46.571969696969695,
+                  "usd_per_trade": -118.22115384615384,
+                  "wall_rate": 0.07692307692307693,
+                  "win_rate": 0.4230769230769231
+                }
+              }
+            },
+            "NKD": {
+              "entries": 128,
+              "gross_loss_usd": -27770.0,
+              "table": {
+                "HARD-WRONG/IN-BUDGET": {
+                  "cash_usd": -3400.0,
+                  "n": 5,
+                  "share_of_gross_loss": 0.12243428159884767,
+                  "usd_per_asset_day": -52.30769230769231,
+                  "usd_per_trade": -680.0,
+                  "wall_rate": 0.4,
+                  "win_rate": 0.0
+                },
+                "HARD-WRONG/LATE": {
+                  "cash_usd": -1470.0,
+                  "n": 4,
+                  "share_of_gross_loss": 0.052934821750090025,
+                  "usd_per_asset_day": -22.615384615384617,
+                  "usd_per_trade": -367.5,
+                  "wall_rate": 0.0,
+                  "win_rate": 0.0
+                },
+                "RIGHT/IN-BUDGET": {
+                  "cash_usd": 2737.5,
+                  "n": 25,
+                  "share_of_gross_loss": -0.09857760172848398,
+                  "usd_per_asset_day": 42.11538461538461,
+                  "usd_per_trade": 109.5,
+                  "wall_rate": 0.28,
+                  "win_rate": 0.64
+                },
+                "RIGHT/LATE": {
+                  "cash_usd": 16567.5,
+                  "n": 34,
+                  "share_of_gross_loss": -0.5965970471732085,
+                  "usd_per_asset_day": 254.8846153846154,
+                  "usd_per_trade": 487.27941176470586,
+                  "wall_rate": 0.11764705882352941,
+                  "win_rate": 0.8823529411764706
+                },
+                "SOFT-WRONG/IN-BUDGET": {
+                  "cash_usd": -14680.0,
+                  "n": 26,
+                  "share_of_gross_loss": 0.5286280158444364,
+                  "usd_per_asset_day": -225.84615384615384,
+                  "usd_per_trade": -564.6153846153846,
+                  "wall_rate": 0.5,
+                  "win_rate": 0.11538461538461539
+                },
+                "SOFT-WRONG/LATE": {
+                  "cash_usd": -8220.0,
+                  "n": 34,
+                  "share_of_gross_loss": 0.29600288080662585,
+                  "usd_per_asset_day": -126.46153846153847,
+                  "usd_per_trade": -241.76470588235293,
+                  "wall_rate": 0.2647058823529412,
+                  "win_rate": 0.29411764705882354
+                }
+              }
+            },
+            "SI": {
+              "entries": 126,
+              "gross_loss_usd": -30265.000000000004,
+              "table": {
+                "HARD-WRONG/IN-BUDGET": {
+                  "cash_usd": -2470.0,
+                  "n": 4,
+                  "share_of_gross_loss": 0.08161242359160746,
+                  "usd_per_asset_day": -38.59375,
+                  "usd_per_trade": -617.5,
+                  "wall_rate": 0.25,
+                  "win_rate": 0.0
+                },
+                "HARD-WRONG/LATE": {
+                  "cash_usd": 0.0,
+                  "n": 0,
+                  "share_of_gross_loss": -0.0,
+                  "usd_per_asset_day": 0.0,
+                  "usd_per_trade": null,
+                  "wall_rate": null,
+                  "win_rate": null
+                },
+                "RIGHT/IN-BUDGET": {
+                  "cash_usd": 7660.0,
+                  "n": 23,
+                  "share_of_gross_loss": -0.2530976375351065,
+                  "usd_per_asset_day": 119.6875,
+                  "usd_per_trade": 333.04347826086956,
+                  "wall_rate": 0.34782608695652173,
+                  "win_rate": 0.5217391304347826
+                },
+                "RIGHT/LATE": {
+                  "cash_usd": 38500.0,
+                  "n": 35,
+                  "share_of_gross_loss": -1.27209648108376,
+                  "usd_per_asset_day": 601.5625,
+                  "usd_per_trade": 1100.0,
+                  "wall_rate": 0.05714285714285714,
+                  "win_rate": 0.8857142857142857
+                },
+                "SOFT-WRONG/IN-BUDGET": {
+                  "cash_usd": -21842.5,
+                  "n": 36,
+                  "share_of_gross_loss": 0.7217082438460267,
+                  "usd_per_asset_day": -341.2890625,
+                  "usd_per_trade": -606.7361111111111,
+                  "wall_rate": 0.5555555555555556,
+                  "win_rate": 0.05555555555555555
+                },
+                "SOFT-WRONG/LATE": {
+                  "cash_usd": -5952.5,
+                  "n": 28,
+                  "share_of_gross_loss": 0.19667933256236575,
+                  "usd_per_asset_day": -93.0078125,
+                  "usd_per_trade": -212.58928571428572,
+                  "wall_rate": 0.21428571428571427,
+                  "win_rate": 0.21428571428571427
+                }
+              }
+            }
+          }
+        },
+        "E1PRIMARY": {
+          "budget_minutes": {
+            "HG": 60,
+            "NKD": 45,
+            "SI": 60
+          },
+          "by_asset": {
+            "HG": {
+              "entries": 108,
+              "gross_loss_usd": -20363.75,
+              "table": {
+                "HARD-WRONG/IN-BUDGET": {
+                  "cash_usd": -2395.0,
+                  "n": 4,
+                  "share_of_gross_loss": 0.1176109508317476,
+                  "usd_per_asset_day": -36.28787878787879,
+                  "usd_per_trade": -598.75,
+                  "wall_rate": 0.25,
+                  "win_rate": 0.0
+                },
+                "HARD-WRONG/LATE": {
+                  "cash_usd": -682.5,
+                  "n": 4,
+                  "share_of_gross_loss": 0.03351543797188632,
+                  "usd_per_asset_day": -10.340909090909092,
+                  "usd_per_trade": -170.625,
+                  "wall_rate": 0.0,
+                  "win_rate": 0.0
+                },
+                "RIGHT/IN-BUDGET": {
+                  "cash_usd": 5266.25,
+                  "n": 28,
+                  "share_of_gross_loss": -0.2586090479405807,
+                  "usd_per_asset_day": 79.79166666666667,
+                  "usd_per_trade": 188.08035714285714,
+                  "wall_rate": 0.0,
+                  "win_rate": 0.75
+                },
+                "RIGHT/LATE": {
+                  "cash_usd": 9537.5,
+                  "n": 20,
+                  "share_of_gross_loss": -0.4683567614020011,
+                  "usd_per_asset_day": 144.50757575757575,
+                  "usd_per_trade": 476.875,
+                  "wall_rate": 0.0,
+                  "win_rate": 1.0
+                },
+                "SOFT-WRONG/IN-BUDGET": {
+                  "cash_usd": -17286.25,
+                  "n": 36,
+                  "share_of_gross_loss": 0.8488736111963661,
+                  "usd_per_asset_day": -261.9128787878788,
+                  "usd_per_trade": -480.1736111111111,
+                  "wall_rate": 0.25,
+                  "win_rate": 0.05555555555555555
+                },
+                "SOFT-WRONG/LATE": {
+                  "cash_usd": 745.0,
+                  "n": 16,
+                  "share_of_gross_loss": -0.036584617273341107,
+                  "usd_per_asset_day": 11.287878787878787,
+                  "usd_per_trade": 46.5625,
+                  "wall_rate": 0.0,
+                  "win_rate": 0.625
+                }
+              }
+            },
+            "NKD": {
+              "entries": 110,
+              "gross_loss_usd": -19347.5,
+              "table": {
+                "HARD-WRONG/IN-BUDGET": {
+                  "cash_usd": -4560.0,
+                  "n": 7,
+                  "share_of_gross_loss": 0.23568936555110478,
+                  "usd_per_asset_day": -70.15384615384616,
+                  "usd_per_trade": -651.4285714285714,
+                  "wall_rate": 0.2857142857142857,
+                  "win_rate": 0.0
+                },
+                "HARD-WRONG/LATE": {
+                  "cash_usd": -590.0,
+                  "n": 3,
+                  "share_of_gross_loss": 0.030494895981392944,
+                  "usd_per_asset_day": -9.076923076923077,
+                  "usd_per_trade": -196.66666666666666,
+                  "wall_rate": 0.0,
+                  "win_rate": 0.0
+                },
+                "RIGHT/IN-BUDGET": {
+                  "cash_usd": 1705.0,
+                  "n": 24,
+                  "share_of_gross_loss": -0.08812508075978809,
+                  "usd_per_asset_day": 26.23076923076923,
+                  "usd_per_trade": 71.04166666666667,
+                  "wall_rate": 0.25,
+                  "win_rate": 0.6666666666666666
+                },
+                "RIGHT/LATE": {
+                  "cash_usd": 19940.0,
+                  "n": 27,
+                  "share_of_gross_loss": -1.0306241116423311,
+                  "usd_per_asset_day": 306.7692307692308,
+                  "usd_per_trade": 738.5185185185185,
+                  "wall_rate": 0.0,
+                  "win_rate": 0.9259259259259259
+                },
+                "SOFT-WRONG/IN-BUDGET": {
+                  "cash_usd": -14197.5,
+                  "n": 32,
+                  "share_of_gross_loss": 0.7338157384675023,
+                  "usd_per_asset_day": -218.42307692307693,
+                  "usd_per_trade": -443.671875,
+                  "wall_rate": 0.34375,
+                  "win_rate": 0.125
+                },
+                "SOFT-WRONG/LATE": {
+                  "cash_usd": 415.0,
+                  "n": 17,
+                  "share_of_gross_loss": -0.021449799715725547,
+                  "usd_per_asset_day": 6.384615384615385,
+                  "usd_per_trade": 24.41176470588235,
+                  "wall_rate": 0.0,
+                  "win_rate": 0.47058823529411764
+                }
+              }
+            },
+            "SI": {
+              "entries": 107,
+              "gross_loss_usd": -25197.500000000004,
+              "table": {
+                "HARD-WRONG/IN-BUDGET": {
+                  "cash_usd": -3200.0,
+                  "n": 5,
+                  "share_of_gross_loss": 0.12699672586566127,
+                  "usd_per_asset_day": -50.0,
+                  "usd_per_trade": -640.0,
+                  "wall_rate": 0.2,
+                  "win_rate": 0.0
+                },
+                "HARD-WRONG/LATE": {
+                  "cash_usd": 0.0,
+                  "n": 0,
+                  "share_of_gross_loss": -0.0,
+                  "usd_per_asset_day": 0.0,
+                  "usd_per_trade": null,
+                  "wall_rate": null,
+                  "win_rate": null
+                },
+                "RIGHT/IN-BUDGET": {
+                  "cash_usd": 5100.0,
+                  "n": 25,
+                  "share_of_gross_loss": -0.20240103184839764,
+                  "usd_per_asset_day": 79.6875,
+                  "usd_per_trade": 204.0,
+                  "wall_rate": 0.4,
+                  "win_rate": 0.44
+                },
+                "RIGHT/LATE": {
+                  "cash_usd": 19337.5,
+                  "n": 25,
+                  "share_of_gross_loss": -0.7674372457585077,
+                  "usd_per_asset_day": 302.1484375,
+                  "usd_per_trade": 773.5,
+                  "wall_rate": 0.0,
+                  "win_rate": 0.96
+                },
+                "SOFT-WRONG/IN-BUDGET": {
+                  "cash_usd": -21922.5,
+                  "n": 37,
+                  "share_of_gross_loss": 0.8700267883718622,
+                  "usd_per_asset_day": -342.5390625,
+                  "usd_per_trade": -592.5,
+                  "wall_rate": 0.4594594594594595,
+                  "win_rate": 0.05405405405405406
+                },
+                "SOFT-WRONG/LATE": {
+                  "cash_usd": -74.99999999999994,
+                  "n": 15,
+                  "share_of_gross_loss": 0.0029764857624764336,
+                  "usd_per_asset_day": -1.1718749999999991,
+                  "usd_per_trade": -4.9999999999999964,
+                  "wall_rate": 0.0,
+                  "win_rate": 0.4666666666666667
+                }
+              }
+            }
+          }
+        },
+        "PRIMARY": {
+          "budget_minutes": {
+            "HG": 60,
+            "NKD": 45,
+            "SI": 60
+          },
+          "by_asset": {
+            "HG": {
+              "entries": 118,
+              "gross_loss_usd": -24963.75,
+              "table": {
+                "HARD-WRONG/IN-BUDGET": {
+                  "cash_usd": -3288.75,
+                  "n": 4,
+                  "share_of_gross_loss": 0.13174102448550398,
+                  "usd_per_asset_day": -49.82954545454545,
+                  "usd_per_trade": -822.1875,
+                  "wall_rate": 0.75,
+                  "win_rate": 0.0
+                },
+                "HARD-WRONG/LATE": {
+                  "cash_usd": 0.0,
+                  "n": 0,
+                  "share_of_gross_loss": -0.0,
+                  "usd_per_asset_day": 0.0,
+                  "usd_per_trade": null,
+                  "wall_rate": null,
+                  "win_rate": null
+                },
+                "RIGHT/IN-BUDGET": {
+                  "cash_usd": 16627.5,
+                  "n": 47,
+                  "share_of_gross_loss": -0.6660657954033349,
+                  "usd_per_asset_day": 251.9318181818182,
+                  "usd_per_trade": 353.77659574468083,
+                  "wall_rate": 0.1276595744680851,
+                  "win_rate": 0.8297872340425532
+                },
+                "RIGHT/LATE": {
+                  "cash_usd": 5283.75,
+                  "n": 7,
+                  "share_of_gross_loss": -0.21165690250863753,
+                  "usd_per_asset_day": 80.05681818181819,
+                  "usd_per_trade": 754.8214285714286,
+                  "wall_rate": 0.0,
+                  "win_rate": 1.0
+                },
+                "SOFT-WRONG/IN-BUDGET": {
+                  "cash_usd": -21675.0,
+                  "n": 55,
+                  "share_of_gross_loss": 0.868258975514496,
+                  "usd_per_asset_day": -328.40909090909093,
+                  "usd_per_trade": -394.09090909090907,
+                  "wall_rate": 0.34545454545454546,
+                  "win_rate": 0.23636363636363636
+                },
+                "SOFT-WRONG/LATE": {
+                  "cash_usd": 168.75,
+                  "n": 5,
+                  "share_of_gross_loss": -0.0067598017124831005,
+                  "usd_per_asset_day": 2.5568181818181817,
+                  "usd_per_trade": 33.75,
+                  "wall_rate": 0.0,
+                  "win_rate": 0.6
+                }
+              }
+            },
+            "NKD": {
+              "entries": 111,
+              "gross_loss_usd": -18250.0,
+              "table": {
+                "HARD-WRONG/IN-BUDGET": {
+                  "cash_usd": -2907.5,
+                  "n": 4,
+                  "share_of_gross_loss": 0.1593150684931507,
+                  "usd_per_asset_day": -44.73076923076923,
+                  "usd_per_trade": -726.875,
+                  "wall_rate": 0.5,
+                  "win_rate": 0.0
+                },
+                "HARD-WRONG/LATE": {
+                  "cash_usd": -192.5,
+                  "n": 1,
+                  "share_of_gross_loss": 0.010547945205479452,
+                  "usd_per_asset_day": -2.9615384615384617,
+                  "usd_per_trade": -192.5,
+                  "wall_rate": 0.0,
+                  "win_rate": 0.0
+                },
+                "RIGHT/IN-BUDGET": {
+                  "cash_usd": 29387.5,
+                  "n": 55,
+                  "share_of_gross_loss": -1.6102739726027397,
+                  "usd_per_asset_day": 452.11538461538464,
+                  "usd_per_trade": 534.3181818181819,
+                  "wall_rate": 0.23636363636363636,
+                  "win_rate": 0.7272727272727273
+                },
+                "RIGHT/LATE": {
+                  "cash_usd": 2557.5,
+                  "n": 6,
+                  "share_of_gross_loss": -0.14013698630136986,
+                  "usd_per_asset_day": 39.34615384615385,
+                  "usd_per_trade": 426.25,
+                  "wall_rate": 0.0,
+                  "win_rate": 1.0
+                },
+                "SOFT-WRONG/IN-BUDGET": {
+                  "cash_usd": -15082.5,
+                  "n": 44,
+                  "share_of_gross_loss": 0.8264383561643835,
+                  "usd_per_asset_day": -232.03846153846155,
+                  "usd_per_trade": -342.78409090909093,
+                  "wall_rate": 0.4318181818181818,
+                  "win_rate": 0.20454545454545456
+                },
+                "SOFT-WRONG/LATE": {
+                  "cash_usd": -67.5,
+                  "n": 1,
+                  "share_of_gross_loss": 0.0036986301369863013,
+                  "usd_per_asset_day": -1.0384615384615385,
+                  "usd_per_trade": -67.5,
+                  "wall_rate": 0.0,
+                  "win_rate": 0.0
+                }
+              }
+            },
+            "SI": {
+              "entries": 121,
+              "gross_loss_usd": -33595.0,
+              "table": {
+                "HARD-WRONG/IN-BUDGET": {
+                  "cash_usd": -4622.5,
+                  "n": 7,
+                  "share_of_gross_loss": 0.13759488019050453,
+                  "usd_per_asset_day": -72.2265625,
+                  "usd_per_trade": -660.3571428571429,
+                  "wall_rate": 0.42857142857142855,
+                  "win_rate": 0.0
+                },
+                "HARD-WRONG/LATE": {
+                  "cash_usd": 0.0,
+                  "n": 0,
+                  "share_of_gross_loss": -0.0,
+                  "usd_per_asset_day": 0.0,
+                  "usd_per_trade": null,
+                  "wall_rate": null,
+                  "win_rate": null
+                },
+                "RIGHT/IN-BUDGET": {
+                  "cash_usd": 41830.0,
+                  "n": 49,
+                  "share_of_gross_loss": -1.2451257627623158,
+                  "usd_per_asset_day": 653.59375,
+                  "usd_per_trade": 853.6734693877551,
+                  "wall_rate": 0.2857142857142857,
+                  "win_rate": 0.6530612244897959
+                },
+                "RIGHT/LATE": {
+                  "cash_usd": 5270.0,
+                  "n": 6,
+                  "share_of_gross_loss": -0.15686858163417175,
+                  "usd_per_asset_day": 82.34375,
+                  "usd_per_trade": 878.3333333333334,
+                  "wall_rate": 0.0,
+                  "win_rate": 1.0
+                },
+                "SOFT-WRONG/IN-BUDGET": {
+                  "cash_usd": -28972.5,
+                  "n": 57,
+                  "share_of_gross_loss": 0.8624051198094954,
+                  "usd_per_asset_day": -452.6953125,
+                  "usd_per_trade": -508.2894736842105,
+                  "wall_rate": 0.5087719298245614,
+                  "win_rate": 0.14035087719298245
+                },
+                "SOFT-WRONG/LATE": {
+                  "cash_usd": 115.00000000000003,
+                  "n": 2,
+                  "share_of_gross_loss": -0.0034231284417324016,
+                  "usd_per_asset_day": 1.7968750000000004,
+                  "usd_per_trade": 57.500000000000014,
+                  "wall_rate": 0.0,
+                  "win_rate": 0.5
+                }
+              }
+            }
+          }
+        }
+      },
+      "bleed_baseline_7b": {
+        "HG": {
+          "n": 38,
+          "share_of_gross_loss": 0.6716556087023607,
+          "usd_per_asset_day": -329.77272727272725,
+          "wall_rate": 0.47368421052631576
+        },
+        "NKD": {
+          "n": 71,
+          "share_of_gross_loss": 0.8442011890157591,
+          "usd_per_asset_day": -688.1538461538462,
+          "wall_rate": 0.6338028169014085
+        },
+        "SI": {
+          "n": 42,
+          "share_of_gross_loss": 0.7733514703977199,
+          "usd_per_asset_day": -466.3671875,
+          "wall_rate": 0.7380952380952381
+        }
+      },
+      "lines": {
+        "CONTROL": {
+          "HG": {
+            "clears_rung": false,
+            "coverage": 0.9130434782608695,
+            "mdd_day_usd": 11003.75,
+            "mdd_trade_usd": 11908.75,
+            "total_usd": 1095.0,
+            "trades": 126,
+            "usd_per_asset_day": 16.59090909090909,
+            "usd_per_trade": 8.69047619047619,
+            "wall_rate": 0.2222222222222222,
+            "walls": 28,
+            "win_rate": 0.5079365079365079
+          },
+          "NKD": {
+            "clears_rung": false,
+            "coverage": 0.9772727272727273,
+            "mdd_day_usd": 5270.0,
+            "mdd_trade_usd": 6175.0,
+            "total_usd": 18642.5,
+            "trades": 129,
+            "usd_per_asset_day": 286.8076923076923,
+            "usd_per_trade": 144.515503875969,
+            "wall_rate": 0.3023255813953488,
+            "walls": 39,
+            "win_rate": 0.49612403100775193
+          },
+          "SI": {
+            "clears_rung": false,
+            "coverage": 0.946969696969697,
+            "mdd_day_usd": 9952.5,
+            "mdd_trade_usd": 10072.5,
+            "total_usd": 8050.0,
+            "trades": 125,
+            "usd_per_asset_day": 125.78125,
+            "usd_per_trade": 64.4,
+            "wall_rate": 0.36,
+            "walls": 45,
+            "win_rate": 0.384
+          }
+        },
+        "E1CONTROL": {
+          "HG": {
+            "clears_rung": false,
+            "coverage": 0.927536231884058,
+            "mdd_day_usd": 10548.75,
+            "mdd_trade_usd": 10548.75,
+            "total_usd": -9483.75,
+            "trades": 128,
+            "usd_per_asset_day": -143.6931818181818,
+            "usd_per_trade": -74.091796875,
+            "wall_rate": 0.140625,
+            "walls": 18,
+            "win_rate": 0.46875
+          },
+          "NKD": {
+            "clears_rung": false,
+            "coverage": 0.9696969696969697,
+            "mdd_day_usd": 14045.0,
+            "mdd_trade_usd": 14950.0,
+            "total_usd": -8465.0,
+            "trades": 128,
+            "usd_per_asset_day": -130.23076923076923,
+            "usd_per_trade": -66.1328125,
+            "wall_rate": 0.2734375,
+            "walls": 35,
+            "win_rate": 0.4609375
+          },
+          "SI": {
+            "clears_rung": false,
+            "coverage": 0.9545454545454546,
+            "mdd_day_usd": 4475.0,
+            "mdd_trade_usd": 6410.0,
+            "total_usd": 15895.0,
+            "trades": 126,
+            "usd_per_asset_day": 248.359375,
+            "usd_per_trade": 126.15079365079364,
+            "wall_rate": 0.29365079365079366,
+            "walls": 37,
+            "win_rate": 0.40476190476190477
+          }
+        },
+        "E1PRIMARY": {
+          "HG": {
+            "clears_rung": false,
+            "coverage": 0.782608695652174,
+            "mdd_day_usd": 5907.5,
+            "mdd_trade_usd": 6961.25,
+            "total_usd": -4815.0,
+            "trades": 108,
+            "usd_per_asset_day": -72.95454545454545,
+            "usd_per_trade": -44.583333333333336,
+            "wall_rate": 0.09259259259259259,
+            "walls": 10,
+            "win_rate": 0.49074074074074076
+          },
+          "NKD": {
+            "clears_rung": false,
+            "coverage": 0.8333333333333334,
+            "mdd_day_usd": 8595.0,
+            "mdd_trade_usd": 9167.5,
+            "total_usd": 2712.5,
+            "trades": 110,
+            "usd_per_asset_day": 41.73076923076923,
+            "usd_per_trade": 24.65909090909091,
+            "wall_rate": 0.17272727272727273,
+            "walls": 19,
+            "win_rate": 0.4818181818181818
+          },
+          "SI": {
+            "clears_rung": false,
+            "coverage": 0.8106060606060606,
+            "mdd_day_usd": 9312.5,
+            "mdd_trade_usd": 9312.5,
+            "total_usd": -760.0000000000005,
+            "trades": 107,
+            "usd_per_asset_day": -11.875000000000007,
+            "usd_per_trade": -7.102803738317761,
+            "wall_rate": 0.2616822429906542,
+            "walls": 28,
+            "win_rate": 0.411214953271028
+          }
+        },
+        "PRIMARY": {
+          "HG": {
+            "clears_rung": false,
+            "coverage": 0.855072463768116,
+            "mdd_day_usd": 11363.75,
+            "mdd_trade_usd": 12465.0,
+            "total_usd": -2883.75,
+            "trades": 118,
+            "usd_per_asset_day": -43.69318181818182,
+            "usd_per_trade": -24.4385593220339,
+            "wall_rate": 0.23728813559322035,
+            "walls": 28,
+            "win_rate": 0.5254237288135594
+          },
+          "NKD": {
+            "clears_rung": false,
+            "coverage": 0.8409090909090909,
+            "mdd_day_usd": 3347.5,
+            "mdd_trade_usd": 4510.0,
+            "total_usd": 13695.0,
+            "trades": 111,
+            "usd_per_asset_day": 210.69230769230768,
+            "usd_per_trade": 123.37837837837837,
+            "wall_rate": 0.3063063063063063,
+            "walls": 34,
+            "win_rate": 0.4954954954954955
+          },
+          "SI": {
+            "clears_rung": false,
+            "coverage": 0.9166666666666666,
+            "mdd_day_usd": 8327.5,
+            "mdd_trade_usd": 9397.5,
+            "total_usd": 13620.0,
+            "trades": 121,
+            "usd_per_asset_day": 212.8125,
+            "usd_per_trade": 112.56198347107438,
+            "wall_rate": 0.38016528925619836,
+            "walls": 46,
+            "win_rate": 0.3884297520661157
+          }
+        }
+      },
+      "null": {
+        "by_line": {
+          "HG/CONTROL": {
+            "null_asset_mdd_mean_usd": 7693.61875,
+            "null_asset_mdd_p05_usd": 4759.4375,
+            "null_pooled_mdd_mean_usd": 7693.61875,
+            "observed_max_asset_mdd_usd": 11003.75,
+            "observed_pooled_mdd_usd": 11003.75,
+            "p_max_adjusted": 1.0,
+            "p_own": 0.9104477611940298,
+            "p_pooled_max_adjusted": 1.0,
+            "p_pooled_own": 0.9104477611940298
+          },
+          "HG/E1CONTROL": {
+            "null_asset_mdd_mean_usd": 11509.025,
+            "null_asset_mdd_p05_usd": 9483.75,
+            "null_pooled_mdd_mean_usd": 11509.025,
+            "observed_max_asset_mdd_usd": 10548.75,
+            "observed_pooled_mdd_usd": 10548.75,
+            "p_max_adjusted": 1.0,
+            "p_own": 0.32338308457711445,
+            "p_pooled_max_adjusted": 1.0,
+            "p_pooled_own": 0.32338308457711445
+          },
+          "HG/E1PRIMARY": {
+            "null_asset_mdd_mean_usd": 6882.61875,
+            "null_asset_mdd_p05_usd": 4989.0625,
+            "null_pooled_mdd_mean_usd": 6882.61875,
+            "observed_max_asset_mdd_usd": 5907.5,
+            "observed_pooled_mdd_usd": 5907.5,
+            "p_max_adjusted": 0.9850746268656716,
+            "p_own": 0.21890547263681592,
+            "p_pooled_max_adjusted": 0.9850746268656716,
+            "p_pooled_own": 0.21890547263681592
+          },
+          "HG/PRIMARY": {
+            "null_asset_mdd_mean_usd": 9401.625,
+            "null_asset_mdd_p05_usd": 6103.0625,
+            "null_pooled_mdd_mean_usd": 9401.625,
+            "observed_max_asset_mdd_usd": 11363.75,
+            "observed_pooled_mdd_usd": 11363.75,
+            "p_max_adjusted": 1.0,
+            "p_own": 0.8308457711442786,
+            "p_pooled_max_adjusted": 1.0,
+            "p_pooled_own": 0.8308457711442786
+          },
+          "NKD/CONTROL": {
+            "null_asset_mdd_mean_usd": 5739.3,
+            "null_asset_mdd_p05_usd": 3469.25,
+            "null_pooled_mdd_mean_usd": 5739.3,
+            "observed_max_asset_mdd_usd": 5270.0,
+            "observed_pooled_mdd_usd": 5270.0,
+            "p_max_adjusted": 0.8955223880597015,
+            "p_own": 0.4577114427860697,
+            "p_pooled_max_adjusted": 0.8955223880597015,
+            "p_pooled_own": 0.4577114427860697
+          },
+          "NKD/E1CONTROL": {
+            "null_asset_mdd_mean_usd": 11515.85,
+            "null_asset_mdd_p05_usd": 8747.5,
+            "null_pooled_mdd_mean_usd": 11515.85,
+            "observed_max_asset_mdd_usd": 14045.0,
+            "observed_pooled_mdd_usd": 14045.0,
+            "p_max_adjusted": 1.0,
+            "p_own": 0.8955223880597015,
+            "p_pooled_max_adjusted": 1.0,
+            "p_pooled_own": 0.8955223880597015
+          },
+          "NKD/E1PRIMARY": {
+            "null_asset_mdd_mean_usd": 6104.4125,
+            "null_asset_mdd_p05_usd": 3936.875,
+            "null_pooled_mdd_mean_usd": 6104.4125,
+            "observed_max_asset_mdd_usd": 8595.0,
+            "observed_pooled_mdd_usd": 8595.0,
+            "p_max_adjusted": 1.0,
+            "p_own": 0.9154228855721394,
+            "p_pooled_max_adjusted": 1.0,
+            "p_pooled_own": 0.9154228855721394
+          },
+          "NKD/PRIMARY": {
+            "null_asset_mdd_mean_usd": 5655.05,
+            "null_asset_mdd_p05_usd": 3590.0,
+            "null_pooled_mdd_mean_usd": 5655.05,
+            "observed_max_asset_mdd_usd": 3347.5,
+            "observed_pooled_mdd_usd": 3347.5,
+            "p_max_adjusted": 0.06965174129353234,
+            "p_own": 0.024875621890547265,
+            "p_pooled_max_adjusted": 0.06965174129353234,
+            "p_pooled_own": 0.024875621890547265
+          },
+          "SI/CONTROL": {
+            "null_asset_mdd_mean_usd": 10618.1625,
+            "null_asset_mdd_p05_usd": 6536.625,
+            "null_pooled_mdd_mean_usd": 10618.1625,
+            "observed_max_asset_mdd_usd": 9952.5,
+            "observed_pooled_mdd_usd": 9952.5,
+            "p_max_adjusted": 1.0,
+            "p_own": 0.527363184079602,
+            "p_pooled_max_adjusted": 1.0,
+            "p_pooled_own": 0.527363184079602
+          },
+          "SI/E1CONTROL": {
+            "null_asset_mdd_mean_usd": 6639.0875,
+            "null_asset_mdd_p05_usd": 4147.125,
+            "null_pooled_mdd_mean_usd": 6639.0875,
+            "observed_max_asset_mdd_usd": 4475.0,
+            "observed_pooled_mdd_usd": 4475.0,
+            "p_max_adjusted": 0.5970149253731343,
+            "p_own": 0.14427860696517414,
+            "p_pooled_max_adjusted": 0.5970149253731343,
+            "p_pooled_own": 0.14427860696517414
+          },
+          "SI/E1PRIMARY": {
+            "null_asset_mdd_mean_usd": 7907.325,
+            "null_asset_mdd_p05_usd": 5014.125,
+            "null_pooled_mdd_mean_usd": 7907.325,
+            "observed_max_asset_mdd_usd": 9312.5,
+            "observed_pooled_mdd_usd": 9312.5,
+            "p_max_adjusted": 1.0,
+            "p_own": 0.7611940298507462,
+            "p_pooled_max_adjusted": 1.0,
+            "p_pooled_own": 0.7611940298507462
+          },
+          "SI/PRIMARY": {
+            "null_asset_mdd_mean_usd": 8463.9875,
+            "null_asset_mdd_p05_usd": 5359.125000000001,
+            "null_pooled_mdd_mean_usd": 8463.9875,
+            "observed_max_asset_mdd_usd": 8327.5,
+            "observed_pooled_mdd_usd": 8327.5,
+            "p_max_adjusted": 1.0,
+            "p_own": 0.5522388059701493,
+            "p_pooled_max_adjusted": 1.0,
+            "p_pooled_own": 0.5522388059701493
+          }
+        },
+        "draws": 200,
+        "lines_held_out_empty": [],
+        "seed": 20260827,
+        "statistic": "-asset_day_ordered_mdd and -pooled_day_ordered_mdd",
+        "total_cash_invariant_under_this_null": true
+      },
+      "priced_lines": [
+        "PRIMARY",
+        "CONTROL",
+        "E1PRIMARY",
+        "E1CONTROL"
+      ],
+      "replays": {
+        "CONTROL": {
+          "arrivals": 380,
+          "asset_days": 195,
+          "by_asset": {
+            "HG": {
+              "asset_days": 66,
+              "max_drawdown_usd": 11908.75,
+              "trades": 126,
+              "usd_per_asset_day": 16.59090909090909,
+              "usd_per_trade": 8.69047619047619
+            },
+            "NKD": {
+              "asset_days": 65,
+              "max_drawdown_usd": 6175.0,
+              "trades": 129,
+              "usd_per_asset_day": 286.8076923076923,
+              "usd_per_trade": 144.515503875969
+            },
+            "SI": {
+              "asset_days": 64,
+              "max_drawdown_usd": 10072.5,
+              "trades": 125,
+              "usd_per_asset_day": 125.78124999999999,
+              "usd_per_trade": 64.39999999999999
+            }
+          },
+          "drawdown_breach_rate": 0.2512820512820513,
+          "drawdown_p90_usd": 1810.0,
+          "label": "partial-day (split breaks portfolio days)",
+          "max_drawdown_usd": 11908.75,
+          "occupancy_or_cap_skips": 0,
+          "skipped_ids": [],
+          "status": "OK",
+          "total_usd": 27787.5,
+          "trades": 380,
+          "usd_per_asset_day": 142.5,
+          "usd_per_trade": 73.125,
+          "worst_asset_day_usd": -2740.0
+        },
+        "E1CONTROL": {
+          "arrivals": 382,
+          "asset_days": 195,
+          "by_asset": {
+            "HG": {
+              "asset_days": 66,
+              "max_drawdown_usd": 10548.75,
+              "trades": 128,
+              "usd_per_asset_day": -143.6931818181818,
+              "usd_per_trade": -74.091796875
+            },
+            "NKD": {
+              "asset_days": 65,
+              "max_drawdown_usd": 14950.0,
+              "trades": 128,
+              "usd_per_asset_day": -130.23076923076923,
+              "usd_per_trade": -66.1328125
+            },
+            "SI": {
+              "asset_days": 64,
+              "max_drawdown_usd": 6410.0,
+              "trades": 126,
+              "usd_per_asset_day": 248.359375,
+              "usd_per_trade": 126.15079365079364
+            }
+          },
+          "drawdown_breach_rate": 0.1794871794871795,
+          "drawdown_p90_usd": 1652.5000000000002,
+          "label": "partial-day (split breaks portfolio days)",
+          "max_drawdown_usd": 14950.0,
+          "occupancy_or_cap_skips": 0,
+          "skipped_ids": [],
+          "status": "OK",
+          "total_usd": -2053.749999999999,
+          "trades": 382,
+          "usd_per_asset_day": -10.532051282051277,
+          "usd_per_trade": -5.376308900523558,
+          "worst_asset_day_usd": -2715.0
+        },
+        "E1PRIMARY": {
+          "arrivals": 325,
+          "asset_days": 195,
+          "by_asset": {
+            "HG": {
+              "asset_days": 66,
+              "max_drawdown_usd": 6961.25,
+              "trades": 108,
+              "usd_per_asset_day": -72.95454545454545,
+              "usd_per_trade": -44.583333333333336
+            },
+            "NKD": {
+              "asset_days": 65,
+              "max_drawdown_usd": 9167.5,
+              "trades": 110,
+              "usd_per_asset_day": 41.73076923076923,
+              "usd_per_trade": 24.65909090909091
+            },
+            "SI": {
+              "asset_days": 64,
+              "max_drawdown_usd": 9312.5,
+              "trades": 107,
+              "usd_per_asset_day": -11.875000000000007,
+              "usd_per_trade": -7.102803738317761
+            }
+          },
+          "drawdown_breach_rate": 0.11794871794871795,
+          "drawdown_p90_usd": 1147.5,
+          "label": "partial-day (split breaks portfolio days)",
+          "max_drawdown_usd": 9312.5,
+          "occupancy_or_cap_skips": 0,
+          "skipped_ids": [],
+          "status": "OK",
+          "total_usd": -2862.5000000000005,
+          "trades": 325,
+          "usd_per_asset_day": -14.679487179487182,
+          "usd_per_trade": -8.807692307692308,
+          "worst_asset_day_usd": -2115.0
+        },
+        "PRIMARY": {
+          "arrivals": 350,
+          "asset_days": 195,
+          "by_asset": {
+            "HG": {
+              "asset_days": 66,
+              "max_drawdown_usd": 12465.0,
+              "trades": 118,
+              "usd_per_asset_day": -43.69318181818182,
+              "usd_per_trade": -24.4385593220339
+            },
+            "NKD": {
+              "asset_days": 65,
+              "max_drawdown_usd": 4510.0,
+              "trades": 111,
+              "usd_per_asset_day": 210.69230769230768,
+              "usd_per_trade": 123.37837837837837
+            },
+            "SI": {
+              "asset_days": 64,
+              "max_drawdown_usd": 9397.5,
+              "trades": 121,
+              "usd_per_asset_day": 212.81249999999997,
+              "usd_per_trade": 112.56198347107437
+            }
+          },
+          "drawdown_breach_rate": 0.21025641025641026,
+          "drawdown_p90_usd": 1810.0,
+          "label": "partial-day (split breaks portfolio days)",
+          "max_drawdown_usd": 12465.0,
+          "occupancy_or_cap_skips": 0,
+          "skipped_ids": [],
+          "status": "OK",
+          "total_usd": 24431.25,
+          "trades": 350,
+          "usd_per_asset_day": 125.28846153846153,
+          "usd_per_trade": 69.80357142857143,
+          "worst_asset_day_usd": -2765.0000000000005
+        }
+      },
+      "stress": {
+        "CONTROL": {
+          "HG": {
+            "clears_rung": false,
+            "coverage": 0.9130434782608695,
+            "damage_usd": 8500.0,
+            "flips_applied": 3,
+            "flips_available": 85,
+            "flips_requested": 3,
+            "mdd_day_usd": 14656.25,
+            "mdd_trade_usd": 15105.0,
+            "rate": 0.02,
+            "total_usd": -7405.0,
+            "trades": 126,
+            "usd_per_asset_day": -112.1969696969697,
+            "usd_per_trade": -58.76984126984127,
+            "wall_rate": 0.24603174603174602,
+            "walls": 31,
+            "win_rate": 0.48412698412698413
+          },
+          "NKD": {
+            "clears_rung": false,
+            "coverage": 0.9772727272727273,
+            "damage_usd": 14787.5,
+            "flips_applied": 3,
+            "flips_available": 103,
+            "flips_requested": 3,
+            "mdd_day_usd": 12830.0,
+            "mdd_trade_usd": 13930.0,
+            "rate": 0.02,
+            "total_usd": 3855.0,
+            "trades": 129,
+            "usd_per_asset_day": 59.30769230769231,
+            "usd_per_trade": 29.88372093023256,
+            "wall_rate": 0.32558139534883723,
+            "walls": 42,
+            "win_rate": 0.4728682170542636
+          },
+          "SI": {
+            "clears_rung": false,
+            "coverage": 0.946969696969697,
+            "damage_usd": 9525.0,
+            "flips_applied": 2,
+            "flips_available": 71,
+            "flips_requested": 2,
+            "mdd_day_usd": 11305.0,
+            "mdd_trade_usd": 11882.5,
+            "rate": 0.02,
+            "total_usd": -1474.9999999999984,
+            "trades": 125,
+            "usd_per_asset_day": -23.046874999999975,
+            "usd_per_trade": -11.799999999999986,
+            "wall_rate": 0.376,
+            "walls": 47,
+            "win_rate": 0.368
+          }
+        },
+        "E1CONTROL": {
+          "HG": {
+            "clears_rung": false,
+            "coverage": 0.927536231884058,
+            "damage_usd": 6812.5,
+            "flips_applied": 3,
+            "flips_available": 117,
+            "flips_requested": 3,
+            "mdd_day_usd": 16296.25,
+            "mdd_trade_usd": 16467.5,
+            "rate": 0.02,
+            "total_usd": -16296.25,
+            "trades": 128,
+            "usd_per_asset_day": -246.91287878787878,
+            "usd_per_trade": -127.314453125,
+            "wall_rate": 0.1640625,
+            "walls": 21,
+            "win_rate": 0.4453125
+          },
+          "NKD": {
+            "clears_rung": false,
+            "coverage": 0.9696969696969697,
+            "damage_usd": 7962.5,
+            "flips_applied": 3,
+            "flips_available": 127,
+            "flips_requested": 3,
+            "mdd_day_usd": 18342.5,
+            "mdd_trade_usd": 19247.5,
+            "rate": 0.02,
+            "total_usd": -16427.5,
+            "trades": 128,
+            "usd_per_asset_day": -252.73076923076923,
+            "usd_per_trade": -128.33984375,
+            "wall_rate": 0.296875,
+            "walls": 38,
+            "win_rate": 0.4375
+          },
+          "SI": {
+            "clears_rung": false,
+            "coverage": 0.9545454545454546,
+            "damage_usd": 12212.500000000002,
+            "flips_applied": 3,
+            "flips_available": 109,
+            "flips_requested": 3,
+            "mdd_day_usd": 9627.5,
+            "mdd_trade_usd": 10812.5,
+            "rate": 0.02,
+            "total_usd": 3682.5,
+            "trades": 126,
+            "usd_per_asset_day": 57.5390625,
+            "usd_per_trade": 29.226190476190474,
+            "wall_rate": 0.31746031746031744,
+            "walls": 40,
+            "win_rate": 0.38095238095238093
+          }
+        },
+        "E1PRIMARY": {
+          "HG": {
+            "clears_rung": false,
+            "coverage": 0.782608695652174,
+            "damage_usd": 4481.25,
+            "flips_applied": 2,
+            "flips_available": 97,
+            "flips_requested": 2,
+            "mdd_day_usd": 9701.25,
+            "mdd_trade_usd": 10931.25,
+            "rate": 0.02,
+            "total_usd": -9296.25,
+            "trades": 108,
+            "usd_per_asset_day": -140.85227272727272,
+            "usd_per_trade": -86.07638888888889,
+            "wall_rate": 0.1111111111111111,
+            "walls": 12,
+            "win_rate": 0.4722222222222222
+          },
+          "NKD": {
+            "clears_rung": false,
+            "coverage": 0.8333333333333334,
+            "damage_usd": 6725.0,
+            "flips_applied": 2,
+            "flips_available": 109,
+            "flips_requested": 2,
+            "mdd_day_usd": 9995.0,
+            "mdd_trade_usd": 10272.5,
+            "rate": 0.02,
+            "total_usd": -4012.5,
+            "trades": 110,
+            "usd_per_asset_day": -61.73076923076923,
+            "usd_per_trade": -36.47727272727273,
+            "wall_rate": 0.19090909090909092,
+            "walls": 21,
+            "win_rate": 0.4636363636363636
+          },
+          "SI": {
+            "clears_rung": false,
+            "coverage": 0.8106060606060606,
+            "damage_usd": 6150.0,
+            "flips_applied": 2,
+            "flips_available": 88,
+            "flips_requested": 2,
+            "mdd_day_usd": 9602.5,
+            "mdd_trade_usd": 10750.000000000002,
+            "rate": 0.02,
+            "total_usd": -6910.000000000001,
+            "trades": 107,
+            "usd_per_asset_day": -107.96875000000001,
+            "usd_per_trade": -64.57943925233646,
+            "wall_rate": 0.2803738317757009,
+            "walls": 30,
+            "win_rate": 0.3925233644859813
+          }
+        },
+        "PRIMARY": {
+          "HG": {
+            "clears_rung": false,
+            "coverage": 0.855072463768116,
+            "damage_usd": 4825.0,
+            "flips_applied": 2,
+            "flips_available": 74,
+            "flips_requested": 2,
+            "mdd_day_usd": 16188.75,
+            "mdd_trade_usd": 17290.0,
+            "rate": 0.02,
+            "total_usd": -7708.75,
+            "trades": 118,
+            "usd_per_asset_day": -116.79924242424242,
+            "usd_per_trade": -65.32838983050847,
+            "wall_rate": 0.2542372881355932,
+            "walls": 30,
+            "win_rate": 0.5084745762711864
+          },
+          "NKD": {
+            "clears_rung": false,
+            "coverage": 0.8409090909090909,
+            "damage_usd": 9650.0,
+            "flips_applied": 2,
+            "flips_available": 80,
+            "flips_requested": 2,
+            "mdd_day_usd": 7825.0,
+            "mdd_trade_usd": 8527.5,
+            "rate": 0.02,
+            "total_usd": 4045.0,
+            "trades": 111,
+            "usd_per_asset_day": 62.23076923076923,
+            "usd_per_trade": 36.44144144144144,
+            "wall_rate": 0.32432432432432434,
+            "walls": 36,
+            "win_rate": 0.4774774774774775
+          },
+          "SI": {
+            "clears_rung": false,
+            "coverage": 0.9166666666666666,
+            "damage_usd": 9587.5,
+            "flips_applied": 2,
+            "flips_available": 55,
+            "flips_requested": 2,
+            "mdd_day_usd": 8362.5,
+            "mdd_trade_usd": 9397.5,
+            "rate": 0.02,
+            "total_usd": 4032.499999999999,
+            "trades": 121,
+            "usd_per_asset_day": 63.007812499999986,
+            "usd_per_trade": 33.326446280991725,
+            "wall_rate": 0.39669421487603307,
+            "walls": 48,
+            "win_rate": 0.371900826446281
+          }
+        }
+      }
+    }
+  },
+  "tier": "exploratory",
+  "wall_seconds": 43.9
+}

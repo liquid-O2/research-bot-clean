@@ -1,0 +1,1620 @@
+{
+  "asset_days": {
+    "HG": 66,
+    "NKD": 65,
+    "SI": 64
+  },
+  "cells": {
+    "HG": 201,
+    "NKD": 195,
+    "SI": 195
+  },
+  "cells_scored": {
+    "HG": 138,
+    "NKD": 132,
+    "SI": 132
+  },
+  "code_sha": "01379f265be2a9fa85759fbaf2cdca49c91797c63061e22cc3c0b63d1dec1b54",
+  "family": "F10-ORDINAL",
+  "law": {
+    "block_draws": 10000,
+    "depth_atr": 0.15,
+    "horizon_bars": 30,
+    "occurrence_window_s": 900,
+    "ordinal": 2,
+    "remaining_min_s": 1800,
+    "time_match_draws": 200,
+    "time_match_window_s": 300
+  },
+  "log": [
+    {
+      "code_sha": "01379f265be2a9fa85759fbaf2cdca49c91797c63061e22cc3c0b63d1dec1b54",
+      "coverage": 0.8708827404479579,
+      "days": 195,
+      "delay_med_s": null,
+      "err_rate_hg": 0.4576271186440678,
+      "err_rate_nkd": 0.43243243243243246,
+      "err_rate_si": 0.4083333333333333,
+      "family": "F10-ORDINAL",
+      "id": "sweep13-001",
+      "note": "entry-stamp postX_1800 0.458/0.432/0.408; frozen sweep-8 PRIMARY",
+      "null_seed": 20260827,
+      "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+      "params": "[2, 900, 0.15, 1800, 300]",
+      "parent_trial": "sweep11-004",
+      "registered_utc": "2026-08-27T21:47:26+00:00",
+      "rule": "STAGE-A/FIRST",
+      "selection_rule": "none: frozen sweep-8 PRIMARY fire, pre-registered ordinal law",
+      "spec_sha": "bdbda0263135577dba0127d6a5310893af785dce658fe64bc72a6d9c672ac9c5",
+      "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+      "verdict": ""
+    },
+    {
+      "code_sha": "01379f265be2a9fa85759fbaf2cdca49c91797c63061e22cc3c0b63d1dec1b54",
+      "coverage": 0.7587834870443566,
+      "days": 195,
+      "delay_med_s": -5280.0,
+      "err_rate_hg": 0.40384615384615385,
+      "err_rate_nkd": 0.2736842105263158,
+      "err_rate_si": 0.29245283018867924,
+      "family": "F10-ORDINAL",
+      "id": "sweep13-002",
+      "note": "entry-stamp postX_1800 0.404/0.274/0.292; ordinal-2",
+      "null_seed": 20260827,
+      "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+      "params": "[2, 900, 0.15, 1800, 300]",
+      "parent_trial": "sweep11-004",
+      "registered_utc": "2026-08-27T21:47:26+00:00",
+      "rule": "STAGE-A/SECOND",
+      "selection_rule": "none: frozen sweep-8 PRIMARY fire, pre-registered ordinal law",
+      "spec_sha": "bdbda0263135577dba0127d6a5310893af785dce658fe64bc72a6d9c672ac9c5",
+      "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+      "verdict": ""
+    },
+    {
+      "code_sha": "01379f265be2a9fa85759fbaf2cdca49c91797c63061e22cc3c0b63d1dec1b54",
+      "days": 195,
+      "err_rate_hg": 0.48534313725490197,
+      "err_rate_nkd": 0.4665263157894737,
+      "err_rate_si": 0.44095238095238093,
+      "family": "F10-ORDINAL",
+      "id": "sweep13-003",
+      "note": "phase-time twin from another asset-day; matched 302/305",
+      "null_seed": 20260827,
+      "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+      "params": "[200, 300, 1800]",
+      "parent_trial": "sweep11-004",
+      "registered_utc": "2026-08-27T21:47:26+00:00",
+      "rule": "CONTROL/TIME-MATCH",
+      "selection_rule": "none: frozen sweep-8 PRIMARY fire, pre-registered ordinal law",
+      "spec_sha": "bdbda0263135577dba0127d6a5310893af785dce658fe64bc72a6d9c672ac9c5",
+      "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+      "verdict": ""
+    },
+    {
+      "code_sha": "01379f265be2a9fa85759fbaf2cdca49c91797c63061e22cc3c0b63d1dec1b54",
+      "coverage": 0.7196969696969697,
+      "days": 195,
+      "err_rate_nkd": 0.2736842105263158,
+      "err_rate_si": null,
+      "family": "F10-ORDINAL",
+      "id": "sweep13-004",
+      "note": "ORDINAL-KILL; failed 2 bound(s): 2 SECOND postX_1800 <= 0.25; 4c max-adjusted p <= 0.05 (both)",
+      "null_margin": 0.054394560543945605,
+      "null_seed": 20260827,
+      "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+      "params": "[2, 900, 0.15, 1800, 300]",
+      "parent_trial": "sweep11-004",
+      "registered_utc": "2026-08-27T21:47:26+00:00",
+      "rule": "RULING/NKD",
+      "selection_rule": "none: frozen sweep-8 PRIMARY fire, pre-registered ordinal law",
+      "spec_sha": "bdbda0263135577dba0127d6a5310893af785dce658fe64bc72a6d9c672ac9c5",
+      "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+      "verdict": ""
+    },
+    {
+      "code_sha": "01379f265be2a9fa85759fbaf2cdca49c91797c63061e22cc3c0b63d1dec1b54",
+      "coverage": 0.803030303030303,
+      "days": 195,
+      "err_rate_nkd": null,
+      "err_rate_si": 0.29245283018867924,
+      "family": "F10-ORDINAL",
+      "id": "sweep13-005",
+      "note": "ORDINAL-KILL; failed 2 bound(s): 2 SECOND postX_1800 <= 0.25; 4c max-adjusted p <= 0.05 (both)",
+      "null_margin": 0.2526747325267473,
+      "null_seed": 20260827,
+      "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+      "params": "[2, 900, 0.15, 1800, 300]",
+      "parent_trial": "sweep11-004",
+      "registered_utc": "2026-08-27T21:47:26+00:00",
+      "rule": "RULING/SI",
+      "selection_rule": "none: frozen sweep-8 PRIMARY fire, pre-registered ordinal law",
+      "spec_sha": "bdbda0263135577dba0127d6a5310893af785dce658fe64bc72a6d9c672ac9c5",
+      "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+      "verdict": ""
+    }
+  ],
+  "mutant": "",
+  "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+  "paired": {
+    "bootstrap_draws": 10000,
+    "by_stat": {
+      "HG/SECOND-FIRST": {
+        "ci_high": 0.01550387596899225,
+        "ci_low": -0.1434108527131783,
+        "days_other": 44,
+        "days_paired": 43,
+        "days_second": 43,
+        "delta": -0.06589147286821705,
+        "n_days": 43,
+        "p_max_adjusted": 0.6112388761123888,
+        "p_own": 0.13788621137886212
+      },
+      "HG/SECOND-TIME-MATCH": {
+        "ci_high": 0.012172965116279032,
+        "ci_low": -0.17740310077519378,
+        "days_other": 43,
+        "days_paired": 43,
+        "days_second": 43,
+        "delta": -0.08476744186046513,
+        "n_days": 43,
+        "p_max_adjusted": 0.41375862413758624,
+        "p_own": 0.09409059094090591
+      },
+      "NKD/SECOND-FIRST": {
+        "ci_high": -0.01587301587301587,
+        "ci_low": -0.2658730158730159,
+        "days_other": 43,
+        "days_paired": 42,
+        "days_second": 42,
+        "delta": -0.14285714285714285,
+        "n_days": 42,
+        "p_max_adjusted": 0.054394560543945605,
+        "p_own": 0.0375962403759624
+      },
+      "NKD/SECOND-TIME-MATCH": {
+        "ci_high": -0.05205704365079375,
+        "ci_low": -0.24880952380952379,
+        "days_other": 42,
+        "days_paired": 42,
+        "days_second": 42,
+        "delta": -0.1537103174603175,
+        "n_days": 42,
+        "p_max_adjusted": 0.029797020297970205,
+        "p_own": 0.0058994100589941
+      },
+      "SI/SECOND-FIRST": {
+        "ci_high": -0.003968253968253946,
+        "ci_low": -0.19841269841269837,
+        "days_other": 42,
+        "days_paired": 42,
+        "days_second": 42,
+        "delta": -0.10317460317460317,
+        "n_days": 42,
+        "p_max_adjusted": 0.2526747325267473,
+        "p_own": 0.066993300669933
+      },
+      "SI/SECOND-TIME-MATCH": {
+        "ci_high": -0.06434474206349208,
+        "ci_low": -0.24519940476190477,
+        "days_other": 42,
+        "days_paired": 42,
+        "days_second": 42,
+        "delta": -0.15438492063492065,
+        "n_days": 42,
+        "p_max_adjusted": 0.029797020297970205,
+        "p_own": 0.0031996800319968005
+      }
+    },
+    "seed": 20260827,
+    "sign_flip": {
+      "by_stat": {
+        "HG/SECOND-FIRST": {
+          "delta": -0.06589147286821705,
+          "n_days": 43,
+          "p_max_adjusted": 0.6112388761123888,
+          "p_own": 0.13788621137886212
+        },
+        "HG/SECOND-TIME-MATCH": {
+          "delta": -0.08476744186046513,
+          "n_days": 43,
+          "p_max_adjusted": 0.41375862413758624,
+          "p_own": 0.09409059094090591
+        },
+        "NKD/SECOND-FIRST": {
+          "delta": -0.14285714285714285,
+          "n_days": 42,
+          "p_max_adjusted": 0.054394560543945605,
+          "p_own": 0.0375962403759624
+        },
+        "NKD/SECOND-TIME-MATCH": {
+          "delta": -0.1537103174603175,
+          "n_days": 42,
+          "p_max_adjusted": 0.029797020297970205,
+          "p_own": 0.0058994100589941
+        },
+        "SI/SECOND-FIRST": {
+          "delta": -0.10317460317460317,
+          "n_days": 42,
+          "p_max_adjusted": 0.2526747325267473,
+          "p_own": 0.066993300669933
+        },
+        "SI/SECOND-TIME-MATCH": {
+          "delta": -0.15438492063492065,
+          "n_days": 42,
+          "p_max_adjusted": 0.029797020297970205,
+          "p_own": 0.0031996800319968005
+        }
+      },
+      "draws": 10000,
+      "max_pool": [
+        "NKD/SECOND-FIRST",
+        "NKD/SECOND-TIME-MATCH",
+        "SI/SECOND-FIRST",
+        "SI/SECOND-TIME-MATCH"
+      ],
+      "seed": 20260827,
+      "statistics": [
+        "HG/SECOND-FIRST",
+        "HG/SECOND-TIME-MATCH",
+        "NKD/SECOND-FIRST",
+        "NKD/SECOND-TIME-MATCH",
+        "SI/SECOND-FIRST",
+        "SI/SECOND-TIME-MATCH"
+      ]
+    }
+  },
+  "parent_trial": "sweep11-004",
+  "reproduction": {
+    "cells_rechecked": 402,
+    "cells_scored": {
+      "HG": 138,
+      "NKD": 132,
+      "SI": 132
+    },
+    "checks": [
+      {
+        "asset": "HG",
+        "entries": 118,
+        "entries_expected": 118,
+        "entries_ok": true,
+        "postx_n": 118,
+        "postx_n_expected": 118,
+        "postx_n_ok": true,
+        "postx_rate": 0.4576271186440678,
+        "postx_rate_expected": 0.458,
+        "postx_rate_ok": true
+      },
+      {
+        "asset": "NKD",
+        "entries": 111,
+        "entries_expected": 111,
+        "entries_ok": true,
+        "postx_n": 111,
+        "postx_n_expected": 111,
+        "postx_n_ok": true,
+        "postx_rate": 0.43243243243243246,
+        "postx_rate_expected": 0.432,
+        "postx_rate_ok": true
+      },
+      {
+        "asset": "SI",
+        "entries": 121,
+        "entries_expected": 121,
+        "entries_ok": true,
+        "postx_n": 120,
+        "postx_n_expected": 120,
+        "postx_n_ok": true,
+        "postx_rate": 0.4083333333333333,
+        "postx_rate_expected": 0.408,
+        "postx_rate_ok": true
+      }
+    ],
+    "crossing_count_recovers_fire_set": 402,
+    "threshold_mismatch_count": 0,
+    "threshold_mismatches": [],
+    "verdict": "PASS"
+  },
+  "ruling": {
+    "by_asset": {
+      "HG": {
+        "added_wait_p90_s": 882.0000000000002,
+        "bounds": [
+          {
+            "bound": "1 coverage >= 0.35",
+            "detail": "coverage 0.7536231884057971",
+            "pass": true
+          },
+          {
+            "bound": "2 SECOND postX_1800 <= 0.25",
+            "detail": "postX 0.40384615384615385",
+            "pass": false
+          },
+          {
+            "bound": "3a SECOND beats FIRST by >= 0.10",
+            "detail": "gain 0.053780964797913944",
+            "pass": false
+          },
+          {
+            "bound": "3b SECOND beats TIME-MATCH by >= 0.05",
+            "detail": "gain 0.08149698340874811",
+            "pass": true
+          },
+          {
+            "bound": "4a SECOND-FIRST 95% upper bound < 0",
+            "detail": "ci_high 0.01550387596899225",
+            "pass": false
+          },
+          {
+            "bound": "4b SECOND-TIME-MATCH 95% upper bound < 0",
+            "detail": "ci_high 0.012172965116279032",
+            "pass": false
+          },
+          {
+            "bound": "4c max-adjusted p <= 0.05 (both)",
+            "detail": "p 0.6112388761123888/0.41375862413758624",
+            "pass": false
+          },
+          {
+            "bound": "5 added wait p90 <= 900 s",
+            "detail": "p90 882.0000000000002",
+            "pass": true
+          },
+          {
+            "bound": "6a identity duplicates == 0",
+            "detail": "duplicates 0",
+            "pass": true
+          },
+          {
+            "bound": "6b every entry has >= 1800 s remaining",
+            "detail": "min remaining 2160.0",
+            "pass": true
+          },
+          {
+            "bound": "6c TIME-MATCH matches >= 90% of SECOND entries",
+            "detail": "matched 0.9807692307692307",
+            "pass": true
+          },
+          {
+            "bound": "6d replay cap skips == 0",
+            "detail": "skips not read (stage A)",
+            "pass": true
+          }
+        ],
+        "bounds_failed": [
+          "2 SECOND postX_1800 <= 0.25",
+          "3a SECOND beats FIRST by >= 0.10",
+          "4a SECOND-FIRST 95% upper bound < 0",
+          "4b SECOND-TIME-MATCH 95% upper bound < 0",
+          "4c max-adjusted p <= 0.05 (both)"
+        ],
+        "coverage": 0.7536231884057971,
+        "deciding": false,
+        "delta_first": -0.06589147286821705,
+        "delta_time_match": -0.08476744186046513,
+        "gain_over_first": 0.053780964797913944,
+        "gain_over_time_match": 0.08149698340874811,
+        "passes": false,
+        "postx_first": 0.4576271186440678,
+        "postx_second": 0.40384615384615385,
+        "postx_time_match": 0.48534313725490197,
+        "worsens_postx": false
+      },
+      "NKD": {
+        "added_wait_p90_s": 900.0,
+        "bounds": [
+          {
+            "bound": "1 coverage >= 0.35",
+            "detail": "coverage 0.7196969696969697",
+            "pass": true
+          },
+          {
+            "bound": "2 SECOND postX_1800 <= 0.25",
+            "detail": "postX 0.2736842105263158",
+            "pass": false
+          },
+          {
+            "bound": "3a SECOND beats FIRST by >= 0.10",
+            "detail": "gain 0.15874822190611665",
+            "pass": true
+          },
+          {
+            "bound": "3b SECOND beats TIME-MATCH by >= 0.05",
+            "detail": "gain 0.19284210526315787",
+            "pass": true
+          },
+          {
+            "bound": "4a SECOND-FIRST 95% upper bound < 0",
+            "detail": "ci_high -0.01587301587301587",
+            "pass": true
+          },
+          {
+            "bound": "4b SECOND-TIME-MATCH 95% upper bound < 0",
+            "detail": "ci_high -0.05205704365079375",
+            "pass": true
+          },
+          {
+            "bound": "4c max-adjusted p <= 0.05 (both)",
+            "detail": "p 0.054394560543945605/0.029797020297970205",
+            "pass": false
+          },
+          {
+            "bound": "5 added wait p90 <= 900 s",
+            "detail": "p90 900.0",
+            "pass": true
+          },
+          {
+            "bound": "6a identity duplicates == 0",
+            "detail": "duplicates 0",
+            "pass": true
+          },
+          {
+            "bound": "6b every entry has >= 1800 s remaining",
+            "detail": "min remaining 4860.0",
+            "pass": true
+          },
+          {
+            "bound": "6c TIME-MATCH matches >= 90% of SECOND entries",
+            "detail": "matched 1.0",
+            "pass": true
+          },
+          {
+            "bound": "6d replay cap skips == 0",
+            "detail": "skips not read (stage A)",
+            "pass": true
+          }
+        ],
+        "bounds_failed": [
+          "2 SECOND postX_1800 <= 0.25",
+          "4c max-adjusted p <= 0.05 (both)"
+        ],
+        "coverage": 0.7196969696969697,
+        "deciding": true,
+        "delta_first": -0.14285714285714285,
+        "delta_time_match": -0.1537103174603175,
+        "gain_over_first": 0.15874822190611665,
+        "gain_over_time_match": 0.19284210526315787,
+        "passes": false,
+        "postx_first": 0.43243243243243246,
+        "postx_second": 0.2736842105263158,
+        "postx_time_match": 0.4665263157894737,
+        "worsens_postx": false
+      },
+      "SI": {
+        "added_wait_p90_s": 900.0,
+        "bounds": [
+          {
+            "bound": "1 coverage >= 0.35",
+            "detail": "coverage 0.803030303030303",
+            "pass": true
+          },
+          {
+            "bound": "2 SECOND postX_1800 <= 0.25",
+            "detail": "postX 0.29245283018867924",
+            "pass": false
+          },
+          {
+            "bound": "3a SECOND beats FIRST by >= 0.10",
+            "detail": "gain 0.11588050314465409",
+            "pass": true
+          },
+          {
+            "bound": "3b SECOND beats TIME-MATCH by >= 0.05",
+            "detail": "gain 0.1484995507637017",
+            "pass": true
+          },
+          {
+            "bound": "4a SECOND-FIRST 95% upper bound < 0",
+            "detail": "ci_high -0.003968253968253946",
+            "pass": true
+          },
+          {
+            "bound": "4b SECOND-TIME-MATCH 95% upper bound < 0",
+            "detail": "ci_high -0.06434474206349208",
+            "pass": true
+          },
+          {
+            "bound": "4c max-adjusted p <= 0.05 (both)",
+            "detail": "p 0.2526747325267473/0.029797020297970205",
+            "pass": false
+          },
+          {
+            "bound": "5 added wait p90 <= 900 s",
+            "detail": "p90 900.0",
+            "pass": true
+          },
+          {
+            "bound": "6a identity duplicates == 0",
+            "detail": "duplicates 0",
+            "pass": true
+          },
+          {
+            "bound": "6b every entry has >= 1800 s remaining",
+            "detail": "min remaining 2280.0",
+            "pass": true
+          },
+          {
+            "bound": "6c TIME-MATCH matches >= 90% of SECOND entries",
+            "detail": "matched 0.9905660377358491",
+            "pass": true
+          },
+          {
+            "bound": "6d replay cap skips == 0",
+            "detail": "skips not read (stage A)",
+            "pass": true
+          }
+        ],
+        "bounds_failed": [
+          "2 SECOND postX_1800 <= 0.25",
+          "4c max-adjusted p <= 0.05 (both)"
+        ],
+        "coverage": 0.803030303030303,
+        "deciding": true,
+        "delta_first": -0.10317460317460317,
+        "delta_time_match": -0.15438492063492065,
+        "gain_over_first": 0.11588050314465409,
+        "gain_over_time_match": 0.1484995507637017,
+        "passes": false,
+        "postx_first": 0.4083333333333333,
+        "postx_second": 0.29245283018867924,
+        "postx_time_match": 0.44095238095238093,
+        "worsens_postx": false
+      }
+    },
+    "passing_assets": [],
+    "price_assets": [],
+    "price_licensed": false,
+    "verdict": "ORDINAL-KILL"
+  },
+  "schema": "QRE2MILLSWEEP13",
+  "seed": 20260827,
+  "skipped_no_context": {
+    "HG": 3,
+    "NKD": 3,
+    "SI": 3
+  },
+  "spec_sha": "bdbda0263135577dba0127d6a5310893af785dce658fe64bc72a6d9c672ac9c5",
+  "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+  "stage_a": {
+    "by_asset": {
+      "HG": {
+        "cells_fired": 126,
+        "cells_scored": 138,
+        "censored_entry_windows": {
+          "FIRST": 0,
+          "SECOND": 0
+        },
+        "coverage": 0.7536231884057971,
+        "deadline_misses": 0,
+        "duplicate_identities": 0,
+        "entries": 104,
+        "equal_timestamp_candidates": 0,
+        "fires": 10305,
+        "fires_with_first_occurrence": 1553,
+        "fires_with_second_occurrence": 415,
+        "first_coverage": 0.855072463768116,
+        "first_entries": 118,
+        "first_occurrence_available": 114,
+        "identity_repeats_skipped": 11274,
+        "miss_branches": {
+          "cancelled": 0,
+          "deadline": 0,
+          "no_fire": 12,
+          "no_first_occurrence": 13,
+          "no_second_occurrence": 7,
+          "remain_floor": 0,
+          "same_side_reset": 2,
+          "unscored": 63
+        },
+        "no_first_candidate": 7700,
+        "no_second_candidate": 1138,
+        "opposite_side_cancels": 311,
+        "ordinal": {
+          "added_wait_max_s": 900.0,
+          "added_wait_median_s": 180.0,
+          "added_wait_p90_s": 882.0000000000002,
+          "before_terminal_share": 0.7211538461538461,
+          "depth_median_atr": 0.09121290280770816,
+          "entries": 104,
+          "favorable_atr_median": 0.003582920927481575,
+          "favorable_atr_p90": 0.0304170458169609,
+          "favorable_share": 0.5673076923076923,
+          "fire_to_entry_median_s": 180.0,
+          "fire_to_entry_p90_s": 900.0,
+          "ordinal_median": 2.0,
+          "remaining_median_s": 22380.0,
+          "remaining_min_s": 2160.0,
+          "soft_hit_share": 0.9615384615384616,
+          "terminal_delay_median_s": -5010.0
+        },
+        "postx1800": {
+          "FIRST": {
+            "ci_high": 0.5474348776922883,
+            "ci_low": 0.3704912527333468,
+            "hits": 54,
+            "n": 118,
+            "rate": 0.4576271186440678
+          },
+          "SECOND": {
+            "ci_high": 0.499941293598289,
+            "ci_low": 0.31460127455025944,
+            "hits": 42,
+            "n": 104,
+            "rate": 0.40384615384615385
+          },
+          "TIME-MATCH": {
+            "ci_high": 0.4922035494198042,
+            "ci_low": 0.4784882440247346,
+            "hits": 9901,
+            "n": 20400,
+            "rate": 0.48534313725490197
+          }
+        },
+        "remain_floor_drops": 0,
+        "same_side_resets": 1052,
+        "second_occurrence_available": 105
+      },
+      "NKD": {
+        "cells_fired": 129,
+        "cells_scored": 132,
+        "censored_entry_windows": {
+          "FIRST": 0,
+          "SECOND": 0
+        },
+        "coverage": 0.7196969696969697,
+        "deadline_misses": 0,
+        "duplicate_identities": 0,
+        "entries": 95,
+        "equal_timestamp_candidates": 0,
+        "fires": 10402,
+        "fires_with_first_occurrence": 1450,
+        "fires_with_second_occurrence": 473,
+        "first_coverage": 0.8409090909090909,
+        "first_entries": 111,
+        "first_occurrence_available": 109,
+        "identity_repeats_skipped": 13303,
+        "miss_branches": {
+          "cancelled": 1,
+          "deadline": 0,
+          "no_fire": 3,
+          "no_first_occurrence": 25,
+          "no_second_occurrence": 1,
+          "remain_floor": 1,
+          "same_side_reset": 6,
+          "unscored": 63
+        },
+        "no_first_candidate": 8216,
+        "no_second_candidate": 977,
+        "opposite_side_cancels": 365,
+        "ordinal": {
+          "added_wait_max_s": 900.0,
+          "added_wait_median_s": 240.0,
+          "added_wait_p90_s": 900.0,
+          "before_terminal_share": 0.6947368421052632,
+          "depth_median_atr": 0.08013124910025587,
+          "entries": 95,
+          "favorable_atr_median": 0.008007305571779833,
+          "favorable_atr_p90": 0.03646179341617098,
+          "favorable_share": 0.5894736842105263,
+          "fire_to_entry_median_s": 420.0,
+          "fire_to_entry_p90_s": 900.0,
+          "ordinal_median": 2.0,
+          "remaining_median_s": 20760.0,
+          "remaining_min_s": 4860.0,
+          "soft_hit_share": 0.9473684210526315,
+          "terminal_delay_median_s": -5280.0
+        },
+        "postx1800": {
+          "FIRST": {
+            "ci_high": 0.5253287821124847,
+            "ci_low": 0.34405636717040633,
+            "hits": 48,
+            "n": 111,
+            "rate": 0.43243243243243246
+          },
+          "SECOND": {
+            "ci_high": 0.37081433740421976,
+            "ci_low": 0.1941455436715417,
+            "hits": 26,
+            "n": 95,
+            "rate": 0.2736842105263158
+          },
+          "TIME-MATCH": {
+            "ci_high": 0.4736259548605264,
+            "ci_low": 0.45944020953806186,
+            "hits": 8864,
+            "n": 19000,
+            "rate": 0.4665263157894737
+          }
+        },
+        "remain_floor_drops": 13,
+        "same_side_resets": 736,
+        "second_occurrence_available": 100
+      },
+      "SI": {
+        "cells_fired": 125,
+        "cells_scored": 132,
+        "censored_entry_windows": {
+          "FIRST": 1,
+          "SECOND": 0
+        },
+        "coverage": 0.803030303030303,
+        "deadline_misses": 0,
+        "duplicate_identities": 0,
+        "entries": 106,
+        "equal_timestamp_candidates": 0,
+        "fires": 10054,
+        "fires_with_first_occurrence": 1988,
+        "fires_with_second_occurrence": 603,
+        "first_coverage": 0.9166666666666666,
+        "first_entries": 121,
+        "first_occurrence_available": 119,
+        "identity_repeats_skipped": 17864,
+        "miss_branches": {
+          "cancelled": 0,
+          "deadline": 0,
+          "no_fire": 7,
+          "no_first_occurrence": 15,
+          "no_second_occurrence": 3,
+          "remain_floor": 0,
+          "same_side_reset": 1,
+          "unscored": 63
+        },
+        "no_first_candidate": 7032,
+        "no_second_candidate": 1385,
+        "opposite_side_cancels": 497,
+        "ordinal": {
+          "added_wait_max_s": 900.0,
+          "added_wait_median_s": 120.0,
+          "added_wait_p90_s": 900.0,
+          "before_terminal_share": 0.7452830188679245,
+          "depth_median_atr": 0.07267435707886943,
+          "entries": 106,
+          "favorable_atr_median": 0.003597987246350442,
+          "favorable_atr_p90": 0.026790855784556193,
+          "favorable_share": 0.5660377358490566,
+          "fire_to_entry_median_s": 180.0,
+          "fire_to_entry_p90_s": 900.0,
+          "ordinal_median": 2.0,
+          "remaining_median_s": 16770.0,
+          "remaining_min_s": 2280.0,
+          "soft_hit_share": 0.9339622641509434,
+          "terminal_delay_median_s": -7440.0
+        },
+        "postx1800": {
+          "FIRST": {
+            "ci_high": 0.4977921683685844,
+            "ci_low": 0.3245613454748446,
+            "hits": 49,
+            "n": 120,
+            "rate": 0.4083333333333333
+          },
+          "SECOND": {
+            "ci_high": 0.3850892804977318,
+            "ci_low": 0.21433337400446412,
+            "hits": 31,
+            "n": 106,
+            "rate": 0.29245283018867924
+          },
+          "TIME-MATCH": {
+            "ci_high": 0.44767777089453387,
+            "ci_low": 0.4342485898208527,
+            "hits": 9260,
+            "n": 21000,
+            "rate": 0.44095238095238093
+          }
+        },
+        "remain_floor_drops": 0,
+        "same_side_resets": 1034,
+        "second_occurrence_available": 111
+      }
+    },
+    "by_phase": {
+      "0": {
+        "cells_fired": 129,
+        "cells_scored": 146,
+        "censored_entry_windows": {
+          "FIRST": 0,
+          "SECOND": 0
+        },
+        "coverage": 0.6643835616438356,
+        "deadline_misses": 0,
+        "duplicate_identities": 0,
+        "entries": 97,
+        "equal_timestamp_candidates": 0,
+        "fires": 19079,
+        "fires_with_first_occurrence": 2101,
+        "fires_with_second_occurrence": 483,
+        "first_coverage": 0.7602739726027398,
+        "first_entries": 111,
+        "first_occurrence_available": 109,
+        "identity_repeats_skipped": 16977,
+        "miss_branches": {
+          "cancelled": 0,
+          "deadline": 0,
+          "no_fire": 17,
+          "no_first_occurrence": 21,
+          "no_second_occurrence": 6,
+          "remain_floor": 0,
+          "same_side_reset": 5,
+          "unscored": 63
+        },
+        "no_first_candidate": 15127,
+        "no_second_candidate": 1618,
+        "opposite_side_cancels": 386,
+        "ordinal": {
+          "added_wait_max_s": 900.0,
+          "added_wait_median_s": 240.0,
+          "added_wait_p90_s": 900.0,
+          "before_terminal_share": 0.7216494845360825,
+          "depth_median_atr": 0.09501169813311677,
+          "entries": 97,
+          "favorable_atr_median": 0.0025016491835642093,
+          "favorable_atr_p90": 0.03422520137667762,
+          "favorable_share": 0.5154639175257731,
+          "fire_to_entry_median_s": 660.0,
+          "fire_to_entry_p90_s": 900.0,
+          "ordinal_median": 2.0,
+          "remaining_median_s": 18960.0,
+          "remaining_min_s": 2280.0,
+          "soft_hit_share": 0.9278350515463918,
+          "terminal_delay_median_s": -5280.0
+        },
+        "postx1800": {
+          "FIRST": {
+            "ci_high": 0.36904825124916796,
+            "ci_low": 0.2042765697416089,
+            "hits": 31,
+            "n": 111,
+            "rate": 0.27927927927927926
+          },
+          "SECOND": {
+            "ci_high": 0.42837272610716276,
+            "ci_low": 0.24438091722640704,
+            "hits": 32,
+            "n": 97,
+            "rate": 0.32989690721649484
+          },
+          "TIME-MATCH": {
+            "ci_high": 0.4141995357809179,
+            "ci_low": 0.40037326375283616,
+            "hits": 7901,
+            "n": 19400,
+            "rate": 0.4072680412371134
+          }
+        },
+        "remain_floor_drops": 0,
+        "same_side_resets": 1851,
+        "second_occurrence_available": 100
+      },
+      "1": {
+        "cells_fired": 124,
+        "cells_scored": 128,
+        "censored_entry_windows": {
+          "FIRST": 1,
+          "SECOND": 0
+        },
+        "coverage": 0.78125,
+        "deadline_misses": 0,
+        "duplicate_identities": 0,
+        "entries": 100,
+        "equal_timestamp_candidates": 0,
+        "fires": 3906,
+        "fires_with_first_occurrence": 1373,
+        "fires_with_second_occurrence": 530,
+        "first_coverage": 0.921875,
+        "first_entries": 118,
+        "first_occurrence_available": 116,
+        "identity_repeats_skipped": 10930,
+        "miss_branches": {
+          "cancelled": 0,
+          "deadline": 0,
+          "no_fire": 4,
+          "no_first_occurrence": 18,
+          "no_second_occurrence": 4,
+          "remain_floor": 0,
+          "same_side_reset": 2,
+          "unscored": 63
+        },
+        "no_first_candidate": 2128,
+        "no_second_candidate": 843,
+        "opposite_side_cancels": 430,
+        "ordinal": {
+          "added_wait_max_s": 900.0,
+          "added_wait_median_s": 180.0,
+          "added_wait_p90_s": 900.0,
+          "before_terminal_share": 0.62,
+          "depth_median_atr": 0.0793173398579333,
+          "entries": 100,
+          "favorable_atr_median": 0.004570199651469677,
+          "favorable_atr_p90": 0.030836104899304047,
+          "favorable_share": 0.55,
+          "fire_to_entry_median_s": 180.0,
+          "fire_to_entry_p90_s": 900.0,
+          "ordinal_median": 2.0,
+          "remaining_median_s": 13050.0,
+          "remaining_min_s": 2160.0,
+          "soft_hit_share": 0.97,
+          "terminal_delay_median_s": -3120.0
+        },
+        "postx1800": {
+          "FIRST": {
+            "ci_high": 0.5767063574717819,
+            "ci_low": 0.3984677257503395,
+            "hits": 57,
+            "n": 117,
+            "rate": 0.48717948717948717
+          },
+          "SECOND": {
+            "ci_high": 0.3958485463334666,
+            "ci_low": 0.2189488529493276,
+            "hits": 30,
+            "n": 100,
+            "rate": 0.3
+          },
+          "TIME-MATCH": {
+            "ci_high": 0.5094986081527892,
+            "ci_low": 0.49550041207525397,
+            "hits": 9849,
+            "n": 19600,
+            "rate": 0.5025
+          }
+        },
+        "remain_floor_drops": 0,
+        "same_side_resets": 405,
+        "second_occurrence_available": 103
+      },
+      "2": {
+        "cells_fired": 127,
+        "cells_scored": 128,
+        "censored_entry_windows": {
+          "FIRST": 0,
+          "SECOND": 0
+        },
+        "coverage": 0.84375,
+        "deadline_misses": 0,
+        "duplicate_identities": 0,
+        "entries": 108,
+        "equal_timestamp_candidates": 0,
+        "fires": 7776,
+        "fires_with_first_occurrence": 1517,
+        "fires_with_second_occurrence": 478,
+        "first_coverage": 0.9453125,
+        "first_entries": 121,
+        "first_occurrence_available": 117,
+        "identity_repeats_skipped": 14534,
+        "miss_branches": {
+          "cancelled": 1,
+          "deadline": 0,
+          "no_fire": 1,
+          "no_first_occurrence": 14,
+          "no_second_occurrence": 1,
+          "remain_floor": 1,
+          "same_side_reset": 2,
+          "unscored": 63
+        },
+        "no_first_candidate": 5693,
+        "no_second_candidate": 1039,
+        "opposite_side_cancels": 357,
+        "ordinal": {
+          "added_wait_max_s": 900.0,
+          "added_wait_median_s": 120.0,
+          "added_wait_p90_s": 840.0,
+          "before_terminal_share": 0.8148148148148148,
+          "depth_median_atr": 0.06424783494091862,
+          "entries": 108,
+          "favorable_atr_median": 0.005665335386220735,
+          "favorable_atr_p90": 0.031167711065404252,
+          "favorable_share": 0.6481481481481481,
+          "fire_to_entry_median_s": 180.0,
+          "fire_to_entry_p90_s": 900.0,
+          "ordinal_median": 2.0,
+          "remaining_median_s": 36450.0,
+          "remaining_min_s": 9960.0,
+          "soft_hit_share": 0.9444444444444444,
+          "terminal_delay_median_s": -10260.0
+        },
+        "postx1800": {
+          "FIRST": {
+            "ci_high": 0.6076606837907541,
+            "ci_low": 0.4323901138147221,
+            "hits": 63,
+            "n": 121,
+            "rate": 0.5206611570247934
+          },
+          "SECOND": {
+            "ci_high": 0.4361186017035627,
+            "ci_low": 0.25987964117961265,
+            "hits": 37,
+            "n": 108,
+            "rate": 0.3425925925925926
+          },
+          "TIME-MATCH": {
+            "ci_high": 0.48683688405387954,
+            "ci_low": 0.4734506184659211,
+            "hits": 10275,
+            "n": 21400,
+            "rate": 0.48014018691588783
+          }
+        },
+        "remain_floor_drops": 13,
+        "same_side_resets": 566,
+        "second_occurrence_available": 113
+      }
+    }
+  },
+  "tier": "exploratory",
+  "time_match": {
+    "by_asset": {
+      "HG": {
+        "ci_high": 0.4922035494198042,
+        "ci_low": 0.4784882440247346,
+        "hits": 9901,
+        "n": 20400,
+        "rate": 0.48534313725490197
+      },
+      "NKD": {
+        "ci_high": 0.4736259548605264,
+        "ci_low": 0.45944020953806186,
+        "hits": 8864,
+        "n": 19000,
+        "rate": 0.4665263157894737
+      },
+      "SI": {
+        "ci_high": 0.44767777089453387,
+        "ci_low": 0.4342485898208527,
+        "hits": 9260,
+        "n": 21000,
+        "rate": 0.44095238095238093
+      }
+    },
+    "by_day": {
+      "HG/20221017": {
+        "hits": 133,
+        "n": 200
+      },
+      "HG/20221020": {
+        "hits": 250,
+        "n": 600
+      },
+      "HG/20221027": {
+        "hits": 157,
+        "n": 400
+      },
+      "HG/20221102": {
+        "hits": 232,
+        "n": 600
+      },
+      "HG/20221107": {
+        "hits": 238,
+        "n": 600
+      },
+      "HG/20221116": {
+        "hits": 252,
+        "n": 600
+      },
+      "HG/20221215": {
+        "hits": 305,
+        "n": 600
+      },
+      "HG/20230202": {
+        "hits": 314,
+        "n": 600
+      },
+      "HG/20230310": {
+        "hits": 307,
+        "n": 600
+      },
+      "HG/20230315": {
+        "hits": 121,
+        "n": 200
+      },
+      "HG/20230320": {
+        "hits": 336,
+        "n": 600
+      },
+      "HG/20230323": {
+        "hits": 274,
+        "n": 600
+      },
+      "HG/20230503": {
+        "hits": 108,
+        "n": 200
+      },
+      "HG/20230615": {
+        "hits": 152,
+        "n": 400
+      },
+      "HG/20231027": {
+        "hits": 139,
+        "n": 400
+      },
+      "HG/20231208": {
+        "hits": 246,
+        "n": 600
+      },
+      "HG/20231215": {
+        "hits": 307,
+        "n": 600
+      },
+      "HG/20231222": {
+        "hits": 164,
+        "n": 400
+      },
+      "HG/20240126": {
+        "hits": 361,
+        "n": 600
+      },
+      "HG/20240201": {
+        "hits": 186,
+        "n": 400
+      },
+      "HG/20240214": {
+        "hits": 311,
+        "n": 600
+      },
+      "HG/20240220": {
+        "hits": 205,
+        "n": 400
+      },
+      "HG/20240319": {
+        "hits": 227,
+        "n": 400
+      },
+      "HG/20240405": {
+        "hits": 197,
+        "n": 400
+      },
+      "HG/20240416": {
+        "hits": 69,
+        "n": 200
+      },
+      "HG/20240419": {
+        "hits": 230,
+        "n": 400
+      },
+      "HG/20240503": {
+        "hits": 275,
+        "n": 600
+      },
+      "HG/20240613": {
+        "hits": 253,
+        "n": 400
+      },
+      "HG/20240724": {
+        "hits": 158,
+        "n": 400
+      },
+      "HG/20240729": {
+        "hits": 213,
+        "n": 400
+      },
+      "HG/20240801": {
+        "hits": 99,
+        "n": 200
+      },
+      "HG/20240806": {
+        "hits": 268,
+        "n": 600
+      },
+      "HG/20240809": {
+        "hits": 274,
+        "n": 600
+      },
+      "HG/20240814": {
+        "hits": 208,
+        "n": 400
+      },
+      "HG/20240823": {
+        "hits": 338,
+        "n": 600
+      },
+      "HG/20240906": {
+        "hits": 327,
+        "n": 600
+      },
+      "HG/20240912": {
+        "hits": 109,
+        "n": 200
+      },
+      "HG/20240919": {
+        "hits": 177,
+        "n": 400
+      },
+      "HG/20241004": {
+        "hits": 150,
+        "n": 400
+      },
+      "HG/20241107": {
+        "hits": 288,
+        "n": 600
+      },
+      "HG/20241206": {
+        "hits": 341,
+        "n": 600
+      },
+      "HG/20241219": {
+        "hits": 271,
+        "n": 600
+      },
+      "HG/20241224": {
+        "hits": 331,
+        "n": 600
+      },
+      "NKD/20221018": {
+        "hits": 237,
+        "n": 400
+      },
+      "NKD/20221021": {
+        "hits": 74,
+        "n": 200
+      },
+      "NKD/20221028": {
+        "hits": 229,
+        "n": 400
+      },
+      "NKD/20221103": {
+        "hits": 191,
+        "n": 400
+      },
+      "NKD/20221110": {
+        "hits": 238,
+        "n": 600
+      },
+      "NKD/20221213": {
+        "hits": 271,
+        "n": 600
+      },
+      "NKD/20230104": {
+        "hits": 270,
+        "n": 600
+      },
+      "NKD/20230203": {
+        "hits": 197,
+        "n": 400
+      },
+      "NKD/20230314": {
+        "hits": 178,
+        "n": 400
+      },
+      "NKD/20230317": {
+        "hits": 312,
+        "n": 600
+      },
+      "NKD/20230322": {
+        "hits": 221,
+        "n": 600
+      },
+      "NKD/20230327": {
+        "hits": 298,
+        "n": 600
+      },
+      "NKD/20230505": {
+        "hits": 39,
+        "n": 400
+      },
+      "NKD/20231026": {
+        "hits": 195,
+        "n": 600
+      },
+      "NKD/20231115": {
+        "hits": 388,
+        "n": 600
+      },
+      "NKD/20231215": {
+        "hits": 92,
+        "n": 200
+      },
+      "NKD/20231222": {
+        "hits": 79,
+        "n": 200
+      },
+      "NKD/20240126": {
+        "hits": 304,
+        "n": 600
+      },
+      "NKD/20240201": {
+        "hits": 166,
+        "n": 400
+      },
+      "NKD/20240214": {
+        "hits": 225,
+        "n": 600
+      },
+      "NKD/20240220": {
+        "hits": 272,
+        "n": 600
+      },
+      "NKD/20240319": {
+        "hits": 195,
+        "n": 400
+      },
+      "NKD/20240405": {
+        "hits": 208,
+        "n": 400
+      },
+      "NKD/20240416": {
+        "hits": 312,
+        "n": 600
+      },
+      "NKD/20240419": {
+        "hits": 209,
+        "n": 400
+      },
+      "NKD/20240503": {
+        "hits": 195,
+        "n": 400
+      },
+      "NKD/20240718": {
+        "hits": 293,
+        "n": 600
+      },
+      "NKD/20240724": {
+        "hits": 295,
+        "n": 600
+      },
+      "NKD/20240729": {
+        "hits": 334,
+        "n": 600
+      },
+      "NKD/20240801": {
+        "hits": 83,
+        "n": 200
+      },
+      "NKD/20240806": {
+        "hits": 259,
+        "n": 600
+      },
+      "NKD/20240809": {
+        "hits": 180,
+        "n": 400
+      },
+      "NKD/20240814": {
+        "hits": 306,
+        "n": 600
+      },
+      "NKD/20240823": {
+        "hits": 206,
+        "n": 400
+      },
+      "NKD/20240906": {
+        "hits": 119,
+        "n": 200
+      },
+      "NKD/20240912": {
+        "hits": 169,
+        "n": 400
+      },
+      "NKD/20240919": {
+        "hits": 165,
+        "n": 400
+      },
+      "NKD/20241004": {
+        "hits": 61,
+        "n": 200
+      },
+      "NKD/20241107": {
+        "hits": 59,
+        "n": 200
+      },
+      "NKD/20241206": {
+        "hits": 353,
+        "n": 600
+      },
+      "NKD/20241219": {
+        "hits": 208,
+        "n": 400
+      },
+      "NKD/20241224": {
+        "hits": 179,
+        "n": 400
+      },
+      "SI/20221018": {
+        "hits": 251,
+        "n": 600
+      },
+      "SI/20221021": {
+        "hits": 285,
+        "n": 600
+      },
+      "SI/20221101": {
+        "hits": 275,
+        "n": 600
+      },
+      "SI/20221104": {
+        "hits": 254,
+        "n": 600
+      },
+      "SI/20221116": {
+        "hits": 179,
+        "n": 400
+      },
+      "SI/20221215": {
+        "hits": 109,
+        "n": 400
+      },
+      "SI/20230202": {
+        "hits": 226,
+        "n": 400
+      },
+      "SI/20230310": {
+        "hits": 187,
+        "n": 600
+      },
+      "SI/20230315": {
+        "hits": 128,
+        "n": 400
+      },
+      "SI/20230321": {
+        "hits": 254,
+        "n": 600
+      },
+      "SI/20230324": {
+        "hits": 171,
+        "n": 600
+      },
+      "SI/20230504": {
+        "hits": 283,
+        "n": 600
+      },
+      "SI/20231020": {
+        "hits": 239,
+        "n": 600
+      },
+      "SI/20231102": {
+        "hits": 279,
+        "n": 600
+      },
+      "SI/20231212": {
+        "hits": 276,
+        "n": 600
+      },
+      "SI/20231219": {
+        "hits": 139,
+        "n": 400
+      },
+      "SI/20240104": {
+        "hits": 161,
+        "n": 400
+      },
+      "SI/20240130": {
+        "hits": 239,
+        "n": 600
+      },
+      "SI/20240202": {
+        "hits": 198,
+        "n": 400
+      },
+      "SI/20240215": {
+        "hits": 195,
+        "n": 400
+      },
+      "SI/20240221": {
+        "hits": 330,
+        "n": 400
+      },
+      "SI/20240320": {
+        "hits": 308,
+        "n": 600
+      },
+      "SI/20240410": {
+        "hits": 149,
+        "n": 400
+      },
+      "SI/20240417": {
+        "hits": 186,
+        "n": 400
+      },
+      "SI/20240426": {
+        "hits": 219,
+        "n": 600
+      },
+      "SI/20240515": {
+        "hits": 295,
+        "n": 600
+      },
+      "SI/20240712": {
+        "hits": 110,
+        "n": 200
+      },
+      "SI/20240719": {
+        "hits": 90,
+        "n": 200
+      },
+      "SI/20240725": {
+        "hits": 277,
+        "n": 600
+      },
+      "SI/20240731": {
+        "hits": 299,
+        "n": 600
+      },
+      "SI/20240805": {
+        "hits": 59,
+        "n": 200
+      },
+      "SI/20240808": {
+        "hits": 312,
+        "n": 600
+      },
+      "SI/20240813": {
+        "hits": 246,
+        "n": 600
+      },
+      "SI/20240816": {
+        "hits": 291,
+        "n": 600
+      },
+      "SI/20240905": {
+        "hits": 200,
+        "n": 400
+      },
+      "SI/20240912": {
+        "hits": 268,
+        "n": 600
+      },
+      "SI/20240919": {
+        "hits": 257,
+        "n": 600
+      },
+      "SI/20241004": {
+        "hits": 291,
+        "n": 600
+      },
+      "SI/20241107": {
+        "hits": 191,
+        "n": 600
+      },
+      "SI/20241206": {
+        "hits": 117,
+        "n": 200
+      },
+      "SI/20241219": {
+        "hits": 157,
+        "n": 400
+      },
+      "SI/20241224": {
+        "hits": 280,
+        "n": 600
+      }
+    },
+    "by_phase": {
+      "0": {
+        "ci_high": 0.4141995357809179,
+        "ci_low": 0.40037326375283616,
+        "hits": 7901,
+        "n": 19400,
+        "rate": 0.4072680412371134
+      },
+      "1": {
+        "ci_high": 0.5094986081527892,
+        "ci_low": 0.49550041207525397,
+        "hits": 9849,
+        "n": 19600,
+        "rate": 0.5025
+      },
+      "2": {
+        "ci_high": 0.48683688405387954,
+        "ci_low": 0.4734506184659211,
+        "hits": 10275,
+        "n": 21400,
+        "rate": 0.48014018691588783
+      }
+    },
+    "donors": 221638,
+    "draws": 200,
+    "entries": 305,
+    "entries_matched": 302,
+    "match_share": 0.9901639344262295,
+    "match_window_s": 300,
+    "matched_share_by_asset": {
+      "HG": 0.9807692307692307,
+      "NKD": 1.0,
+      "SI": 0.9905660377358491
+    },
+    "pool_median": 323.0,
+    "pool_min": 0,
+    "seed": 20260827
+  },
+  "wall_seconds": 67.3
+}

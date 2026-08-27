@@ -650,6 +650,19 @@ certificate and the regime-scoped variant. 7b's lawful influence is
 exactly: branch priority (late-dominated losses tighten the lateness law;
 hard-wrong-dominated opens variant C) - nothing else.
 
+## Standing law: Sol reviews every design decision (USER, 2026-08-27)
+
+USER order, unconditional. Every design decision gets a Sol pass. That
+covers every new unit spec, every judging-law change, every diagnosis,
+and every routing choice. Where speed matters the Sol dispatch runs in
+parallel with the build, and no result is judged before the Sol page is
+reconciled. The record shows why: Sol flagged surrogate-metric selection
+as a core error in its sniper audit and its root-cause pass, and the
+parent kept shipping proxy-selected units until sweep 14. A caught
+correction that is not adopted is a process failure, and this rule makes
+adoption structural instead of discretionary. Exceptions require a
+written reason in the ledger before dispatch.
+
 ## Sol's blank-slate root cause: argfirst (adopted, Fable, 2026-08-27)
 
 `.audit/briefs/mill-rootcause-sol-out.md`, independent, receipts-proven.

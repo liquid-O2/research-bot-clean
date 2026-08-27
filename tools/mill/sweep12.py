@@ -1142,7 +1142,12 @@ def log_rows(report: Mapping[str, object]) -> list[dict[str, object]]:
             "rule": f"state-cut/{line}",
             "params": (f"V1..V5 fixed bins; prior-day floor {MIN_PRIOR_DAYS}; "
                        f"cell floor {MIN_CELL_DAYS} days; no cash tuning"),
-            "coverage": report["cuts"][line].get("coverage_pooled"),
+            # The share of explore days the reported gate would actually trade
+            # on: the cash columns beside it are that subset's, so a coverage
+            # of trades-per-day would describe the wrong object.
+            "coverage": (sum(row["gated_days"] for row in picks.values()
+                             if row is not None)
+                         / max(1, sum(report["explore_days"].values()))),
             "walls_hg": _pick(picks, "HG", "wall_hits"),
             "walls_nkd": _pick(picks, "NKD", "wall_hits"),
             "walls_si": _pick(picks, "SI", "wall_hits"),

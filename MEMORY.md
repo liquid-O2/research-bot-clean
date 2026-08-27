@@ -5382,3 +5382,5 @@ Written by the PreCompact hook so a compaction loses nothing. Newest last.
 - 2026-08-27 #626 USER Stop after judged B3. No covering after B3. Parent does not continue overnight past that receipt.
 - 2026-08-27 #627 RESULT B3 STOP pending Fable. cell identity differs HG/20221107/0. No strict block. Parent stops after judge. No covering after B3.
 - 2026-08-27 #628 RESULT Fable judged B3 STOP. HG/20221107 two phase-0 instances. No dollars. Parent stopped per USER. No covering after B3.
+- 2026-08-27 #629 RESULT GitHub main 9875505 records overnight Entry V2 hillclimb through B3 STOP.
+- 2026-08-27 #630 RESULT r2:runp has START_HERE MEMORY .audit engine and late store. Overnight rclone pid 3079890 left running.

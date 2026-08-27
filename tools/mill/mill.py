@@ -44,11 +44,13 @@ MINIMAL_DTYPE = np.dtype([("ts_recv_ns", "<u8"), ("bid_px", "<i8"), ("ask_px", "
 # depth zone (``sweep3_zone_uses_close``, read by ``sweep3.py`` alone) or
 # anchors an entry on a candidate's own decision row (``sweep4_entry_at_bar``,
 # read by ``sweep4.py`` alone) or rechecks a side arbiter at a candidate's
-# arrival (``sweep5_arbiter_peeks``, read by ``sweep5.py`` alone); the mill
-# itself never branches on the sweep-2, sweep-3, sweep-4 or sweep-5 names.
+# arrival (``sweep5_arbiter_peeks``, read by ``sweep5.py`` alone) or calibrates
+# a score's percentiles on outcome-conditioned rows
+# (``sweep6_score_peeks_outcome``, read by ``sweep6.py`` alone); the mill itself
+# never branches on the sweep-2..sweep-6 names.
 SWEEP_MUTANTS = ("sweep_uses_bar_at_t", "sweep2_train_includes_today",
                  "sweep3_zone_uses_close", "sweep4_entry_at_bar",
-                 "sweep5_arbiter_peeks")
+                 "sweep5_arbiter_peeks", "sweep6_score_peeks_outcome")
 MUTANTS = ("visibility_at_t", "wall_boundary_off_by_one",
            "generation_carryover") + SWEEP_MUTANTS
 

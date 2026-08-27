@@ -613,6 +613,159 @@ text, verified citations). Three findings are load-bearing and binding:
    source's own two-sided warning that stricter filters can cost more in
    frequency than they buy in accuracy.
 
+## Decisive flow test verdict: KILL; the discretionary layer is closed
+(Fable, 2026-08-27, overnight)
+
+`.audit/mill-sweep6.json`, log rows sweep6-001..012, all KILL. The frozen
+bounds fired on both deciding assets: R5-vs-D and R5-vs-M deltas +0.009 /
+-0.038 (NKD) and +0.028 / +0.029 (SI), every paired 95% lower bound below
+zero, adjusted p 0.70-1.00, R5 coverage 0.576/0.444, and p90 delays
+(7,136 s NKD / 9,012 s SI) far past the 1,200/2,700 s caps - the controls
+exceed the caps too. Per the frozen protocol the discretionary layer is
+CLOSED: no second composite, no fit, R4mem stays sealed forever (its
+opening conditions require every delta >= +0.03; NKD's R5-M is negative).
+The pre-registered route - the held-retest resolution join - was already
+in flight when the verdict landed.
+
+Three measured facts survive the closure as OUR OWN data (not deck
+claims), available to the terminality-race family as individual,
+pre-registered gates only, one shot, no weights, and only if geometric
+evidence alone falls short: (1) finished-auction one-sidedness and
+schedule persistence separate TERMINALITY univariately (AUC 0.61-0.66 on
+HG/SI); (2) the one-sided-print polarity is confirmed on all three
+assets; (3) the deck-tier "CVD dies at the level" precursor is INVERTED
+on our bytes (AUC 0.30-0.39) - retired. Structural finding for every
+successor: quiet-detection's delay TAIL is the budget-killer (medians fit
+the budgets, p90s run hours late), so the race family must gate on
+opportunity lateness, not just fire on evidence.
+
+## Idea-screen results and the terminality-race reframe (Fable, 2026-08-27)
+
+`.audit/mill-ideascreen.json`. I1 prior-phase inheritance is dead as a
+general prior (every row a coin, ci_low <= 0.52) with ONE flagged cell:
+SI phase 0's overnight-gap sign agrees with the winner 18/24 = 0.750
+(ci_low 0.551, n small) - carried as a candidate SI-Asia ingredient only,
+exploratory.
+
+I4's oracle arithmetic reframes the problem. Entering at the
+chronologically FIRST terminal extreme of EITHER direction, fade side,
+posts **2102.6 / 2335.2 / 3070.0 usd per asset-day with zero walls and
+zero second legs - all three rungs clear, HG included, and the side bit
+never appears**. Mechanism: in a trending phase the winning side's
+adverse extreme finishes first by construction (the drift side's extreme
+keeps extending), so the ORDER of terminality encodes the side. The
+binary rejection-vs-rest decision dissolves into a per-side terminality
+RACE: run independent terminality tests on both extremes and take the
+first side whose evidence crosses a calibrated bar. The naive version
+(first 20-minute quiet) posts -144/-170/+49 with 28-43% walls, so the
+entire gap is per-extreme terminality PRECISION within the delay budgets
+- the same precision problem, now stripped of the side problem entirely.
+
+Sweep 7 centerpiece, to dispatch after sweep 6's verdict and Sol's
+ideation land: per-side terminality state machines racing - evidence =
+quiet + the I2 retest-hold (bounce, return, hold strictly beyond the
+extreme) + I3 opposite-side extension since my extreme + any flow
+component sweep 6 keeps; per-asset calibration to the delay budgets
+(NKD fast, SI slower); soft-hit metric beside joint-hit (narrowness
+audit item 3); optional leg-2 insurance priced as a variant; SI-p0 gap
+prior as a bonus gate. Selection stays no-cash.
+
+## Narrowness audit (Fable, 2026-08-27; USER: "is the binary decision
+really the whole problem, or are we too narrowed down?")
+
+The oracle chain isolates the gap cleanly (S0R clears all rungs with side
++ pick; O4b shows side + terminal-timing suffices with per-asset delay
+budgets; the quiet detector finds the moments causally; the residual is
+which extreme). Three qualifications join the problem statement, none
+hidden any longer:
+
+1. **The decision must be fast, not just right.** O4b's budget is
+   measured from the TRUE terminal extreme; a causal chain spends
+   detector quiet-time + decision + candidate wait against it. NKD's
+   budget (~20 min buffered) makes speed binding there; the frozen p90
+   delay bounds carry this, but any future design that decides slowly and
+   correctly still fails NKD.
+2. **Ambiguity handling is part of the causal problem.** Oracle lines
+   skip hindsight-ambiguous cells (~25-30%); a causal policy either
+   enters them (diluting $/day, some wall risk) or abstains by proxy
+   (coverage cost). The ambiguous-cell entry cost is measurable in one
+   pass and joins sweep 7.
+3. **The joint-hit metric may OVERSTATE the gap.** W picks the larger
+   remaining side, but S0 measured even the smaller side's deep fade
+   mildly positive; a "wrong" pick with positive remaining value is a
+   soft hit, not a disaster. Sweep 7 adds the soft-hit rate (fade side
+   has positive REM at entry) beside joint-hit; selection may shift, and
+   the effective accuracy bar may be lower than 0.55 once asymmetric
+   penalties are priced.
+
+Not hidden elsewhere: transport risk (one HOLD read + Thresholdout law),
+execution frictions (priced in every cert, zero occupancy skips),
+architecture narrowness (the catalog carries dissolutions: both-extremes,
+join, regime split).
+
+## Library fidelity ruling (Fable, 2026-08-27, after diagram forensics)
+
+`research/discretionary/DIAGRAM_FORENSICS_2026-08-27.md`. The lesson decks'
+figures are partly fabricated or self-contradictory (a mirrored POC-flip
+illustration, imbalance flags failing their own stated rule, a mislabeled
+delta bar, the absorption-vs-exhaustion page carrying no figure at all).
+The library therefore splits into two evidence tiers, binding: the
+refill-effect research paper (real study, measured AUCs, execution stats)
+keeps full weight; the lesson decks drop to hypothesis-generators whose
+qualitative claims carry no evidential weight beyond what our own
+distributions measure. No design change - the frozen test never trusted
+the diagrams and the measure-ourselves law already governs - but "the
+sources say" language is retired for deck-tier claims. The USER's
+instinct (measure everything ourselves) is validated at the source level.
+
+## Ideation round: candidate solutions to rejection-vs-rest (Fable, 2026-08-27)
+
+USER: strong answers needed; the absorption read may or may not be the way;
+generate novel attacks. The catalog, by attack class, each with its cheap
+test. Sol runs an independent generation pass in parallel; sweep 6's verdict
+merges with this catalog into sweep 7.
+
+Class 1 - move the decision time:
+- **I1 prior-phase inheritance**: does the completed prior phase's sign
+  (and the overnight gap) carry the next phase's Delta*-winner? Never
+  tested; fully causal; one array pass. If any (asset, phase-pair) shows
+  0.60+, it is a free side prior that composes with everything.
+- **I2 retest-hold trigger** (the strongest in my judgment): decide at the
+  completion of the first two-legged structure after a quieted extreme -
+  bounce, return toward the level, hold strictly above it (higher low /
+  lower high). The classical reversal definition; a PATH condition, not a
+  level read; fully causal; the one-retest source's whole thesis; entry
+  falls inside the measured 45-60 min delay budget; d1 wall protection at
+  the retest hold. No detector tried this shape - XR's bounce was a fixed
+  retrace with no hold-above requirement.
+- **I3 control-transfer sequencing**: fade extreme A only when extreme B
+  was tested AFTER A's last test and failed (the opposite side tried and
+  lost). Uses the ORDER of tests across both extremes; everything so far
+  looked at one extreme at a time.
+
+Class 2 - new evidence at the same time: the in-flight flow/memory score;
+POC value-migration drift as a slow state; session-open gap fill state.
+
+Class 3 - dissolve the choice:
+- **I4 both-extremes sequential**: fade whichever quiets first with a
+  protected entry; if that leg exits, fade the other on its confirmation.
+  Converts the side decision into an entry-quality problem. Grounding: S0
+  measured even the WRONG side's best-price fade mildly positive
+  (+506/588/599 usd/day hindsight), so the loser leg need not be fatal if
+  entries are protected; occupancy and the 12-entry cap accommodate ~2
+  entries per cell at measured coverage. Oracle arithmetic is one pass on
+  the existing cert surfaces.
+- **I5 regime-conditional composition**: balance regimes get the fade
+  policy, trend regimes the join policy; the regime flag is causal (range
+  vs value/forecast). The structure audit says identical evidence inverts
+  meaning across that split - one rule everywhere may be impossible by
+  construction.
+- Persistence-join stays queued as the standing reframe.
+
+Screens dispatched now (no-cash, read-only, independent of sweep 6): I1
+and I4's oracle arithmetic. I2 and I3 need the zones/detector machinery
+and join sweep 7 with sweep 6's verdict and Sol's independent list.
+
 ## The decisive flow test, frozen (Fable ruling on Sol + playbook, 2026-08-27)
 
 Sol's ruling (`.audit/briefs/mill-flow-route-sol-out.md`) is adopted as the

@@ -10,6 +10,7 @@ claim is INCONCLUSIVE.
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any, Iterator, Mapping
@@ -39,6 +40,7 @@ MARGIN_RULE = REPO / (
 RUNGS = {"HG": 2000.0, "NKD": 1500.0, "SI": 1500.0}
 MAX_DRAWDOWN_USD = 1000.0
 MAX_ENTRIES_PORTFOLIO_DAY = 12
+LOCKED_ASSET_DAYS = {"HG": 197, "NKD": 194, "SI": 191}
 
 
 def _walk(obj: Any) -> Iterator[Mapping[str, Any]]:
@@ -321,12 +323,29 @@ def block_clears_rungs(
     trades: int,
     max_drawdown_usd: float,
     usd_per_asset_day: dict[str, float] | None,
+    max_entries_portfolio_day: int,
+    overlap_violations: int,
+    position_size_mini: int,
+    asset_days: dict[str, int],
 ) -> bool:
+    mutant = os.environ.get("QRE2_B3_MUTANT", "")
     if trades <= 0:
         return False
-    if max_drawdown_usd >= MAX_DRAWDOWN_USD:
+    if (max_drawdown_usd > MAX_DRAWDOWN_USD
+            if mutant == "mdd_boundary_inclusive"
+            else max_drawdown_usd >= MAX_DRAWDOWN_USD):
         return False
     if usd_per_asset_day is None:
+        if mutant == "policy_block_dollars_ignored":
+            usd_per_asset_day = dict(RUNGS)
+        else:
+            return False
+    if (mutant != "policy_cap_ignored"
+            and max_entries_portfolio_day > MAX_ENTRIES_PORTFOLIO_DAY):
+        return False
+    if mutant != "policy_overlap_ignored" and overlap_violations != 0:
+        return False
+    if position_size_mini != 1 or asset_days != LOCKED_ASSET_DAYS:
         return False
     for asset, rung in RUNGS.items():
         if asset not in usd_per_asset_day:
@@ -374,34 +393,51 @@ def margin_closure() -> dict[str, Any]:
 
 
 def policy_block_economics(path: Path) -> dict[str, Any]:
-    text = path.read_text()
-    if '"schema":"QRE2TABPOLICYBLOCK2"' not in text and (
-            '"schema": "QRE2TABPOLICYBLOCK2"' not in text):
-        raise ValueError(f"{path} is not QRE2TABPOLICYBLOCK2")
-    start = text.rfind('"gate_detail"')
-    if start < 0:
-        raise ValueError(f"{path} has no gate_detail")
-    chunk = text[start:start + 2000]
-    def _num(key: str) -> float:
-        token = f'"{key}":'
-        at = chunk.find(token)
-        if at < 0:
-            raise ValueError(f"{path} gate_detail missing {key}")
-        raw = chunk[at + len(token):].split(",", 1)[0].split("}", 1)[0]
-        return float(raw)
-    trades = int(_num("trades"))
-    max_drawdown_usd = _num("max_drawdown_usd")
+    if str(REPO) not in sys.path:
+        sys.path.insert(0, str(REPO))
+    from engine.entry_v2.tabular_evaluation_policy import load_policy_block_result
+    from engine.entry_v2.tabular_recovery_contracts import RecoveryConfig
+
+    result = load_policy_block_result(path, config=RecoveryConfig())
+    evaluation = result.evidence.evaluation
+    by_asset = {row.asset: row for row in evaluation.by_asset}
+    usd_per_asset_day = {
+        asset: float(row.usd_per_asset_day) for asset, row in by_asset.items()
+    }
+    asset_days = {asset: int(row.asset_days) for asset, row in by_asset.items()}
+    by_day: dict[int, int] = {}
+    by_asset_day: dict[tuple[str, int], list[Any]] = {}
+    for trade in evaluation.trade_results:
+        by_day[trade.trading_day] = by_day.get(trade.trading_day, 0) + 1
+        by_asset_day.setdefault((trade.asset, trade.trading_day), []).append(trade)
+    overlaps = 0
+    for rows in by_asset_day.values():
+        ordered = sorted(rows, key=lambda row: (row.entry_ts_ns, row.candidate_id))
+        overlaps += sum(
+            ordered[index - 1].exit_ts_ns >= ordered[index].entry_ts_ns
+            for index in range(1, len(ordered))
+        )
+    max_entries = max(by_day.values(), default=0)
     return {
         "path": str(path.relative_to(REPO)),
-        "trades": trades,
-        "usd_per_active_portfolio_day": _num("usd_per_active_portfolio_day"),
-        "max_drawdown_usd": max_drawdown_usd,
-        "exact_ceiling_usd": _num("exact_ceiling_usd"),
-        "usd_per_asset_day": None,
+        "trades": evaluation.trades,
+        "usd_per_active_portfolio_day": result.gate.usd_per_active_portfolio_day,
+        "max_drawdown_usd": evaluation.max_drawdown_usd,
+        "exact_ceiling_usd": result.evidence.exact_ceiling_usd,
+        "usd_per_asset_day": usd_per_asset_day,
+        "asset_days": asset_days,
+        "max_entries_portfolio_day": max_entries,
+        "overlap_violations": overlaps,
+        "position_size_mini": result.evidence.position_size_mini,
+        "strict_loaded": True,
         "clears_rungs": block_clears_rungs(
-            trades=trades,
-            max_drawdown_usd=max_drawdown_usd,
-            usd_per_asset_day=None,
+            trades=evaluation.trades,
+            max_drawdown_usd=evaluation.max_drawdown_usd,
+            usd_per_asset_day=usd_per_asset_day,
+            max_entries_portfolio_day=max_entries,
+            overlap_violations=overlaps,
+            position_size_mini=result.evidence.position_size_mini,
+            asset_days=asset_days,
         ),
     }
 
@@ -452,6 +488,10 @@ def _selftest() -> int:
         trades=12,
         max_drawdown_usd=400.0,
         usd_per_asset_day={"HG": 2100.0, "NKD": 1600.0, "SI": 1600.0},
+        max_entries_portfolio_day=12,
+        overlap_violations=0,
+        position_size_mini=1,
+        asset_days=dict(LOCKED_ASSET_DAYS),
     )
     if not passing:
         raise AssertionError("selftest synthetic block must clear the rungs")
@@ -459,9 +499,36 @@ def _selftest() -> int:
         trades=0,
         max_drawdown_usd=0.0,
         usd_per_asset_day={"HG": 2100.0, "NKD": 1600.0, "SI": 1600.0},
+        max_entries_portfolio_day=0,
+        overlap_violations=0,
+        position_size_mini=1,
+        asset_days=dict(LOCKED_ASSET_DAYS),
     )
     if short:
         raise AssertionError("selftest zero-trade block must not clear the rungs")
+    guarded = {
+        "policy_block_dollars_ignored": dict(
+            trades=12, max_drawdown_usd=400.0, usd_per_asset_day=None,
+            max_entries_portfolio_day=12, overlap_violations=0,
+            position_size_mini=1, asset_days=dict(LOCKED_ASSET_DAYS)),
+        "mdd_boundary_inclusive": dict(
+            trades=12, max_drawdown_usd=1000.0,
+            usd_per_asset_day={"HG": 2100.0, "NKD": 1600.0, "SI": 1600.0},
+            max_entries_portfolio_day=12, overlap_violations=0,
+            position_size_mini=1, asset_days=dict(LOCKED_ASSET_DAYS)),
+        "policy_cap_ignored": dict(
+            trades=13, max_drawdown_usd=400.0,
+            usd_per_asset_day={"HG": 2100.0, "NKD": 1600.0, "SI": 1600.0},
+            max_entries_portfolio_day=13, overlap_violations=0,
+            position_size_mini=1, asset_days=dict(LOCKED_ASSET_DAYS)),
+        "policy_overlap_ignored": dict(
+            trades=12, max_drawdown_usd=400.0,
+            usd_per_asset_day={"HG": 2100.0, "NKD": 1600.0, "SI": 1600.0},
+            max_entries_portfolio_day=12, overlap_violations=1,
+            position_size_mini=1, asset_days=dict(LOCKED_ASSET_DAYS)),
+    }
+    if any(block_clears_rungs(**arguments) for arguments in guarded.values()):
+        raise AssertionError("selftest policy-block boundary guard failed")
     verdict, _reason = decide_verdict([{"clears_rungs": True}])
     if verdict != "PASS":
         raise AssertionError(
@@ -491,12 +558,20 @@ def _selftest() -> int:
 
 
 def main() -> int:
-    if "--selftest" in sys.argv[1:]:
+    arguments = sys.argv[1:]
+    if "--selftest" in arguments:
         return _selftest()
-    if "--enter-gap" in sys.argv[1:]:
+    if "--block" in arguments:
+        index = arguments.index("--block")
+        if index + 1 >= len(arguments):
+            raise ValueError("--block requires a QRE2TABPOLICYBLOCK2 path")
+        economics = policy_block_economics(Path(arguments[index + 1]))
+        print(json.dumps(economics, indent=2, sort_keys=True))
+        return 0 if economics["clears_rungs"] else 2
+    if "--enter-gap" in arguments:
         print(json.dumps(enter_gap(), indent=2, sort_keys=True))
         return 0
-    if "--margin-closure" in sys.argv[1:]:
+    if "--margin-closure" in arguments:
         print(json.dumps(margin_closure(), indent=2, sort_keys=True))
         return 0
     if not CONFIRMATION.is_dir():

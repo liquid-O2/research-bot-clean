@@ -1,0 +1,272 @@
+{
+  "amendment": {
+    "anchor_definition": "ceil_second(decision_ts_ns)+age_offset_sec*1000000000",
+    "config_receipt_sha256": "323c1e1f359a3673a4b3b368fcb12f476a447470eb66ac757386ad4f9be5c09b",
+    "off_schedule_age_refused": true,
+    "resolved_grid_seconds": [
+      0,
+      30,
+      60,
+      90,
+      120,
+      180,
+      240,
+      290,
+      300,
+      600,
+      1200,
+      2400,
+      3600,
+      5400,
+      7200,
+      10800
+    ],
+    "ruling": ".audit/briefs/threshold-covering-after-cfit-kill-out.md",
+    "status": "PASS"
+  },
+  "authorized_engine_diff_paths": [
+    "engine/entry_v2/confirmation.py",
+    "engine/entry_v2/confirmation_types.py",
+    "engine/entry_v2/late_teacher.py",
+    "engine/entry_v2/test_confirmation.py",
+    "engine/entry_v2/test_late_teacher.py"
+  ],
+  "candidate_fields_parsed": [
+    "candidate_id",
+    "asset",
+    "d8",
+    "decision_ts_ns",
+    "side",
+    "phase",
+    "phase_open_utc",
+    "phase_close_utc",
+    "entry_mid2",
+    "frozen_cost_usd",
+    "sane_ceiling_usd",
+    "compliance_status"
+  ],
+  "dollar_line_formed": false,
+  "engine_tree_end": {
+    "authorized_diff_paths": [
+      "engine/entry_v2/confirmation.py",
+      "engine/entry_v2/confirmation_types.py",
+      "engine/entry_v2/late_teacher.py",
+      "engine/entry_v2/test_confirmation.py",
+      "engine/entry_v2/test_late_teacher.py"
+    ],
+    "engine_tree_sha256": "a50bd4986f7bb39a0abacb4728d0e7e21528995b50b8ddebb7c541daf013b813",
+    "head": "1559c0cf063c298c4c861d2b7852c88a6df88958"
+  },
+  "engine_tree_start": {
+    "dirty_paths": [],
+    "engine_tree_sha256": "a38249fc72296ecd8b45b98d5b054c5398e97099abe0154195eca185ed7f5e53",
+    "head": "1559c0cf063c298c4c861d2b7852c88a6df88958",
+    "status": "PASS"
+  },
+  "pilot": {
+    "age_10800_ready_rows": 212,
+    "age_10800_strict_reloaded": true,
+    "anchor_definition": "ceil_second(decision_ts_ns)+age_offset_sec*1000000000",
+    "asset": "HG",
+    "builder_run_seconds": [
+      4.922871395945549,
+      4.696063069626689
+    ],
+    "builder_runs_byte_identical": true,
+    "candidate_rows": 307,
+    "d8": 20221003,
+    "formation_teacher_cert_close_byte_equality": true,
+    "formation_teacher_equality_sha256": "eadf428891e25ebcd045af744c57e50ced039ebbee8210637686af122124e30c",
+    "formation_teacher_rows_checked": 307,
+    "future_mutation_differential": {
+      "age_offset_sec": 1200,
+      "asset": "HG",
+      "candidate_id": "QRE2V2-01dcf68bd2edbd7ec1811f31068c5e453cdf8b8b59c13b6bb0346b55538d4e18",
+      "d8": 20221003,
+      "entry_bytes_identical": true,
+      "mutated_event_ordinals": [
+        191728
+      ],
+      "mutated_event_ts_ns": 1664791199846747377,
+      "mutation_is_future": true,
+      "mutation_sha256": "0f34ee830c03c057b3eb3cc17fb53eebe10e143d7dd6ec4466ee4eab9112a7f7",
+      "outcome_changed": true,
+      "snapshot_ts_ns": 1664784802000000000,
+      "status": "PASS"
+    },
+    "label_rows": 4912,
+    "output_sha256": "e2d5d923eb53239a657164d0c19611dd194ab15a0649aeb84ce821a16f24fd0e",
+    "ready_rows_by_age": {
+      "0": 307,
+      "10800": 212,
+      "120": 306,
+      "1200": 298,
+      "180": 305,
+      "240": 305,
+      "2400": 289,
+      "290": 304,
+      "30": 307,
+      "300": 304,
+      "3600": 277,
+      "5400": 263,
+      "60": 307,
+      "600": 302,
+      "7200": 250,
+      "90": 306
+    },
+    "resolved_grid_seconds": [
+      0,
+      30,
+      60,
+      90,
+      120,
+      180,
+      240,
+      290,
+      300,
+      600,
+      1200,
+      2400,
+      3600,
+      5400,
+      7200,
+      10800
+    ],
+    "snapshots_past_600_emitted_and_priced": true,
+    "status": "PASS",
+    "strict_reload_rows": 4912
+  },
+  "projection": {
+    "holds": true,
+    "locked_asset_day_total": 582,
+    "locked_asset_days": {
+      "HG": 197,
+      "NKD": 194,
+      "SI": 191
+    },
+    "measured_full_grid_pilot_seconds": 4.922871395945549,
+    "measured_projection_seconds": 220.3931655723315,
+    "projected_seconds": 951.0328886153845,
+    "status": "PASS",
+    "ticket45_reference_seconds": 11.949189,
+    "ticket46_age_multiplier": 1.7777777777777777,
+    "ticket46_reference_projection_seconds": 951.0328886153845,
+    "tripwire_seconds": 7200,
+    "worker_budget": 13
+  },
+  "protected_trees_after": {
+    "candidates": {
+      "bytes": 593053587,
+      "files": 4096,
+      "tree_sha256": "3b9555dff1a75899593319fff91a0b1f69cd6be7c32752ff5edbc53b622656a8"
+    },
+    "pivot": {
+      "bytes": 152838555,
+      "files": 3631,
+      "tree_sha256": "59ca23752f1230f6139a6e28a601f6a82938363b9abb3e54f422d9f21292549f"
+    },
+    "receipts": {
+      "bytes": 8917291,
+      "files": 8198,
+      "tree_sha256": "9e1f3b0470975f00126d35a30e98dd176de73e3fff7cb23650f8ecb1c3835920"
+    },
+    "teacher": {
+      "bytes": 170848932,
+      "files": 4096,
+      "tree_sha256": "5df243eab8b2d7c65fd56cff0c6655db675a4840bf7fcae9504f227308861306"
+    }
+  },
+  "protected_trees_before": {
+    "candidates": {
+      "bytes": 593053587,
+      "files": 4096,
+      "tree_sha256": "3b9555dff1a75899593319fff91a0b1f69cd6be7c32752ff5edbc53b622656a8"
+    },
+    "pivot": {
+      "bytes": 152838555,
+      "files": 3631,
+      "tree_sha256": "59ca23752f1230f6139a6e28a601f6a82938363b9abb3e54f422d9f21292549f"
+    },
+    "receipts": {
+      "bytes": 8917291,
+      "files": 8198,
+      "tree_sha256": "9e1f3b0470975f00126d35a30e98dd176de73e3fff7cb23650f8ecb1c3835920"
+    },
+    "teacher": {
+      "bytes": 170848932,
+      "files": 4096,
+      "tree_sha256": "5df243eab8b2d7c65fd56cff0c6655db675a4840bf7fcae9504f227308861306"
+    }
+  },
+  "publication": {
+    "manifest": "artifacts/cache/port/entry_v2/g1/late/manifest.tsv",
+    "manifest_sha256": "d65eddc1009d3de9efd25e54225b74d1e7b928f2d438239eb3bc336759bd5e47",
+    "root": "artifacts/cache/port/entry_v2/g1/late",
+    "rows": 4912,
+    "schema": "QRE2G1LATETEACH1",
+    "shard": "artifacts/cache/port/entry_v2/g1/late/HG/20221003.tsv",
+    "shard_sha256": "e2d5d923eb53239a657164d0c19611dd194ab15a0649aeb84ce821a16f24fd0e",
+    "status": "PASS",
+    "strict_reloaded": true
+  },
+  "red_first": {
+    "command": "python3 -m unittest engine.entry_v2.test_confirmation.CorpusAgeGrid.test_late_grid_resolves_the_preregistered_schedule engine.entry_v2.test_confirmation.CorpusAgeGrid.test_late_grid_refuses_an_off_schedule_age",
+    "exit_code": 1,
+    "failure": "ConfirmationRefusal: max_delay_sec must be 300 or 600",
+    "observed_before_implementation": true,
+    "status": "PASS"
+  },
+  "schema": "QRE2THRESHOLDB0STAGE01",
+  "selftest": {
+    "command": "/usr/bin/python3 -m unittest engine.entry_v2.test_late_teacher engine.entry_v2.test_confirmation.CorpusAgeGrid",
+    "mutants": {
+      "off_schedule_age_accepted": "RED"
+    },
+    "status": "PASS",
+    "stderr_sha256": "82c077692b3d8879750fc948364f41f8177b094f0e47a923c25163366b892d81",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "sources": {
+    ".audit/briefs/threshold-covering-after-cfit-kill-out.md": "752f2078c2fc3a68c5d66761b169655e1e2a734310446d9b9f811175be927321",
+    ".audit/briefs/threshold-covering-after-s1-fable-out.md": "d072aab48fd060a5a04ac72a323233f9bb3cb3468d6ca97e2b71965215abf447",
+    ".audit/score_h5_top2.py": "391194173b25e34f16a5a064ac0e3aa5d18453323ac3008eb5001073fb6b21cb",
+    ".audit/score_threshold_2022_2024_ceiling.py": "e60f1daf3ead475b5dd5e47192a4e6bf9b679ef5f2af083a19cb4a6ee11328f9",
+    ".audit/threshold-2022-2024-ceiling.json": "b406de8415e7cdb17e953676022385c219ac9f931cc4a5337d387077ef1e3e95",
+    ".audit/threshold_b0_stage0.py": "14af1e6980c5eaf43d89601b2d26528fa5e43aa6569e05619d1577c5206c6356",
+    ".audit/threshold_pivot_stage0.py": "3d1916cd203eab4f02e2754f743c7d3c3cbc580f4470e6265821e627c13a5083",
+    ".audit/ticket45-HG-20221003-cache.json": "b3ffdf508e5e98afbbf8eadd2dcb29eebb7b2e9f84893b2a17806f9e6d00289b",
+    "artifacts/cache/port/entry_v2/events/HG/20221003.qre2": "2b262692c42b292c5633cff55ae44d43db7fe31587f7d45c1af0a82d71b38b15",
+    "artifacts/cache/port/entry_v2/events/HG/20221003.qre2.json": "039e286d56561d01c3e526edc35713a2fb70364598359d6f4972a656d64f7346",
+    "artifacts/cache/port/entry_v2/g1/candidates/HG/20221003.tsv": "0f636e19cd06e9f7b48b2a812913d307587a95fe5e8949445c31869dda262f9f",
+    "artifacts/cache/port/entry_v2/g1/teacher/HG/20221003.tsv": "6252ba5c58ee846d38a8a68aadb859e4315a79583c0771d96a73514ba5503bb1",
+    "design/entry_reset/tickets/46-extended-age-grid.md": "848799a24097c8207adf94a3364b6a081514f2428a254f7c08d59d93ea811ae8",
+    "engine/entry_v2/confirmation.py": "2c0a7f504bfc6bdcbf7fc54530bc640f263c444ada4e54316fa324a8fcab1b90",
+    "engine/entry_v2/confirmation_types.py": "6d967674f042967bc18e23d2f230ec6ee652ae4f49d9de3bca406a4496becc20",
+    "engine/entry_v2/late_teacher.py": "0b9d7ca0098ec05bae5f5aeb7ced486535c2be7b3388dc8ca7a4cce5478657a7",
+    "engine/entry_v2/test_confirmation.py": "9a29051d14838d50c16ae9057110b2917ad0d19426e4300b869e6b985241e4ba",
+    "engine/entry_v2/test_late_teacher.py": "1f3df13b062921ea08b396d095502980ee17591716e446008b78544d79740adf"
+  },
+  "stage1_started": false,
+  "status": "PASS",
+  "stored_candidate_tree_rewritten": false,
+  "stored_pivot_tree_rewritten": false,
+  "stored_receipts_tree_rewritten": false,
+  "stored_teacher_tree_rewritten": false,
+  "teacher_fields_parsed": [
+    "candidate_id",
+    "asset",
+    "d8",
+    "decision_ts_ns",
+    "phase_close_utc",
+    "status",
+    "cert_close_usd",
+    "compliance_status"
+  ],
+  "ticket_46_at_scale_started": false,
+  "ticket_46_scope": "amendment_and_one_session_pilot_only",
+  "tickets_37_47_started": false,
+  "tripwire_seconds": 7200,
+  "unit": "B0_STAGE0",
+  "wall_clock_seconds": 264.57491579279304,
+  "worker_budget": 13
+}

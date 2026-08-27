@@ -32,6 +32,7 @@ provenance/entry_v2/.entry-v2-durable-store/
 # Secrets and vendor prompt dumps stay off GitHub. They still ride R2.
 /.secrets/
 .codex/sol-system-prompt.md
+.codex/sol-instructions.md
 .opencode/node_modules/
 
 # Ticket 45 session arrays are bulk. JSON receipts in .audit/ stay.

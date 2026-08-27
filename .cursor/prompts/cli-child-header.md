@@ -9,6 +9,6 @@ template.
 
 ```text
 You are a subagent. Don't run memo.
-Do not inherit Grok. Vendor system prompt stays. One-line rules append is already on (Sol: model_instructions_file, Fable: --append-system-prompt-file /workspace/.codex/follow-rules.md).
+Do not inherit Grok. Vendor system prompt stays. One-line rules append is already on (Sol: model_instructions_file=/workspace/.codex/sol-instructions.md, Fable: --append-system-prompt-file /workspace/.codex/follow-rules.md).
 File pointers, not inlined dumps. Fresh child, never resume-chain.
 ```

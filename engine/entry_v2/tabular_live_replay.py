@@ -6,7 +6,7 @@ from dataclasses import asdict,dataclass,replace
 import json
 from pathlib import Path
 from types import MappingProxyType
-from typing import Final, Mapping, Sequence
+from typing import Final, Mapping, Sequence, TypeAlias
 
 import numpy as np
 
@@ -36,6 +36,8 @@ from .tabular_model_io import predict_action_regret
 
 LIVE_REPLAY_SCHEMA: Final="QRE2TABLIVEREPLAY3"
 TRACE_STORE_SCHEMA: Final="QRE2TABLIVETRACESTORE1"
+FROZEN_RULE_REPLAY_SCHEMA: Final="QRE2FROZENRULETRACE1"
+FROZEN_RULE_TRACE_STORE_SCHEMA: Final="QRE2FROZENRULETRACESTORE1"
 # A1 diagnosis (design/A1_MARGIN_RULE_SPEC.md item 2).  ARGMIN is the frozen
 # chain default; MARGIN is CALIBRATED-only and reached by explicit argument.
 POLICY_MODES: Final=("ARGMIN","MARGIN")
@@ -165,6 +167,94 @@ def _arrival_from_payload(value:Mapping[str,object])->ScoredArrival:
     example=CausalEntryExample(**example_raw)
     return ScoredArrival(example,EntryScore(**raw["score"]),
                          ReplayOutcome(**raw["outcome"]))
+
+
+def _source_lineage(value:Sequence[Sequence[str]],name:str
+                    )->tuple[tuple[str,str],...]:
+    rows=tuple((str(row[0]),str(row[1])) for row in value if len(row)==2)
+    if (len(rows)!=len(value) or not rows
+            or tuple(sorted(rows))!=rows
+            or len({path for path,_sha in rows})!=len(rows)
+            or any(not path or len(sha)!=64 for path,sha in rows)):
+        raise RecoveryRefusal(f"frozen rule {name} lineage is malformed")
+    return rows
+
+
+@dataclass(frozen=True,slots=True)
+class FrozenRuleDayTrace:
+    trading_day:int
+    rule_name:str
+    rule_sha256:str
+    age_seconds:int
+    selected_opportunity_ids:tuple[str,...]
+    arrivals:tuple[ScoredArrival,...]
+    candidate_receipt_sha256s:tuple[tuple[str,str],...]
+    candidate_sha256s:tuple[tuple[str,str],...]
+    event_pack_sha256s:tuple[tuple[str,str],...]
+    selected_by_cell_sha256:str
+    receipt_sha256:str
+
+    @classmethod
+    def create(cls,*,trading_day:int,rule_name:str,rule_sha256:str,
+            age_seconds:int,selected_opportunity_ids:Sequence[str],
+            arrivals:Sequence[ScoredArrival],
+            candidate_receipt_sha256s:Sequence[Sequence[str]],
+            candidate_sha256s:Sequence[Sequence[str]],
+            event_pack_sha256s:Sequence[Sequence[str]],
+            selected_by_cell_sha256:str)->"FrozenRuleDayTrace":
+        selected=tuple(map(str,selected_opportunity_ids));arrival_rows=tuple(arrivals)
+        candidate_receipts=_source_lineage(
+            candidate_receipt_sha256s,"candidate receipt")
+        candidates=_source_lineage(candidate_sha256s,"candidate")
+        event_packs=_source_lineage(event_pack_sha256s,"EventPack")
+        core={"schema":FROZEN_RULE_REPLAY_SCHEMA,"day":int(trading_day),
+              "rule_name":str(rule_name),"rule_sha256":str(rule_sha256),
+              "age_seconds":int(age_seconds),"selected":selected,
+              "arrivals":tuple(_arrival_payload(row) for row in arrival_rows),
+              "candidate_receipts":candidate_receipts,
+              "candidates":candidates,"event_packs":event_packs,
+              "selected_by_cell_sha256":str(selected_by_cell_sha256),
+              "h2_open_count":0}
+        result=cls(int(trading_day),str(rule_name),str(rule_sha256),
+            int(age_seconds),selected,arrival_rows,candidate_receipts,candidates,
+            event_packs,str(selected_by_cell_sha256),C.object_sha256(core))
+        result.__post_init__();return result
+
+    def __post_init__(self)->None:
+        C.guard_date(self.trading_day)
+        candidate_receipts=_source_lineage(
+            self.candidate_receipt_sha256s,"candidate receipt")
+        candidates=_source_lineage(self.candidate_sha256s,"candidate")
+        event_packs=_source_lineage(self.event_pack_sha256s,"EventPack")
+        if (not self.rule_name or len(self.rule_sha256)!=64
+                or self.age_seconds<=0
+                or len(self.selected_by_cell_sha256)!=64
+                or len(self.receipt_sha256)!=64
+                or len(self.selected_opportunity_ids)
+                   !=len(set(self.selected_opportunity_ids))
+                or tuple(row.example.candidate_id for row in self.arrivals)
+                   !=self.selected_opportunity_ids
+                or any(row.example.trading_day!=self.trading_day
+                       or row.score.model_hash!=self.rule_sha256
+                       or dict(row.example.causal_features)
+                          !={"frozen_rule_snapshot_present":1.0}
+                       for row in self.arrivals)):
+            raise RecoveryRefusal("frozen rule day trace is malformed")
+        core={"schema":FROZEN_RULE_REPLAY_SCHEMA,"day":self.trading_day,
+              "rule_name":self.rule_name,"rule_sha256":self.rule_sha256,
+              "age_seconds":self.age_seconds,
+              "selected":self.selected_opportunity_ids,
+              "arrivals":tuple(_arrival_payload(row) for row in self.arrivals),
+              "candidate_receipts":candidate_receipts,
+              "candidates":candidates,"event_packs":event_packs,
+              "selected_by_cell_sha256":self.selected_by_cell_sha256,
+              "h2_open_count":0}
+        if C.object_sha256(core)!=self.receipt_sha256:
+            raise RecoveryRefusal("frozen rule day trace receipt differs")
+
+
+LearnedPolicyDayTrace=PolicyDayTrace
+PolicyTrace:TypeAlias=LearnedPolicyDayTrace|FrozenRuleDayTrace
 
 
 def _label_free_live_arrival(base:ScoredArrival,score:EntryScore)->ScoredArrival:
@@ -507,9 +597,31 @@ def replay_policy_day(*,universe:DayOptionUniverse,
     result.__post_init__();return result
 
 
-def save_policy_day_trace(trace:PolicyDayTrace,path:str|Path)->str:
+def save_policy_day_trace(trace:PolicyTrace,path:str|Path)->str:
     """Persist exact live EntryScores/outcomes for restartable block replay."""
 
+    if isinstance(trace,FrozenRuleDayTrace):
+        trace.__post_init__();target=C.assert_workspace_output(path)
+        value={"trading_day":trace.trading_day,"rule_name":trace.rule_name,
+            "rule_sha256":trace.rule_sha256,"age_seconds":trace.age_seconds,
+            "selected_opportunity_ids":trace.selected_opportunity_ids,
+            "arrivals":tuple(_arrival_payload(row) for row in trace.arrivals),
+            "candidate_receipt_sha256s":trace.candidate_receipt_sha256s,
+            "candidate_sha256s":trace.candidate_sha256s,
+            "event_pack_sha256s":trace.event_pack_sha256s,
+            "selected_by_cell_sha256":trace.selected_by_cell_sha256,
+            "trace_receipt_sha256":trace.receipt_sha256}
+        core={"schema":FROZEN_RULE_TRACE_STORE_SCHEMA,"trace":value,
+              "h2_open_count":0}
+        payload={**core,"receipt_sha256":C.object_sha256(core)}
+        raw=C.canonical_bytes(payload)
+        if target.is_file():
+            if target.read_bytes()!=raw:
+                raise RecoveryRefusal("resumed frozen rule trace differs")
+            return C.file_sha256(target)
+        return C.atomic_json(target,payload)
+    if not isinstance(trace,PolicyDayTrace):
+        raise RecoveryRefusal("policy day trace variant is unknown")
     trace.__post_init__();target=C.assert_workspace_output(path)
     proposals=tuple({"opportunity_id":row.opportunity_id,
         "condition":asdict(row.condition),"predicted_action":row.predicted_action.value}
@@ -534,15 +646,29 @@ def save_policy_day_trace(trace:PolicyDayTrace,path:str|Path)->str:
     return C.atomic_json(target,{**core,"receipt_sha256":C.object_sha256(core)})
 
 
-def load_policy_day_trace(path:str|Path)->PolicyDayTrace:
+def load_policy_day_trace(path:str|Path)->PolicyTrace:
     source=Path(path);C.guard_payload(source)
     try:payload=json.loads(source.read_text())
     except (OSError,UnicodeError,json.JSONDecodeError) as exc:
         raise RecoveryRefusal("cannot strict-load live policy trace") from exc
     core={key:value for key,value in payload.items() if key!="receipt_sha256"}
-    if (payload.get("schema")!=TRACE_STORE_SCHEMA
-            or C.object_sha256(core)!=payload.get("receipt_sha256")):
+    if C.object_sha256(core)!=payload.get("receipt_sha256"):
         raise RecoveryRefusal("live policy trace store receipt differs")
+    if payload.get("schema")==FROZEN_RULE_TRACE_STORE_SCHEMA:
+        value=dict(payload["trace"])
+        result=FrozenRuleDayTrace(
+            int(value["trading_day"]),str(value["rule_name"]),
+            str(value["rule_sha256"]),int(value["age_seconds"]),
+            tuple(map(str,value["selected_opportunity_ids"])),
+            tuple(_arrival_from_payload(row) for row in value["arrivals"]),
+            tuple(tuple(map(str,row)) for row in value["candidate_receipt_sha256s"]),
+            tuple(tuple(map(str,row)) for row in value["candidate_sha256s"]),
+            tuple(tuple(map(str,row)) for row in value["event_pack_sha256s"]),
+            str(value["selected_by_cell_sha256"]),
+            str(value["trace_receipt_sha256"]))
+        result.__post_init__();return result
+    if payload.get("schema")!=TRACE_STORE_SCHEMA:
+        raise RecoveryRefusal("live policy trace store schema differs")
     value=dict(payload["trace"]);proposals=[]
     for raw in value["proposals"]:
         condition=dict(raw["condition"])
@@ -568,12 +694,18 @@ def load_policy_day_trace(path:str|Path)->PolicyDayTrace:
     result.__post_init__();return result
 
 
-def replay_policy_block(traces:Sequence[PolicyDayTrace],*,
+def replay_policy_block(traces:Sequence[PolicyTrace],*,
         expected_sessions:Sequence[SessionRef],
         exact_ceiling_cents_by_day:Mapping[int,int],
         exact_ceiling_cents_by_asset:Mapping[str,int])->BlockReplayEvidence:
     rows=tuple(sorted(traces,key=lambda row:row.trading_day))
     if not rows:raise RecoveryRefusal("live replay block has no day traces")
+    if len({row.trading_day for row in rows})!=len(rows):
+        raise RecoveryRefusal("live replay block repeats a trading day")
+    learned=all(isinstance(row,PolicyDayTrace) for row in rows)
+    frozen=all(isinstance(row,FrozenRuleDayTrace) for row in rows)
+    if not (learned or frozen):
+        raise RecoveryRefusal("live replay block mixes trace variants")
     if (set(exact_ceiling_cents_by_day)!={row.trading_day for row in rows}
             or any(int(value)<0 for value in exact_ceiling_cents_by_day.values())):
         raise RecoveryRefusal("live replay exact day ceilings differ from traces")
@@ -583,7 +715,12 @@ def replay_policy_block(traces:Sequence[PolicyDayTrace],*,
                !=sum(int(value) for value in exact_ceiling_cents_by_day.values())):
         raise RecoveryRefusal("live replay per-asset exact ceilings differ")
     arrivals=tuple(item for row in rows for item in row.arrivals)
-    if not arrivals:arrivals=(rows[0].rejected_fallback,)
+    if not arrivals:
+        if frozen:
+            raise RecoveryRefusal("frozen rule replay block has no arrivals")
+        first=rows[0]
+        assert isinstance(first,PolicyDayTrace)
+        arrivals=(first.rejected_fallback,)
     evaluation=replay(arrivals,expected_sessions=tuple(expected_sessions))
     expected_days=tuple(sorted({row.trading_day for row in expected_sessions}))
     eligible=tuple(sorted({(row.asset,row.trading_day) for row in expected_sessions}))
@@ -596,7 +733,9 @@ def replay_policy_block(traces:Sequence[PolicyDayTrace],*,
         expected_days,active,eligible,by_asset,1)
 
 
-__all__=["LIVE_REPLAY_SCHEMA","POLICY_MODES","PolicyDayTrace",
-         "TRACE_STORE_SCHEMA","load_policy_day_trace","policy_mode_core_key",
+__all__=["FROZEN_RULE_REPLAY_SCHEMA","FROZEN_RULE_TRACE_STORE_SCHEMA",
+         "FrozenRuleDayTrace","LIVE_REPLAY_SCHEMA","LearnedPolicyDayTrace",
+         "POLICY_MODES","PolicyDayTrace","PolicyTrace","TRACE_STORE_SCHEMA",
+         "load_policy_day_trace","policy_mode_core_key",
          "replay_policy_block","replay_policy_day","save_policy_day_trace",
          "walkable_row_mask"]

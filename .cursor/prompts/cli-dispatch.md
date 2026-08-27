@@ -7,7 +7,7 @@ Same brief the Cursor skill would pass to `Task`. Envelope first
 | Role | Cursor Task | CLI | Brief after the envelope |
 |---|---|---|---|
 | Playbook worker | `poteto-agent` | Grok `spawn_subagent` poteto-agent | poteto-mode SKILL.md, then the playbook |
-| Specified walk | poteto-agent, model `gpt-5.6-sol-max` | `codex exec -m gpt-5.6-sol-max -c model_instructions_file="/workspace/.codex/follow-rules.md" -c model_reasoning_effort="high"` | The live unit brief (example: `.audit/briefs/threshold-cfit-stage0.md`) |
+| Specified walk | poteto-agent, model `gpt-5.6-sol-max` | `codex exec -m gpt-5.6-sol -c model_instructions_file="/workspace/.codex/sol-instructions.md" -c model_reasoning_effort="max"` | The live unit brief (example: `.audit/briefs/threshold-cfit-stage0.md`) |
 | Covering designer | Fable max | `claude -p --append-system-prompt-file /workspace/.codex/follow-rules.md` | `.cursor/prompts/threshold-covering.md` |
 | Covering peer | Sol max, same prompt | same `codex exec` line | same covering file. Parallel. Does not then execute its own map |
 | Stage judge | Fable max | Fable CLI | the receipt path plus the covering map |

@@ -18,7 +18,7 @@ from .confirmation_dataset import ( ConfirmationDataset, ConfirmationOpportunity
     combine_confirmation_datasets, combine_confirmation_opportunity_sets, )
 from .confirmation_index import _OutcomeIndex
 from .confirmation_plane import _SessionPlane
-from .confirmation_types import ( AGE_GRIDS, CORPUS_AGE_GRID_SECONDS, DATASET_SCHEMA, FEATURE_WINDOWS_SECONDS,
+from .confirmation_types import ( AGE_GRIDS, CORPUS_AGE_GRID_SECONDS, LATE_AGE_GRID_SECONDS, DATASET_SCHEMA, FEATURE_WINDOWS_SECONDS,
     FEE_USD, GOAL_USD, NANOS_PER_SECOND, RECEIPT_SCHEMA, SCHEMA, WALL_USD,
     ConfirmationAnchor, ConfirmationConfig, ConfirmationOutcome,
     ConfirmationRefusal, StreamConservationReceipt, _ceil_second,
@@ -484,7 +484,7 @@ def materialize_confirmation_paths( event_path: os.PathLike[str] | str,
         pack.close()
 
 
-__all__ = [ "AGE_GRIDS", "CORPUS_AGE_GRID_SECONDS", "DATASET_SCHEMA",
+__all__ = [ "AGE_GRIDS", "CORPUS_AGE_GRID_SECONDS", "LATE_AGE_GRID_SECONDS", "DATASET_SCHEMA",
     "FEATURE_WINDOWS_SECONDS", "FEE_USD", "GOAL_USD", "NANOS_PER_SECOND",
     "RECEIPT_SCHEMA", "SCHEMA", "WALL_USD", "ConfirmationAnchor",
     "ConfirmationConfig", "ConfirmationDataset", "ConfirmationOpportunitySet",

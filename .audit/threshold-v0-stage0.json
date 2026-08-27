@@ -1,0 +1,178 @@
+{
+  "asset_chain_workers": 3,
+  "dollar_line_formed": false,
+  "dollar_line_reads": 0,
+  "engine_tree_start": {
+    "engine_tree_sha256": "a50bd4986f7bb39a0abacb4728d0e7e21528995b50b8ddebb7c541daf013b813",
+    "expected_engine_tree_sha256": "a50bd4986f7bb39a0abacb4728d0e7e21528995b50b8ddebb7c541daf013b813",
+    "head": "1559c0cf063c298c4c861d2b7852c88a6df88958",
+    "status": "PASS"
+  },
+  "exit_overlay_started": false,
+  "fit_started": false,
+  "gate_source_precondition": {
+    "compatible_qre2forecast4_assets": [],
+    "day_membership_formed": false,
+    "era_gate_source": {
+      "first_data_day": "2022-03-09",
+      "gate_schema_compatible": true,
+      "header_bytes_read": 210,
+      "later_rows_read": 0,
+      "path": "artifacts/runs/e6_vol_forecasts_v2/vol_service_forecasts.tsv",
+      "qre2forecast4": false
+    },
+    "pinned_functions": [
+      "load_window_forecast_rows",
+      "route_catboost_daily",
+      "select_expanding_median"
+    ],
+    "qre2forecast4": {
+      "HG": {
+        "asset": "HG",
+        "columns_sha256": "f9b38980592cac392e43aff2620f9b88b486aaca93a15a61b766a78cc728a51e",
+        "data_rows_read": 0,
+        "end_d8_exclusive": 20250701,
+        "gate_schema_compatible": false,
+        "header_bytes_read": 993,
+        "missing_gate_fields": [
+          "arm",
+          "day",
+          "forecast_variance",
+          "head",
+          "outer_fold",
+          "train_sessions_n"
+        ],
+        "path": "artifacts/cache/port/entry_v2/forecast/HG.qrf4.tsv",
+        "spans_2025": true,
+        "start_d8": 20210101
+      },
+      "NKD": {
+        "asset": "NKD",
+        "columns_sha256": "f9b38980592cac392e43aff2620f9b88b486aaca93a15a61b766a78cc728a51e",
+        "data_rows_read": 0,
+        "end_d8_exclusive": 20250701,
+        "gate_schema_compatible": false,
+        "header_bytes_read": 994,
+        "missing_gate_fields": [
+          "arm",
+          "day",
+          "forecast_variance",
+          "head",
+          "outer_fold",
+          "train_sessions_n"
+        ],
+        "path": "artifacts/cache/port/entry_v2/forecast/NKD.qrf4.tsv",
+        "spans_2025": true,
+        "start_d8": 20210101
+      },
+      "SI": {
+        "asset": "SI",
+        "columns_sha256": "f9b38980592cac392e43aff2620f9b88b486aaca93a15a61b766a78cc728a51e",
+        "data_rows_read": 0,
+        "end_d8_exclusive": 20250701,
+        "gate_schema_compatible": false,
+        "header_bytes_read": 993,
+        "missing_gate_fields": [
+          "arm",
+          "day",
+          "forecast_variance",
+          "head",
+          "outer_fold",
+          "train_sessions_n"
+        ],
+        "path": "artifacts/cache/port/entry_v2/forecast/SI.qrf4.tsv",
+        "spans_2025": true,
+        "start_d8": 20210101
+      }
+    },
+    "reason": "the pinned gate loader schema and the named QRE2FORECAST4 schema do not intersect on the frozen gate fields; choosing a QRE2FORECAST4 value as forecast_variance would amend the frozen rule",
+    "required_loader_fields": [
+      "arm",
+      "day",
+      "forecast_variance",
+      "head",
+      "outer_fold",
+      "train_sessions_n"
+    ],
+    "routed_counts_by_asset": {
+      "HG": 0,
+      "NKD": 0,
+      "SI": 0
+    },
+    "selected_counts_by_asset": {
+      "HG": 0,
+      "NKD": 0,
+      "SI": 0
+    },
+    "status": "STOP",
+    "window": {
+      "end_d8_exclusive": 20220101,
+      "start_d8": 20210101
+    }
+  },
+  "late2021_shards_written": 0,
+  "late2021_tree_created": false,
+  "locked_era_late_store_exists": true,
+  "locked_era_late_store_opened": false,
+  "locked_era_late_store_written": false,
+  "manifest_published": false,
+  "replay_freeze_started": false,
+  "runner_year_2025_data_rows_read": 0,
+  "schema": "QRE2THRESHOLDV0STAGE01",
+  "scope_guard": {
+    "data_rows_read": "UNKNOWN_POSITIVE",
+    "half": "H1",
+    "occurred_before_guarded_runner": true,
+    "paths": [
+      "artifacts/runs/e6_vol_forecasts_v2/vol_service_forecasts.tsv",
+      "artifacts/cache/port/entry_v2/forecast/HG.qrf4.tsv",
+      "artifacts/cache/port/entry_v2/forecast/NKD.qrf4.tsv",
+      "artifacts/cache/port/entry_v2/forecast/SI.qrf4.tsv"
+    ],
+    "reason": "diagnostic census commands streamed mixed-window files through EOF",
+    "status": "STOP",
+    "writes": 0,
+    "year": 2025
+  },
+  "selftest": {
+    "mutants": {
+      "gate_schema_mismatch_accepted": "RED"
+    },
+    "qre2forecast4_assets": [
+      "HG",
+      "NKD",
+      "SI"
+    ],
+    "qre2forecast4_data_rows_read": 0,
+    "status": "PASS"
+  },
+  "sources": {
+    ".audit/briefs/threshold-b2-price-picker-judge-out.md": "a7e2b64a698e113467399523a90bd932a1cc12eee9671704191c58de0194952d",
+    ".audit/briefs/threshold-covering-after-b2-fable-out.md": "e0dc78a61244ad438e1012e68d7ba8ca23eb0c8235387873f885f154da3d84c5",
+    ".audit/briefs/threshold-v0-stage0.md": "e4df46a6c72def33e8a52c0ce1a935be98a82636165080a3c6175c1eb7dc012a",
+    ".audit/score_threshold_2022_2024_ceiling.py": "e60f1daf3ead475b5dd5e47192a4e6bf9b679ef5f2af083a19cb4a6ee11328f9",
+    ".audit/score_threshold_2022_2024_read.py": "63b15944ba21b808e28e792330061f6e1a908a77a56e1bbfcb8c69aff36e2d3d",
+    ".audit/threshold-b0-stage0.json": "9513201ddac141b14b6fd990e57eb2176484da4dd5b7090454a88640570dafcb",
+    ".audit/threshold-b2-price-picker.json": "0b4e14f6fc01d5feae089cf4d7e86a9050bb6f5313902fc21d3756c27cc18def",
+    ".audit/threshold_b0_stage0.py": "14af1e6980c5eaf43d89601b2d26528fa5e43aa6569e05619d1577c5206c6356",
+    ".audit/threshold_v0_stage0.py": "c99f77d1485e08ed5dc9e5cd83b3fa164fe83bbb1351ba40ba64bce5f22e2c2a"
+  },
+  "stage1_started": false,
+  "status": "STOP",
+  "stop_reason": "V0Stop: 2025H1 forecast bytes were read by pre-run diagnostic census commands; the frozen no-2025 guard fired",
+  "tickets_37_46_47_started": false,
+  "tripwire_seconds": 7200,
+  "unit": "V0_STAGE0",
+  "wall_clock_seconds": 2.7907455060631037,
+  "window": {
+    "end_d8_exclusive": 20220101,
+    "start_d8": 20210101
+  },
+  "worker_budget": 13,
+  "workers_by_asset": {
+    "HG": 5,
+    "NKD": 4,
+    "SI": 4
+  },
+  "year_2025_data_rows_read": "UNKNOWN_POSITIVE"
+}

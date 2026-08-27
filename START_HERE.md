@@ -12,33 +12,54 @@ candidate generator is frozen. 2025H2 is sealed.
 **Read this file first.** Every host, every model. Compaction summaries are
 not the record. `MEMORY.md` plus this page are.
 
-## Live cursor (2026-08-26)
+## Live cursor (2026-08-27)
 
 The 2022-2024 ceiling is already known. Do not re-prove it. Capture miss is
 the work. `.audit/threshold-capture-gap.json` verdict MISS. Identity is 99.98%
 of the $2.09M gap. Cell-best on the gated join: HG 2758.95 / NKD 3815.22 /
 SI 3880.47 (`.audit/threshold-2022-2024-ceiling.json`).
 
-Every unfitted stored read is closed (scalars, rank, fit-name, stored name
-rules, tape name rules, 2021 feature-rank). G1 pivot-birth tags exist for the
-2021 prefix only. Stage 0 PASS. Stage 1 KILL
-(`.audit/briefs/threshold-pivot-stage1-judge-out.md`): unfitted geometry at
-age 180 missed every 2021 THRESHOLD rung. Stage 2 is not authorized.
+Every unfitted stored read is closed. Pivot Stage 1 KILL closed unfitted
+geometry at age 180. C Stage 0 PASS, C Stage 1 KILL
+(`.audit/briefs/threshold-cfit-stage1-judge-out.md`): fitted identity at age
+180 posted HG -173.50 / NKD +31.20 / SI -150.45, MDD 75608.75. No second C
+config. S0 LIVE. Oracle side plus within-side price posts 2753.53 / 3806.71 /
+3869.82, MDD 192.50 (`.audit/briefs/threshold-side-split-judge-out.md`). S1
+KILL. Causal within-side at 180 cannot carry the rungs even with oracle side
+(`.audit/briefs/threshold-s1-sidecaller-judge-out.md`). Covering after that
+KILL named **B0**, mechanism-funded by late-arriving extremes
+(`.audit/briefs/threshold-covering-after-s1-fable-out.md`).
 
-Covering map after that KILL (Fable, `.audit/briefs/threshold-covering-after-pivot-kill-out.md`):
-**next unit is C**, one fitted name pick at age 180. Stage 0 brief:
-`.audit/briefs/threshold-cfit-stage0.md` (era pivot tags 20210807-20241231,
-do not rewrite 2021, do not fit). Stage 1 is the fit and does not start until
-Stage 0 PASS is judged. B (late ages) waits until C dies. Tickets 37, 46, 47
-stay unstarted. 2021 can kill. 2021 cannot promote. 2025H2 stays sealed.
+B0 Stage 0 PASS. B0 Stage 1 LIVE, Fable judged from the bytes
+(`.audit/briefs/threshold-b0-stage1-judge-out.md`). Age-600 cell-best posts
+2726.81 / 3775.72 / 3847.62, envelope 2874.91 / 3942.93 / 4058.61, MDD 0,
+max 9 entries. HG at 10800 s misses (1582.77). `picker_started` is false.
+B2 LIVE, Fable judged
+(`.audit/briefs/threshold-b2-price-picker-judge-out.md`).
+`recside_effprice_all` HG 600 / NKD 600 / SI 2400 posts 2059.78 / 2653.88 /
+2987.05, MDD 967.50. Teacher-cash cannot promote. Covering after that LIVE named **V0**. Sol peer named B3 common-clock
+replay, recorded not executed
+(`.audit/briefs/threshold-covering-after-b2-sol-out.md`). V0 Stage 0 STOP, Fable judged
+(`.audit/briefs/threshold-v0-stage0-judge-out.md`). Frozen era gate cannot
+run on 2021. Census streamed 2025H1 forecast headers. No 2021 late store.
+2021 license unspent. Covering after that STOP named **B3**, age-2400
+common-clock record-side causal replay
+(`.audit/briefs/threshold-covering-after-v0-stop-fable-out.md`). Sol named
+the same shape. B2 LIVE stays an optimistic batch cap, not an executable
+clock. B3 STOP, Fable judged
+(`.audit/briefs/threshold-b3-common-clock-judge-out.md`).
+`cell identity differs: HG/20221107/0`. Two phase-0 instances in one HG
+day file. No strict block. No dollar line. Causal clock question unanswered.
+Parent stopped per USER 2026-08-27. No covering after B3. Exit overlay
+forbidden. Tickets 37 and 47 stay unstarted.
+2021 can kill. 2021 cannot promote. 2025H2 stays sealed.
 
 Cursor Ultra is exhausted (~97% monthly). Do not use Cursor as the overnight
-parent. Daily parent is this Grok TUI. Sol specified walks: `codex exec` or
-Cursor Task only if quota returns. Fable: `claude -p` with
-`--append-system-prompt-file .codex/follow-rules.md`, or Cursor Task
-`claude-fable-5-thinking-max` if quota returns. Sol and Fable keep their
-vendor system prompts. The only add is one line: read `.cursor/rules/`
-and follow those files. After compact, read this file first.
+parent. Daily parent is this Grok TUI. Sol specified walks: `codex exec`
+with `model_instructions_file=/workspace/.codex/sol-instructions.md` (vendor
+prompt plus `.codex/follow-rules.md`). Fable: `claude -p --append-system-prompt-file
+.codex/follow-rules.md`. Do not point Codex at follow-rules.md alone. After
+compact, read this file first.
 
 ---
 
@@ -51,7 +72,7 @@ follow `.cursor/rules/` as a backup if the one-line append is missing.
 
 1. This file, live cursor then this section.
 2. Memory: last 12 notes if injected, else `python3 tools/memory_ledger.py tail 12`.
-3. Covering map: `.audit/briefs/threshold-covering-after-pivot-kill-out.md`.
+3. Covering map: `.audit/briefs/threshold-covering-after-cfit-kill-out.md`.
 4. The one live brief named in live cursor. Nothing else until that unit is judged.
 
 Do not rediscover closed kills. Compaction summaries are not the record.
@@ -103,8 +124,11 @@ the leaf when its trigger matches. Do not install stock Pstack.
 The path to the rungs is the **hillclimb** playbook, not Feature and not the
 2026-08-23 ticket plan. Metric: HG 2000, NKD 1500, SI 1500, MDD under 1000, at
 most 12 entries, dollars per trade. The covering map is the hypothesis log.
-Unit C is the unblocked frontier. Wayfinder tickets only when a question is
-sharp and unnamed. C is already named. `/tdd` only for a cheap local test.
+The unblocked frontier is paused. User 2026-08-27: stop after judged B3.
+B3 STOP is infrastructure, not a dollar KILL. Next covering would own the
+cell-identity law. Parent does not start it.
+Wayfinder tickets only when a question is sharp and unnamed. Do not invent a
+picker from the judge page. `/tdd` only for a cheap local test.
 Covering units already fail selftest plus mutants before the run.
 
 Overnight follows principle-never-block-on-the-human and
@@ -162,11 +186,14 @@ under `.cursor/plugins/pstack-lab`. After restore run
 `.cursor/skills`, and `.agents/skills` all symlink that tree. Do not install
 stock Pstack.
 
-Codex on the new box needs this line in `~/.codex/config.toml`:
+Codex `model_instructions_file` replaces the vendor prompt. It must be
+`.codex/sol-instructions.md` (vendor Sol prompt plus `.codex/follow-rules.md`).
+Build it with `python3 tools/build_sol_instructions.py`. Fable only appends
+`.codex/follow-rules.md`. Do not point Codex at follow-rules.md alone.
 
-    model_instructions_file = "/workspace/.codex/follow-rules.md"
+    model_instructions_file = "/workspace/.codex/sol-instructions.md"
 
-Grok loads `.grok/rules/follow.md` by itself. Same one line as Fable and Sol.
+Grok loads `.grok/rules/follow.md` by itself. Same one line Fable appends.
 
 ---
 
@@ -330,15 +357,17 @@ forward-vol plane and the entry plane can be joined at all.
 
 # 5. The frontier
 
-The live unit is in Live cursor. Right now that is covering C.
+The live unit is in Live cursor. B3 is judged STOP. Parent stopped. No
+covering after B3.
 
 `design/entry_reset/tickets/` and `ENTRY_PLAN_20260823.md` are the 2026-08-23
 plan-flow backlog, written when Pstack plan-flow was added. Poteto covering
 never replaced them with new tickets. That folder is not a queue. Finding it
-is not a reason to execute it. Do not walk 37, 46, 47, 45, 48, 51, or 54.
+is not a reason to execute it. Do not walk 37, 47, 45, 48, 51, or 54.
 
-B (late ages) is ticket 46's shape. It waits until C dies. Ticket 47 as a copy
-of the 2021 schema is dead spend.
+B0's grid-refusal amendment is closed on Stage 0 PASS. Ticket 47 as a copy
+of the 2021 schema is dead spend. The picker does not start from the Stage 1
+judge page.
 
 ## The protocol that must not be broken
 
@@ -368,13 +397,15 @@ in the same sentence it is reported.
 | This file | `START_HERE.md` |
 | Agent pointer | `AGENTS.md` |
 | Session memory | `MEMORY.md`, `tools/memory_ledger.py` |
-| Covering map (live) | `.audit/briefs/threshold-covering-after-pivot-kill-out.md` |
-| C Stage 0 brief | `.audit/briefs/threshold-cfit-stage0.md` |
+| Covering map (live) | `.audit/briefs/threshold-covering-after-cfit-kill-out.md` |
+| Sol covering peer | `.audit/briefs/threshold-covering-after-cfit-kill-sol-out.md` |
+| B0 Stage 0 | `.audit/briefs/threshold-covering-after-cfit-kill-out.md` Stage 0 |
 | pstack-lab skills (canonical) | `.cursor/plugins/pstack-lab/skills/` |
 | Same skills on every host | `.cursor/skills`, `.claude/skills`, `.codex/skills`, `.agents/skills` (symlinks). Re-run `tools/install_pstack_skills.sh`. |
 | Grok poteto-agent | `.grok/agents/poteto-agent.md` |
 | Hillclimb playbook | `.cursor/plugins/pstack-lab/skills/poteto-mode/playbooks/hillclimb.md` |
-| Fable/Sol one-line append | `.codex/follow-rules.md` |
+| Fable one-line append | `.codex/follow-rules.md` |
+| Sol instructions | `.codex/sol-instructions.md` (vendor plus follow-rules; `python3 tools/build_sol_instructions.py`) |
 | Canonical always-on bodies | `.cursor/rules/*.mdc` |
 | Grok always-on (loaded) | `.grok/rules/*.md` (same bodies, plus seats.md) |
 | Principle catalog | poteto-mode SKILL.md Principles section. Matching leaves only. |

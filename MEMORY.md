@@ -5340,3 +5340,45 @@ Written by the PreCompact hook so a compaction loses nothing. Newest last.
 - 2026-08-26 #584 HOST All 46 pstack-lab skills symlinked into .cursor/skills .claude/skills .codex/skills .agents/skills. Grok inspect lists them as project. Re-run tools/install_pstack_skills.sh on a new pod.
 - 2026-08-26 #585 USER pstack-lab is the live catalog. Pocock grilling/to-spec/wayfinder sit inside poteto-mode, not as extra slash skills. Do not install the vendor Pocock tree beside it.
 - 2026-08-26 #586 DECISION CLI follow-rules no longer outrank Sol personality or force a START_HERE plus catalog tour. cursor-pstack is Cursor host only. 46 skills in .claude/.codex still tax Fable and Sol descriptions.
+- 2026-08-26 #587 DECISION Overnight hillclimb live. Frontier C Stage 0. Sol walker on threshold-cfit-stage0.md. rclone 8-transfer copy still running. Do not kill rclone.
+- 2026-08-26 #588 HOST Codex ChatGPT auth rejects gpt-5.6-sol-max. OPENAI_API_KEY unset. cursor-agent lists gpt-5.6-sol-max. Overnight will use that child if the ping lands.
+- 2026-08-26 #589 USER Codex ChatGPT seat is gpt-5.6-sol, not gpt-5.6-sol-max. Overnight specified walks use that slug. Do not fall back to cursor-agent.
+- 2026-08-26 #590 USER Codex sol-max is gpt-5.6-sol plus -c model_reasoning_effort=max. The -max model slug is ChatGPT-invalid. Do not use cursor-agent.
+- 2026-08-26 #591 RESULT C Stage 0 receipt PASS QRE2THRESHOLDCFITSTAGE01. Era tags 939/asset through 20241231. 2021 pivot rows identical. No 2025. Stage 1 not started. Fable judge next.
+- 2026-08-26 #592 USER Fable CLI is claude-fable-5 plus --effort max. The thinking-max slug is invalid. Override settings.json xhigh.
+- 2026-08-26 #593 RESULT Fable judged C Stage 0 PASS. Next is C Stage 1 fitted read on Codex gpt-5.6-sol --effort max. B waits. rclone still copying.
+- 2026-08-26 #594 RESULT C Stage 1 KILL. HG -173.50 NKD 31.20 SI -150.45. MDD 75608.75. Fitted identity at age 180 closed pending Fable judge. No second config.
+- 2026-08-26 #595 RESULT Fable confirmed C Stage 1 KILL. Age-180 identity closed. Covering search Fable+Sol parallel. No second C config. B only if the new map names it.
+- 2026-08-26 #596 USER Fable CLI may deny Agent. Do not deny Task. Covering search relaunched with Task on.
+- 2026-08-26 #597 USER Codex model_instructions_file replaces the vendor prompt. Sol uses .codex/sol-instructions.md (vendor plus follow-rules). Fable appends follow-rules.md only. Do not point Codex at follow-rules.md alone.
+- 2026-08-26 #598 DECISION After C KILL, Fable covering named B0 late-age ceiling. Sol peer named B0 too. Live brief is Fable's map. Sol walker on Stage 0 only.
+- 2026-08-26 #599 DECISION After user rejected B0-only, architect Phase B to Fable /skills and Sol $skills. Same brief. Design it twice. No B0 Stage 0 until they name one experiment.
+- 2026-08-26 #600 DECISION Fable architect named S0 side-split ceiling. Sol named event-frontier. Live walk is S0. B0 waits on S0 KILL by receipt.
+- 2026-08-26 #601 RESULT S0 LIVE. Oracle side plus within-side price almost equals cell-best. HG 2753.53 NKD 3806.71 SI 3869.82. p_star 0.66/0.28/0.28. S1 waits on Fable judge.
+- 2026-08-27 #602 RESULT Fable judged S0 LIVE. Next is S1 freeze of causal within-side rule. Earliest-within-side misses HG/SI. No fit until freeze.
+- 2026-08-27 #603 DECISION S1 freeze is Fable P-turn plus ridge IRLS. Sol named midpoint-record. Live walk is Fable's freeze. Prior KILL. B0 on S1 KILL.
+- 2026-08-27 #604 RESULT S1 KILL. Oracle-side P-turn misses every rung MDD 5430. Policy negative. HG acc 0.53 vs 0.66. B0 named, not started.
+- 2026-08-27 #605 RESULT Fable judged S1 KILL. P-turn oracle-side misses rungs. Covering after S1. B0 not auto-started.
+- 2026-08-27 #606 DECISION After S1 KILL Fable named B0, mechanism-funded. Sol agreed. Reverted confirmation half-edit. B0 Stage 0 next.
+- 2026-08-27 #607 RESULT B0 Stage 0 PASS. Pilot teacher-equality held. Projection 951s. Stage 1 waits on Fable judge.
+- 2026-08-27 #608 RESULT Fable judged B0 Stage 0 PASS. Sol Stage 1 late-age ceiling next. No picker.
+- 2026-08-27 #609 RESULT B0 Stage 1 LIVE. 600s ceiling HG 2727 NKD 3776 SI 3848. Envelope higher. MDD 0. Picker waits on covering after Fable judge.
+- 2026-08-27 #610 RESULT Fable judged B0 Stage 1 LIVE. 600s 2726.81/3775.72/3847.62 MDD 0. HG bar 73.4% of witness. Picker covering unstarted.
+- 2026-08-27 #611 DECISION After B0 Stage 1 LIVE judged, dispatched picker covering. Same brief Fable slash and Sol dollar. .audit/briefs/threshold-covering-after-b0.md
+- 2026-08-27 #612 DECISION After B0 LIVE covering, Fable named B1 record-picker. Sol named LSP0, not executed. Dispatch Sol on B1.
+- 2026-08-27 #613 RESULT B1 KILL pending Fable. record_top1 negative. recordside_price 600s 2061/2658/3001 MDD 590. Covering waits on judge.
+- 2026-08-27 #614 RESULT Fable judged B1 KILL. recordside_price clears at 600-3600. Covering after B1 dispatched.
+- 2026-08-27 #615 DECISION After B1 KILL covering, Fable named B2 effective-price picker. Sol named 2400s cap, not executed. Dispatch Sol on B2.
+- 2026-08-27 #616 RESULT B2 LIVE pending Fable. recside_effprice_all HG600/NKD600/SI2400 2059.78/2653.88/2987.05 MDD 967.50. Teacher-cash cannot promote.
+- 2026-08-27 #617 USER Entries first. Do not use a new exit overlay as a path to rungs. Frozen teacher scores entries. B2 LIVE is an entry rule, not an exit project.
+- 2026-08-27 #618 RESULT Fable judged B2 LIVE. Covering after B2 is entry-only. Exit overlay forbidden. Dispatch Fable slash and Sol dollar.
+- 2026-08-27 #619 DECISION After B2 LIVE covering, Fable named V0 2021 kill-only validation. Replay freeze declined. Dispatch Sol V0 Stage 0. Sol peer still in flight.
+- 2026-08-27 #620 RESULT Sol covering after B2 named B3 common-clock replay. Fable V0 stands. Sol B3 not executed. Sol claims B2 READY roster leaks future certifiability.
+- 2026-08-27 #621 RESULT V0 Stage 0 STOP. Gate schema mismatch and 2025H1 census read. No 2021 late store. Stage 1 not started. Fable judge next.
+- 2026-08-27 #622 RESULT Fable judged V0 Stage 0 STOP. Gate unexecutable on 2021. Covering after STOP dispatched. B3 not auto-started.
+- 2026-08-27 #623 USER recside_effprice_all is the entry rule that posted rungs. V0 STOP was 2021 day-gate, not dropping B2. Forecast is not an input to that pick.
+- 2026-08-27 #624 USER Asked if B2 ages 600/2400 can auto-calibrate by regime and whether that maps to fitted CatBoost. Mixed ages used the cash curve. 2400 all-asset also clears.
+- 2026-08-27 #625 DECISION After V0 STOP covering, Fable and Sol both named B3 2400s common-clock causal replay. Dispatch Sol on B3. B2 stays a batch cap.
+- 2026-08-27 #626 USER Stop after judged B3. No covering after B3. Parent does not continue overnight past that receipt.
+- 2026-08-27 #627 RESULT B3 STOP pending Fable. cell identity differs HG/20221107/0. No strict block. Parent stops after judge. No covering after B3.
+- 2026-08-27 #628 RESULT Fable judged B3 STOP. HG/20221107 two phase-0 instances. No dollars. Parent stopped per USER. No covering after B3.

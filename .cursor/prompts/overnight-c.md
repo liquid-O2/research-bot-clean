@@ -1,9 +1,10 @@
 # Overnight parent paste. Fresh Grok session. Do not resume the old chat.
 
-Sol's vendor prompt is already intact. `~/.codex/config.toml` already has
-`model_instructions_file = "/workspace/.codex/follow-rules.md"` (one line:
-read START_HERE, then `.cursor/rules/`). Do not rebuild Sol's system prompt.
-Still pass it on the exec line so it cannot drop.
+Sol: `codex exec` with `model_instructions_file="/workspace/.codex/sol-instructions.md"`.
+That file is the vendor Sol prompt plus the one-line `.codex/follow-rules.md`.
+Build it with `python3 tools/build_sol_instructions.py` if it is missing.
+Do not point Codex at follow-rules.md alone. That replaces the vendor prompt
+with one line.
 
 Fable: vendor prompt plus `--append-system-prompt-file /workspace/.codex/follow-rules.md`.
 
@@ -23,7 +24,7 @@ Fable (claude-fable-5-thinking-max only, no thinking-high) is designer and Stage
 
 Fable CLI: claude -p --append-system-prompt-file /workspace/.codex/follow-rules.md. Body: envelope plus the brief that role would get in Cursor (covering file, judge file, explainer-prompt, critic-prompt, reviewer-prompt, or runner-prompt).
 
-Sol-max CLI: codex exec -m gpt-5.6-sol-max -c model_instructions_file="/workspace/.codex/follow-rules.md" -c model_reasoning_effort="high". Body: envelope plus that same role brief when Sol is the peer, or plus the live unit brief when Sol is the walker. Never both in one child. Vendor prompt stays. Do not inherit Grok.
+Sol-max CLI: codex exec -m gpt-5.6-sol -c model_instructions_file="/workspace/.codex/sol-instructions.md" -c model_reasoning_effort="max". Body: envelope plus that same role brief when Sol is the peer, or plus the live unit brief when Sol is the walker. Never both in one child. Vendor prompt stays. Do not inherit Grok.
 
 Start at the named frontier: pointer .audit/briefs/threshold-cfit-stage0.md (C Stage 0). After the receipt, pointer Fable at that receipt plus the covering map for judgment. Stage 0 STOP: report, do not amend, do not start Stage 1. Stage 0 PASS: pointer Sol at Stage 1 in .audit/briefs/threshold-covering-after-pivot-kill-out.md.
 

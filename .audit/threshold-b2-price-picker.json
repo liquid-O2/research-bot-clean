@@ -1,0 +1,4136 @@
+{
+  "age0_cert_close_usd_values_used": 0,
+  "age180_teacher_join_reopened": false,
+  "ages_seconds": [
+    600,
+    1200,
+    2400,
+    3600,
+    5400,
+    7200,
+    10800
+  ],
+  "asset_chain_workers": 3,
+  "asset_multiplier": {
+    "HG": 25000,
+    "NKD": 5,
+    "SI": 5000
+  },
+  "cellbest_control": {
+    "10800": {
+      "actual_sha256": "531f2b884d5e78d557929493fdb2aa168e43892953de8e0689f70e4394bc7a31",
+      "byte_equal": true,
+      "expected_sha256": "531f2b884d5e78d557929493fdb2aa168e43892953de8e0689f70e4394bc7a31",
+      "status": "PASS"
+    },
+    "1200": {
+      "actual_sha256": "a4566c89cc7ede3ac8de4b635ef44e0bff86dee4fb4824d911871ad4922cf4de",
+      "byte_equal": true,
+      "expected_sha256": "a4566c89cc7ede3ac8de4b635ef44e0bff86dee4fb4824d911871ad4922cf4de",
+      "status": "PASS"
+    },
+    "2400": {
+      "actual_sha256": "be4021d05b72077216db6920dc769cf9c60a50f875ed2105547cd14e0079382a",
+      "byte_equal": true,
+      "expected_sha256": "be4021d05b72077216db6920dc769cf9c60a50f875ed2105547cd14e0079382a",
+      "status": "PASS"
+    },
+    "3600": {
+      "actual_sha256": "20978f728c172e0d9f491dac557dc38a818d5c023824a4aa3232a6ec72693682",
+      "byte_equal": true,
+      "expected_sha256": "20978f728c172e0d9f491dac557dc38a818d5c023824a4aa3232a6ec72693682",
+      "status": "PASS"
+    },
+    "5400": {
+      "actual_sha256": "826766a531d6e45b81c8ea58ec8dc274eecc24a1e3121402bd84356aa23209f8",
+      "byte_equal": true,
+      "expected_sha256": "826766a531d6e45b81c8ea58ec8dc274eecc24a1e3121402bd84356aa23209f8",
+      "status": "PASS"
+    },
+    "600": {
+      "actual_sha256": "b80350724757a0a6f4f5332c8cbfed2cc1107f82a45a56809d3ea0b88dc9f6cb",
+      "byte_equal": true,
+      "expected_sha256": "b80350724757a0a6f4f5332c8cbfed2cc1107f82a45a56809d3ea0b88dc9f6cb",
+      "status": "PASS"
+    },
+    "7200": {
+      "actual_sha256": "32666a2d0cbaa1187855d7ab6f7c922967aaa27d43addaea7c96277e2156e2ac",
+      "byte_equal": true,
+      "expected_sha256": "32666a2d0cbaa1187855d7ab6f7c922967aaa27d43addaea7c96277e2156e2ac",
+      "status": "PASS"
+    }
+  },
+  "control_lines": [
+    "recordside_price_control",
+    "cellbest_control"
+  ],
+  "decomposition_lines": [
+    "oracleside_effprice"
+  ],
+  "dollar_line_reads": 1,
+  "dollar_lines_below_age_600": 0,
+  "dollar_stop": {
+    "applied": "**LIVE.** One pre-named primary, the same for all three assets, posts the full dollar block at some qualifying age per asset, caps and overlap holding, MDD at most 1000, on the locked denominators. If both qualify, the LIVE names `recside_effprice_all`. A fully causal entry rule on the stored-teacher exit law pays every rung on era labels. Teacher-cash cannot promote, so nothing ships from a LIVE. The successor questions are the exit leg, whose stored law is the wall-or-phase-close hindsight law read from source above, and validation scale, authorized by the next covering, which also owns the training-scale relabel priced against this receipt. Nothing else is funded.",
+    "drawdown_limit_usd": 1000.0,
+    "entry_cap": 12,
+    "rungs_usd": {
+      "HG": 2000.0,
+      "NKD": 1500.0,
+      "SI": 1500.0
+    },
+    "verbatim": {
+      "KILL": "**KILL.** For some asset, both primaries miss the full dollar block at every qualifying age, or no single primary carries all three assets. A miss on the pre-stated bar is a KILL, not a near-miss, including a rung cleared with MDD above 1000. The frozen unfitted family of single-snapshot one-scalar depth rules on the observable side closes on this store, record ranking by B1, price and laggard ranking by B2, with no third frozen escape unless this receipt's own decomposition names a specific path-shaped clue. If `recordside_price_control` still clears where the primaries missed, the gap between them, carried by `depth_regret_usd_per_day` and `pick_agreement`, is the hindsight channels' price and the fitted fork's named target. The next covering decides fitted-or-dead against those numbers. Nothing is auto-funded, no fitted picker, no training-scale relabel, no fourth read, no new variant.",
+      "LIVE": "**LIVE.** One pre-named primary, the same for all three assets, posts the full dollar block at some qualifying age per asset, caps and overlap holding, MDD at most 1000, on the locked denominators. If both qualify, the LIVE names `recside_effprice_all`. A fully causal entry rule on the stored-teacher exit law pays every rung on era labels. Teacher-cash cannot promote, so nothing ships from a LIVE. The successor questions are the exit leg, whose stored law is the wall-or-phase-close hindsight law read from source above, and validation scale, authorized by the next covering, which also owns the training-scale relabel priced against this receipt. Nothing else is funded.",
+      "STOP": "**STOP, infrastructure.** The selftest fails, any mutant is not red-first or survives, `cellbest_control` mismatches the B0 receipt at any age, `recordside_price_control` mismatches the B1 receipt at any age, the manifest or any shard sha mismatches, denominators drift, any stored tree is touched, `dollar_line_reads` exceeds 1, or wall clock passes 3600 s. Report and wait. No dollar conclusion is drawn from a stopped run."
+    },
+    "verdict": "LIVE"
+  },
+  "effective_price_scale": "5E-10",
+  "fit_started": false,
+  "hg_projection": {
+    "b0_max_shard_wall_seconds": 6.260807171463966,
+    "hg_shards": 197,
+    "hg_waves": 40,
+    "hg_workers": 5,
+    "line_factor": 2.0,
+    "method": "ceil(HG shards / 5 workers) times B0 same-store maximum shard seconds times a 2x five-line allowance",
+    "projected_wall_seconds": 500.8645737171173,
+    "status": "PASS",
+    "tripwire_seconds": 3600.0
+  },
+  "judge_started": false,
+  "line_rules": {
+    "cellbest_control": "Recompute B0's positive-cash age-A cell-best ceiling line. Every per-age portfolio dollar block must be byte-equal to the B0 receipt.",
+    "oracleside_effprice": "Restrict READY age-A rows to the stored side of the age-A cell-best row, then enter the effective-price minimum, ties smallest candidate_id. This decomposition can kill or price and cannot promote or witness.",
+    "recordside_price_control": "Restrict READY age-A rows to the stored side of the cell's maximal-r candidate, then enter the maximal-cert_close_usd row, ties smallest candidate_id. Every per-age dollar block must be byte-equal to B1.",
+    "recside_effprice_all": "Within the observable record-side set, enter the row minimizing side * entry_mid2 * (0.5e-9 * ASSET_MULTIPLIER[asset]) plus frozen_cost_usd, ties smallest candidate_id, unconditionally. The pick is blind to every cash column.",
+    "recside_lagrecord_all": "Within the observable record-side set, enter the row minimizing r(X, A), ties smallest candidate_id, unconditionally. The pick is blind to every cash column."
+  },
+  "lines": [
+    "recside_effprice_all",
+    "recside_lagrecord_all",
+    "oracleside_effprice",
+    "recordside_price_control",
+    "cellbest_control"
+  ],
+  "locked_asset_days": {
+    "HG": 197,
+    "NKD": 194,
+    "SI": 191
+  },
+  "lsp0_started": false,
+  "manifest": {
+    "asset_days": {
+      "HG": 197,
+      "NKD": 194,
+      "SI": 191
+    },
+    "clear_candidate_rows": 182709,
+    "contains_2025": false,
+    "max_d8": 20241231,
+    "min_d8": 20220315,
+    "path": "artifacts/cache/port/entry_v2/g1/late/manifest.tsv",
+    "ready_rows": 2768741,
+    "rows": 2923344,
+    "schema": "QRE2G1LATEMANIFEST1",
+    "sha256": "9974d40605d4bc710f803678f9b99739d9c5d17d23269b934b38c4789967d46f",
+    "shards": 582,
+    "status": "PASS"
+  },
+  "mixed_variant_assignment": {
+    "found": false,
+    "ignored_for_live": true
+  },
+  "mutants": [
+    "oracle_leak_primary",
+    "nonready_entered",
+    "future_mid_in_pick",
+    "control_mismatch_accepted"
+  ],
+  "passes_over_late_store": 1,
+  "per_age": {
+    "10800": {
+      "depth_regret_usd_per_day": {
+        "assets": {
+          "HG": 0.0,
+          "NKD": 25.25773195876286,
+          "SI": 6.871727748691001
+        },
+        "dollar_attached": false
+      },
+      "lines": {
+        "cellbest_control": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 311806.25,
+              "clears_rung": false,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 38623,
+              "entered_cells": 490,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 636.3392857142857,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 417.2271573604062,
+              "trades": 490,
+              "usd_per_asset_day": 1582.7728426395938
+            },
+            "NKD": {
+              "cash_total_usd": 453310.0,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 43598,
+              "entered_cells": 578,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 784.273356401384,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 578,
+              "usd_per_asset_day": 2336.6494845360826
+            },
+            "SI": {
+              "cash_total_usd": 478220.0,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 42956,
+              "entered_cells": 466,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1026.2231759656652,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 466,
+              "usd_per_asset_day": 2503.7696335078535
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 311806.25,
+              "NKD": 453310.0,
+              "SI": 478220.0
+            },
+            "clears_rungs": false,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 0.0,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 810.5190677966102,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {
+              "HG": 417.2271573604062
+            },
+            "trades": 1534,
+            "usd_per_asset_day": {
+              "HG": 1582.7728426395938,
+              "NKD": 2336.6494845360826,
+              "SI": 2503.7696335078535
+            }
+          }
+        },
+        "oracleside_effprice": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 311760.0,
+              "clears_rung": false,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 19376,
+              "entered_cells": 493,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 23.75,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 632.3732251521299,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 417.4619289340101,
+              "trades": 493,
+              "usd_per_asset_day": 1582.53807106599
+            },
+            "NKD": {
+              "cash_total_usd": 445715.0,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 21894,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 905.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 765.8333333333334,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 2297.5
+            },
+            "SI": {
+              "cash_total_usd": 467467.5,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 21515,
+              "entered_cells": 469,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1192.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 996.7324093816632,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 469,
+              "usd_per_asset_day": 2447.473821989529
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 311760.0,
+              "NKD": 445715.0,
+              "SI": 467467.5
+            },
+            "clears_rungs": false,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 1192.5,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 793.3565414507772,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {
+              "HG": 417.4619289340101
+            },
+            "trades": 1544,
+            "usd_per_asset_day": {
+              "HG": 1582.53807106599,
+              "NKD": 2297.5,
+              "SI": 2447.473821989529
+            }
+          }
+        },
+        "recordside_price_control": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 236522.5,
+              "clears_rung": false,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 19448,
+              "entered_cells": 493,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 385.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 479.7616632860041,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 799.3781725888325,
+              "trades": 493,
+              "usd_per_asset_day": 1200.6218274111675
+            },
+            "NKD": {
+              "cash_total_usd": 352190.0,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 21917,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 530.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 605.1374570446735,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 1815.4123711340205
+            },
+            "SI": {
+              "cash_total_usd": 390242.5,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 21548,
+              "entered_cells": 469,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 555.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 832.0735607675906,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 469,
+              "usd_per_asset_day": 2043.15445026178
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 236522.5,
+              "NKD": 352190.0,
+              "SI": 390242.5
+            },
+            "clears_rungs": false,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 790.0,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 634.0382124352332,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {
+              "HG": 799.3781725888325
+            },
+            "trades": 1544,
+            "usd_per_asset_day": {
+              "HG": 1200.6218274111675,
+              "NKD": 1815.4123711340205,
+              "SI": 2043.15445026178
+            }
+          }
+        },
+        "recside_effprice_all": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 236522.5,
+              "clears_rung": false,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 19448,
+              "entered_cells": 493,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 385.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 479.7616632860041,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 799.3781725888325,
+              "trades": 493,
+              "usd_per_asset_day": 1200.6218274111675
+            },
+            "NKD": {
+              "cash_total_usd": 347290.0,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 21917,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 905.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 596.7182130584192,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 1790.1546391752577
+            },
+            "SI": {
+              "cash_total_usd": 388930.0,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 21548,
+              "entered_cells": 469,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1140.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 829.2750533049041,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 469,
+              "usd_per_asset_day": 2036.282722513089
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 236522.5,
+              "NKD": 347290.0,
+              "SI": 388930.0
+            },
+            "clears_rungs": false,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 985.0,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 630.0145725388601,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {
+              "HG": 799.3781725888325
+            },
+            "trades": 1544,
+            "usd_per_asset_day": {
+              "HG": 1200.6218274111675,
+              "NKD": 1790.1546391752577,
+              "SI": 2036.282722513089
+            }
+          }
+        },
+        "recside_lagrecord_all": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 151785.0,
+              "clears_rung": false,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 19448,
+              "entered_cells": 493,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 905.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 307.8803245436105,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 1229.517766497462,
+              "trades": 493,
+              "usd_per_asset_day": 770.4822335025381
+            },
+            "NKD": {
+              "cash_total_usd": 223465.0,
+              "clears_rung": false,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 21917,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1027.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 383.96048109965636,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 348.1185567010309,
+              "trades": 582,
+              "usd_per_asset_day": 1151.881443298969
+            },
+            "SI": {
+              "cash_total_usd": 219867.5,
+              "clears_rung": false,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 21548,
+              "entered_cells": 469,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1650.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 468.80063965884864,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 348.86125654450257,
+              "trades": 469,
+              "usd_per_asset_day": 1151.1387434554974
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 151785.0,
+              "NKD": 223465.0,
+              "SI": 219867.5
+            },
+            "clears_rungs": false,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 1972.5,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 385.43879533678756,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {
+              "HG": 1229.517766497462,
+              "NKD": 348.1185567010309,
+              "SI": 348.86125654450257
+            },
+            "trades": 1544,
+            "usd_per_asset_day": {
+              "HG": 770.4822335025381,
+              "NKD": 1151.881443298969,
+              "SI": 1151.1387434554974
+            }
+          }
+        }
+      },
+      "pick_agreement": {
+        "assets": {
+          "HG": {
+            "denominator": 493,
+            "fraction": 1.0,
+            "numerator": 493
+          },
+          "NKD": {
+            "denominator": 582,
+            "fraction": 0.9982817869415808,
+            "numerator": 581
+          },
+          "SI": {
+            "denominator": 469,
+            "fraction": 0.997867803837953,
+            "numerator": 468
+          }
+        },
+        "denominator": 1544,
+        "dollar_attached": false,
+        "fraction": 0.9987046632124352,
+        "numerator": 1542
+      },
+      "primary_agreement": {
+        "assets": {
+          "HG": {
+            "denominator": 493,
+            "fraction": 0.3509127789046653,
+            "numerator": 173
+          },
+          "NKD": {
+            "denominator": 582,
+            "fraction": 0.30412371134020616,
+            "numerator": 177
+          },
+          "SI": {
+            "denominator": 469,
+            "fraction": 0.3773987206823028,
+            "numerator": 177
+          }
+        },
+        "denominator": 1544,
+        "dollar_attached": false,
+        "fraction": 0.34132124352331605,
+        "numerator": 527
+      }
+    },
+    "1200": {
+      "depth_regret_usd_per_day": {
+        "assets": {
+          "HG": 0.0,
+          "NKD": 1.8685567010311388,
+          "SI": 31.80628272251306
+        },
+        "dollar_attached": false
+      },
+      "lines": {
+        "cellbest_control": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 528545.0,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 56363,
+              "entered_cells": 586,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 901.9539249146758,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 586,
+              "usd_per_asset_day": 2682.9695431472082
+            },
+            "NKD": {
+              "cash_total_usd": 710615.0,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 64527,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1220.9879725085912,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 3662.963917525773
+            },
+            "SI": {
+              "cash_total_usd": 725050.0,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 57559,
+              "entered_cells": 560,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1294.732142857143,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 560,
+              "usd_per_asset_day": 3796.0732984293195
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 528545.0,
+              "NKD": 710615.0,
+              "SI": 725050.0
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 0.0,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 1136.695601851852,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1728,
+            "usd_per_asset_day": {
+              "HG": 2682.9695431472082,
+              "NKD": 3662.963917525773,
+              "SI": 3796.0732984293195
+            }
+          }
+        },
+        "oracleside_effprice": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 528521.25,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 28325,
+              "entered_cells": 587,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 23.75,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 900.3769165247019,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 587,
+              "usd_per_asset_day": 2682.8489847715737
+            },
+            "NKD": {
+              "cash_total_usd": 710615.0,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 32425,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1220.9879725085912,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 3662.963917525773
+            },
+            "SI": {
+              "cash_total_usd": 718685.0,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 28912,
+              "entered_cells": 563,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 942.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1276.5275310834813,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 563,
+              "usd_per_asset_day": 3762.748691099476
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 528521.25,
+              "NKD": 710615.0,
+              "SI": 718685.0
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 942.5,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 1130.3817840646652,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1732,
+            "usd_per_asset_day": {
+              "HG": 2682.8489847715737,
+              "NKD": 3662.963917525773,
+              "SI": 3762.748691099476
+            }
+          }
+        },
+        "recordside_price_control": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 417483.75,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 28216,
+              "entered_cells": 587,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 236.25,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 711.2159284497444,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 587,
+              "usd_per_asset_day": 2119.206852791878
+            },
+            "NKD": {
+              "cash_total_usd": 552252.5,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 32314,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 380.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 948.8874570446735,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 2846.6623711340208
+            },
+            "SI": {
+              "cash_total_usd": 574872.5,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 28843,
+              "entered_cells": 563,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 522.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1021.0879218472469,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 563,
+              "usd_per_asset_day": 3009.803664921466
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 417483.75,
+              "NKD": 552252.5,
+              "SI": 574872.5
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 722.5,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 891.8064376443418,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1732,
+            "usd_per_asset_day": {
+              "HG": 2119.206852791878,
+              "NKD": 2846.6623711340208,
+              "SI": 3009.803664921466
+            }
+          }
+        },
+        "recside_effprice_all": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 417483.75,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 28216,
+              "entered_cells": 587,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 236.25,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 711.2159284497444,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 587,
+              "usd_per_asset_day": 2119.206852791878
+            },
+            "NKD": {
+              "cash_total_usd": 551890.0,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 32314,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 380.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 948.2646048109966,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 2844.7938144329896
+            },
+            "SI": {
+              "cash_total_usd": 568797.5,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 28843,
+              "entered_cells": 563,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1460.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1010.297513321492,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 563,
+              "usd_per_asset_day": 2977.997382198953
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 417483.75,
+              "NKD": 551890.0,
+              "SI": 568797.5
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 1460.0,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 888.0896362586606,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1732,
+            "usd_per_asset_day": {
+              "HG": 2119.206852791878,
+              "NKD": 2844.7938144329896,
+              "SI": 2977.997382198953
+            }
+          }
+        },
+        "recside_lagrecord_all": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 174627.5,
+              "clears_rung": false,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 28216,
+              "entered_cells": 587,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 5076.25,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 297.49148211243613,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 1113.5659898477156,
+              "trades": 587,
+              "usd_per_asset_day": 886.4340101522843
+            },
+            "NKD": {
+              "cash_total_usd": 221265.0,
+              "clears_rung": false,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 32314,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 4280.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 380.180412371134,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 359.4587628865979,
+              "trades": 582,
+              "usd_per_asset_day": 1140.541237113402
+            },
+            "SI": {
+              "cash_total_usd": 261972.5,
+              "clears_rung": false,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 28843,
+              "entered_cells": 563,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 4142.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 465.3152753108348,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 128.41623036649207,
+              "trades": 563,
+              "usd_per_asset_day": 1371.583769633508
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 174627.5,
+              "NKD": 221265.0,
+              "SI": 261972.5
+            },
+            "clears_rungs": false,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 8037.5,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 379.8296766743649,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {
+              "HG": 1113.5659898477156,
+              "NKD": 359.4587628865979,
+              "SI": 128.41623036649207
+            },
+            "trades": 1732,
+            "usd_per_asset_day": {
+              "HG": 886.4340101522843,
+              "NKD": 1140.541237113402,
+              "SI": 1371.583769633508
+            }
+          }
+        }
+      },
+      "pick_agreement": {
+        "assets": {
+          "HG": {
+            "denominator": 587,
+            "fraction": 1.0,
+            "numerator": 587
+          },
+          "NKD": {
+            "denominator": 582,
+            "fraction": 0.9982817869415808,
+            "numerator": 581
+          },
+          "SI": {
+            "denominator": 563,
+            "fraction": 0.9928952042628775,
+            "numerator": 559
+          }
+        },
+        "denominator": 1732,
+        "dollar_attached": false,
+        "fraction": 0.9971131639722863,
+        "numerator": 1727
+      },
+      "primary_agreement": {
+        "assets": {
+          "HG": {
+            "denominator": 587,
+            "fraction": 0.16524701873935263,
+            "numerator": 97
+          },
+          "NKD": {
+            "denominator": 582,
+            "fraction": 0.14604810996563575,
+            "numerator": 85
+          },
+          "SI": {
+            "denominator": 563,
+            "fraction": 0.21492007104795738,
+            "numerator": 121
+          }
+        },
+        "denominator": 1732,
+        "dollar_attached": false,
+        "fraction": 0.17494226327944573,
+        "numerator": 303
+      }
+    },
+    "2400": {
+      "depth_regret_usd_per_day": {
+        "assets": {
+          "HG": 8.851522842639952,
+          "NKD": 39.884020618556406,
+          "SI": 67.2120418848167
+        },
+        "dollar_attached": false
+      },
+      "lines": {
+        "cellbest_control": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 506626.25,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 54559,
+              "entered_cells": 586,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 864.5499146757679,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 586,
+              "usd_per_asset_day": 2571.706852791878
+            },
+            "NKD": {
+              "cash_total_usd": 680827.5,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 62313,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1169.8067010309278,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 3509.4201030927834
+            },
+            "SI": {
+              "cash_total_usd": 706855.0,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 56332,
+              "entered_cells": 559,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1264.499105545617,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 559,
+              "usd_per_asset_day": 3700.8115183246073
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 506626.25,
+              "NKD": 680827.5,
+              "SI": 706855.0
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 0.0,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 1096.8782570932253,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1727,
+            "usd_per_asset_day": {
+              "HG": 2571.706852791878,
+              "NKD": 3509.4201030927834,
+              "SI": 3700.8115183246073
+            }
+          }
+        },
+        "oracleside_effprice": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 504882.5,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 27460,
+              "entered_cells": 586,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 905.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 861.5742320819113,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 586,
+              "usd_per_asset_day": 2562.8553299492387
+            },
+            "NKD": {
+              "cash_total_usd": 678415.0,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 31305,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 905.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1165.6615120274914,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 3496.9845360824743
+            },
+            "SI": {
+              "cash_total_usd": 694790.0,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 28329,
+              "entered_cells": 562,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 967.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1236.2811387900356,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 562,
+              "usd_per_asset_day": 3637.6439790575914
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 504882.5,
+              "NKD": 678415.0,
+              "SI": 694790.0
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 967.5,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 1085.599710982659,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1730,
+            "usd_per_asset_day": {
+              "HG": 2562.8553299492387,
+              "NKD": 3496.9845360824743,
+              "SI": 3637.6439790575914
+            }
+          }
+        },
+        "recordside_price_control": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 429576.25,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 27324,
+              "entered_cells": 586,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 461.25,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 733.0652730375426,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 586,
+              "usd_per_asset_day": 2180.590101522843
+            },
+            "NKD": {
+              "cash_total_usd": 531615.0,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 31204,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 447.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 913.4278350515464,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 2740.283505154639
+            },
+            "SI": {
+              "cash_total_usd": 583365.0,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 28265,
+              "entered_cells": 562,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 430.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1038.0160142348755,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 562,
+              "usd_per_asset_day": 3054.2670157068064
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 429576.25,
+              "NKD": 531615.0,
+              "SI": 583365.0
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 461.25,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 892.8070809248555,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1730,
+            "usd_per_asset_day": {
+              "HG": 2180.590101522843,
+              "NKD": 2740.283505154639,
+              "SI": 3054.2670157068064
+            }
+          }
+        },
+        "recside_effprice_all": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 427832.5,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 27324,
+              "entered_cells": 586,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 905.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 730.089590443686,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 586,
+              "usd_per_asset_day": 2171.738578680203
+            },
+            "NKD": {
+              "cash_total_usd": 523877.5,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 31204,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 967.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 900.1331615120275,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 2700.3994845360826
+            },
+            "SI": {
+              "cash_total_usd": 570527.5,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 28265,
+              "entered_cells": 562,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 967.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1015.173487544484,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 562,
+              "usd_per_asset_day": 2987.0549738219897
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 427832.5,
+              "NKD": 523877.5,
+              "SI": 570527.5
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 967.5,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 879.9060693641618,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1730,
+            "usd_per_asset_day": {
+              "HG": 2171.738578680203,
+              "NKD": 2700.3994845360826,
+              "SI": 2987.0549738219897
+            }
+          }
+        },
+        "recside_lagrecord_all": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 231488.75,
+              "clears_rung": false,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 27324,
+              "entered_cells": 586,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1845.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 395.03199658703073,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 824.9302030456852,
+              "trades": 586,
+              "usd_per_asset_day": 1175.0697969543148
+            },
+            "NKD": {
+              "cash_total_usd": 248727.5,
+              "clears_rung": false,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 31204,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 2505.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 427.36683848797253,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 217.89948453608258,
+              "trades": 582,
+              "usd_per_asset_day": 1282.1005154639174
+            },
+            "SI": {
+              "cash_total_usd": 291152.5,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 28265,
+              "entered_cells": 562,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 4210.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 518.064946619217,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 562,
+              "usd_per_asset_day": 1524.3586387434555
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 231488.75,
+              "NKD": 248727.5,
+              "SI": 291152.5
+            },
+            "clears_rungs": false,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 2407.5,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 445.8778901734104,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {
+              "HG": 824.9302030456852,
+              "NKD": 217.89948453608258
+            },
+            "trades": 1730,
+            "usd_per_asset_day": {
+              "HG": 1175.0697969543148,
+              "NKD": 1282.1005154639174,
+              "SI": 1524.3586387434555
+            }
+          }
+        }
+      },
+      "pick_agreement": {
+        "assets": {
+          "HG": {
+            "denominator": 586,
+            "fraction": 0.9982935153583617,
+            "numerator": 585
+          },
+          "NKD": {
+            "denominator": 582,
+            "fraction": 0.9948453608247423,
+            "numerator": 579
+          },
+          "SI": {
+            "denominator": 562,
+            "fraction": 0.9928825622775801,
+            "numerator": 558
+          }
+        },
+        "denominator": 1730,
+        "dollar_attached": false,
+        "fraction": 0.9953757225433526,
+        "numerator": 1722
+      },
+      "primary_agreement": {
+        "assets": {
+          "HG": {
+            "denominator": 586,
+            "fraction": 0.19795221843003413,
+            "numerator": 116
+          },
+          "NKD": {
+            "denominator": 582,
+            "fraction": 0.21477663230240548,
+            "numerator": 125
+          },
+          "SI": {
+            "denominator": 562,
+            "fraction": 0.23665480427046262,
+            "numerator": 133
+          }
+        },
+        "denominator": 1730,
+        "dollar_attached": false,
+        "fraction": 0.2161849710982659,
+        "numerator": 374
+      }
+    },
+    "3600": {
+      "depth_regret_usd_per_day": {
+        "assets": {
+          "HG": 0.0,
+          "NKD": 15.528350515463899,
+          "SI": 53.141361256544315
+        },
+        "dollar_attached": false
+      },
+      "lines": {
+        "cellbest_control": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 487595.0,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 52481,
+              "entered_cells": 586,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 832.0733788395904,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 586,
+              "usd_per_asset_day": 2475.1015228426395
+            },
+            "NKD": {
+              "cash_total_usd": 652152.5,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 60008,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1120.536941580756,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 3361.610824742268
+            },
+            "SI": {
+              "cash_total_usd": 685505.0,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 54885,
+              "entered_cells": 559,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1226.3059033989266,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 559,
+              "usd_per_asset_day": 3589.0314136125653
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 487595.0,
+              "NKD": 652152.5,
+              "SI": 685505.0
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 0.0,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 1056.8920092646208,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1727,
+            "usd_per_asset_day": {
+              "HG": 2475.1015228426395,
+              "NKD": 3361.610824742268,
+              "SI": 3589.0314136125653
+            }
+          }
+        },
+        "oracleside_effprice": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 487595.0,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 26404,
+              "entered_cells": 586,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 832.0733788395904,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 586,
+              "usd_per_asset_day": 2475.1015228426395
+            },
+            "NKD": {
+              "cash_total_usd": 652152.5,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 30171,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1120.536941580756,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 3361.610824742268
+            },
+            "SI": {
+              "cash_total_usd": 675827.5,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 27576,
+              "entered_cells": 562,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1055.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1202.5400355871886,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 562,
+              "usd_per_asset_day": 3538.36387434555
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 487595.0,
+              "NKD": 652152.5,
+              "SI": 675827.5
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 1055.0,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 1049.4653179190752,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1730,
+            "usd_per_asset_day": {
+              "HG": 2475.1015228426395,
+              "NKD": 3361.610824742268,
+              "SI": 3538.36387434555
+            }
+          }
+        },
+        "recordside_price_control": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 410376.25,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 26343,
+              "entered_cells": 586,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 248.75,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 700.3007679180887,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 586,
+              "usd_per_asset_day": 2083.1281725888325
+            },
+            "NKD": {
+              "cash_total_usd": 513240.0,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 30075,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 527.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 881.8556701030927,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 2645.5670103092784
+            },
+            "SI": {
+              "cash_total_usd": 573215.0,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 27561,
+              "entered_cells": 562,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 430.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1019.9555160142348,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 562,
+              "usd_per_asset_day": 3001.1256544502617
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 410376.25,
+              "NKD": 513240.0,
+              "SI": 573215.0
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 455.0,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 865.2203757225434,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1730,
+            "usd_per_asset_day": {
+              "HG": 2083.1281725888325,
+              "NKD": 2645.5670103092784,
+              "SI": 3001.1256544502617
+            }
+          }
+        },
+        "recside_effprice_all": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 410376.25,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 26343,
+              "entered_cells": 586,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 248.75,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 700.3007679180887,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 586,
+              "usd_per_asset_day": 2083.1281725888325
+            },
+            "NKD": {
+              "cash_total_usd": 510227.5,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 30075,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 917.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 876.6795532646048,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 2630.0386597938145
+            },
+            "SI": {
+              "cash_total_usd": 563065.0,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 27561,
+              "entered_cells": 562,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1115.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1001.8950177935943,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 562,
+              "usd_per_asset_day": 2947.9842931937173
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 410376.25,
+              "NKD": 510227.5,
+              "SI": 563065.0
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 1055.0,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 857.6119942196532,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1730,
+            "usd_per_asset_day": {
+              "HG": 2083.1281725888325,
+              "NKD": 2630.0386597938145,
+              "SI": 2947.9842931937173
+            }
+          }
+        },
+        "recside_lagrecord_all": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 243276.25,
+              "clears_rung": false,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 26343,
+              "entered_cells": 586,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1820.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 415.1471843003413,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 765.0951776649747,
+              "trades": 586,
+              "usd_per_asset_day": 1234.9048223350253
+            },
+            "NKD": {
+              "cash_total_usd": 250002.5,
+              "clears_rung": false,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 30075,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 2237.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 429.557560137457,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 211.32731958762884,
+              "trades": 582,
+              "usd_per_asset_day": 1288.6726804123712
+            },
+            "SI": {
+              "cash_total_usd": 304002.5,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 27561,
+              "entered_cells": 562,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 2475.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 540.9297153024911,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 562,
+              "usd_per_asset_day": 1591.6361256544503
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 243276.25,
+              "NKD": 250002.5,
+              "SI": 304002.5
+            },
+            "clears_rungs": false,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 2092.5,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 460.85621387283237,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {
+              "HG": 765.0951776649747,
+              "NKD": 211.32731958762884
+            },
+            "trades": 1730,
+            "usd_per_asset_day": {
+              "HG": 1234.9048223350253,
+              "NKD": 1288.6726804123712,
+              "SI": 1591.6361256544503
+            }
+          }
+        }
+      },
+      "pick_agreement": {
+        "assets": {
+          "HG": {
+            "denominator": 586,
+            "fraction": 1.0,
+            "numerator": 586
+          },
+          "NKD": {
+            "denominator": 582,
+            "fraction": 0.9982817869415808,
+            "numerator": 581
+          },
+          "SI": {
+            "denominator": 562,
+            "fraction": 0.994661921708185,
+            "numerator": 559
+          }
+        },
+        "denominator": 1730,
+        "dollar_attached": false,
+        "fraction": 0.9976878612716763,
+        "numerator": 1726
+      },
+      "primary_agreement": {
+        "assets": {
+          "HG": {
+            "denominator": 586,
+            "fraction": 0.25597269624573377,
+            "numerator": 150
+          },
+          "NKD": {
+            "denominator": 582,
+            "fraction": 0.23024054982817868,
+            "numerator": 134
+          },
+          "SI": {
+            "denominator": 562,
+            "fraction": 0.27402135231316727,
+            "numerator": 154
+          }
+        },
+        "denominator": 1730,
+        "dollar_attached": false,
+        "fraction": 0.25317919075144507,
+        "numerator": 438
+      }
+    },
+    "5400": {
+      "depth_regret_usd_per_day": {
+        "assets": {
+          "HG": 8.756345177664798,
+          "NKD": 0.0,
+          "SI": 60.73298429319402
+        },
+        "dollar_attached": false
+      },
+      "lines": {
+        "cellbest_control": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 446020.0,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 48990,
+              "entered_cells": 586,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 761.1262798634813,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 586,
+              "usd_per_asset_day": 2264.060913705584
+            },
+            "NKD": {
+              "cash_total_usd": 604340.0,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 56135,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1038.384879725086,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 3115.1546391752577
+            },
+            "SI": {
+              "cash_total_usd": 645675.0,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 52189,
+              "entered_cells": 560,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1152.9910714285713,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 560,
+              "usd_per_asset_day": 3380.497382198953
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 446020.0,
+              "NKD": 604340.0,
+              "SI": 645675.0
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 0.0,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 981.5017361111111,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1728,
+            "usd_per_asset_day": {
+              "HG": 2264.060913705584,
+              "NKD": 3115.1546391752577,
+              "SI": 3380.497382198953
+            }
+          }
+        },
+        "oracleside_effprice": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 444295.0,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 24622,
+              "entered_cells": 586,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1192.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 758.1825938566553,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 586,
+              "usd_per_asset_day": 2255.304568527919
+            },
+            "NKD": {
+              "cash_total_usd": 604340.0,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 28180,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1038.384879725086,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 3115.1546391752577
+            },
+            "SI": {
+              "cash_total_usd": 639052.5,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 26200,
+              "entered_cells": 562,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 930.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1137.1040925266905,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 562,
+              "usd_per_asset_day": 3345.824607329843
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 444295.0,
+              "NKD": 604340.0,
+              "SI": 639052.5
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 1192.5,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 975.5419075144508,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1730,
+            "usd_per_asset_day": {
+              "HG": 2255.304568527919,
+              "NKD": 3115.1546391752577,
+              "SI": 3345.824607329843
+            }
+          }
+        },
+        "recordside_price_control": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 369026.25,
+              "clears_rung": false,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 24618,
+              "entered_cells": 586,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 392.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 629.7376279863481,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 126.77030456852799,
+              "trades": 586,
+              "usd_per_asset_day": 1873.229695431472
+            },
+            "NKD": {
+              "cash_total_usd": 480852.5,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 28184,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 517.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 826.2070446735395,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 2478.6211340206187
+            },
+            "SI": {
+              "cash_total_usd": 534852.5,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 26243,
+              "entered_cells": 562,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 635.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 951.6948398576512,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 562,
+              "usd_per_asset_day": 2800.2748691099478
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 369026.25,
+              "NKD": 480852.5,
+              "SI": 534852.5
+            },
+            "clears_rungs": false,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 852.5,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 800.4226878612717,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {
+              "HG": 126.77030456852799
+            },
+            "trades": 1730,
+            "usd_per_asset_day": {
+              "HG": 1873.229695431472,
+              "NKD": 2478.6211340206187,
+              "SI": 2800.2748691099478
+            }
+          }
+        },
+        "recside_effprice_all": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 367301.25,
+              "clears_rung": false,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 24618,
+              "entered_cells": 586,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1192.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 626.7939419795222,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 135.5266497461928,
+              "trades": 586,
+              "usd_per_asset_day": 1864.4733502538072
+            },
+            "NKD": {
+              "cash_total_usd": 480852.5,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 28184,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 517.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 826.2070446735395,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 2478.6211340206187
+            },
+            "SI": {
+              "cash_total_usd": 523252.5,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 26243,
+              "entered_cells": 562,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1742.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 931.0542704626334,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 562,
+              "usd_per_asset_day": 2739.5418848167537
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 367301.25,
+              "NKD": 480852.5,
+              "SI": 523252.5
+            },
+            "clears_rungs": false,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 1192.5,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 792.7203757225434,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {
+              "HG": 135.5266497461928
+            },
+            "trades": 1730,
+            "usd_per_asset_day": {
+              "HG": 1864.4733502538072,
+              "NKD": 2478.6211340206187,
+              "SI": 2739.5418848167537
+            }
+          }
+        },
+        "recside_lagrecord_all": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 232882.5,
+              "clears_rung": false,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 24618,
+              "entered_cells": 586,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1030.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 397.410409556314,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 817.8553299492385,
+              "trades": 586,
+              "usd_per_asset_day": 1182.1446700507615
+            },
+            "NKD": {
+              "cash_total_usd": 282815.0,
+              "clears_rung": false,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 28184,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1590.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 485.9364261168385,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 42.19072164948443,
+              "trades": 582,
+              "usd_per_asset_day": 1457.8092783505156
+            },
+            "SI": {
+              "cash_total_usd": 298527.5,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 26243,
+              "entered_cells": 562,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1655.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 531.1877224199288,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 562,
+              "usd_per_asset_day": 1562.9712041884816
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 232882.5,
+              "NKD": 282815.0,
+              "SI": 298527.5
+            },
+            "clears_rungs": false,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 1981.25,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 470.65028901734104,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {
+              "HG": 817.8553299492385,
+              "NKD": 42.19072164948443
+            },
+            "trades": 1730,
+            "usd_per_asset_day": {
+              "HG": 1182.1446700507615,
+              "NKD": 1457.8092783505156,
+              "SI": 1562.9712041884816
+            }
+          }
+        }
+      },
+      "pick_agreement": {
+        "assets": {
+          "HG": {
+            "denominator": 586,
+            "fraction": 0.9982935153583617,
+            "numerator": 585
+          },
+          "NKD": {
+            "denominator": 582,
+            "fraction": 1.0,
+            "numerator": 582
+          },
+          "SI": {
+            "denominator": 562,
+            "fraction": 0.9928825622775801,
+            "numerator": 558
+          }
+        },
+        "denominator": 1730,
+        "dollar_attached": false,
+        "fraction": 0.9971098265895953,
+        "numerator": 1725
+      },
+      "primary_agreement": {
+        "assets": {
+          "HG": {
+            "denominator": 586,
+            "fraction": 0.29180887372013653,
+            "numerator": 171
+          },
+          "NKD": {
+            "denominator": 582,
+            "fraction": 0.23539518900343642,
+            "numerator": 137
+          },
+          "SI": {
+            "denominator": 562,
+            "fraction": 0.304270462633452,
+            "numerator": 171
+          }
+        },
+        "denominator": 1730,
+        "dollar_attached": false,
+        "fraction": 0.276878612716763,
+        "numerator": 479
+      }
+    },
+    "600": {
+      "depth_regret_usd_per_day": {
+        "assets": {
+          "HG": 1.3007614213197485,
+          "NKD": 3.9304123711340253,
+          "SI": 14.856020942408577
+        },
+        "dollar_attached": false
+      },
+      "lines": {
+        "cellbest_control": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 537182.5,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 57215,
+              "entered_cells": 586,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 916.6936860068259,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 586,
+              "usd_per_asset_day": 2726.8147208121827
+            },
+            "NKD": {
+              "cash_total_usd": 732490.0,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 65347,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1258.573883161512,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 3775.721649484536
+            },
+            "SI": {
+              "cash_total_usd": 734895.0,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 58100,
+              "entered_cells": 561,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1309.9732620320856,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 561,
+              "usd_per_asset_day": 3847.6178010471203
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 537182.5,
+              "NKD": 732490.0,
+              "SI": 734895.0
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 0.0,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 1159.3796992481202,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1729,
+            "usd_per_asset_day": {
+              "HG": 2726.8147208121827,
+              "NKD": 3775.721649484536,
+              "SI": 3847.6178010471203
+            }
+          }
+        },
+        "oracleside_effprice": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 536752.5,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 28762,
+              "entered_cells": 587,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 42.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 914.3994889267461,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 587,
+              "usd_per_asset_day": 2724.6319796954313
+            },
+            "NKD": {
+              "cash_total_usd": 732490.0,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 32818,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1258.573883161512,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 3775.721649484536
+            },
+            "SI": {
+              "cash_total_usd": 733710.0,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 29164,
+              "entered_cells": 563,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 430.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1303.214920071048,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 563,
+              "usd_per_asset_day": 3841.413612565445
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 536752.5,
+              "NKD": 732490.0,
+              "SI": 733710.0
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 430.0,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 1156.4390877598153,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1732,
+            "usd_per_asset_day": {
+              "HG": 2724.6319796954313,
+              "NKD": 3775.721649484536,
+              "SI": 3841.413612565445
+            }
+          }
+        },
+        "recordside_price_control": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 406033.75,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 28633,
+              "entered_cells": 587,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 511.25,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 691.7099659284497,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 587,
+              "usd_per_asset_day": 2061.0850253807107
+            },
+            "NKD": {
+              "cash_total_usd": 515615.0,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 32688,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 597.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 885.9364261168384,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 2657.8092783505153
+            },
+            "SI": {
+              "cash_total_usd": 573222.5,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 29089,
+              "entered_cells": 563,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 472.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1018.1571936056838,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 563,
+              "usd_per_asset_day": 3001.1649214659687
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 406033.75,
+              "NKD": 515615.0,
+              "SI": 573222.5
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 590.0,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 863.0896362586606,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1732,
+            "usd_per_asset_day": {
+              "HG": 2061.0850253807107,
+              "NKD": 2657.8092783505153,
+              "SI": 3001.1649214659687
+            }
+          }
+        },
+        "recside_effprice_all": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 405777.5,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 28633,
+              "entered_cells": 587,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 511.25,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 691.2734241908007,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 587,
+              "usd_per_asset_day": 2059.784263959391
+            },
+            "NKD": {
+              "cash_total_usd": 514852.5,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 32688,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 597.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 884.6262886597938,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 2653.8788659793813
+            },
+            "SI": {
+              "cash_total_usd": 570385.0,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 29089,
+              "entered_cells": 563,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1127.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1013.1172291296625,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 563,
+              "usd_per_asset_day": 2986.30890052356
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 405777.5,
+              "NKD": 514852.5,
+              "SI": 570385.0
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 1010.0,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 860.8631639722864,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1732,
+            "usd_per_asset_day": {
+              "HG": 2059.784263959391,
+              "NKD": 2653.8788659793813,
+              "SI": 2986.30890052356
+            }
+          }
+        },
+        "recside_lagrecord_all": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 141852.5,
+              "clears_rung": false,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 28633,
+              "entered_cells": 587,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 2620.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 241.65672913117547,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 1279.9365482233502,
+              "trades": 587,
+              "usd_per_asset_day": 720.0634517766498
+            },
+            "NKD": {
+              "cash_total_usd": 144515.0,
+              "clears_rung": false,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 32688,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 5475.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 248.30756013745705,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 755.0773195876288,
+              "trades": 582,
+              "usd_per_asset_day": 744.9226804123712
+            },
+            "SI": {
+              "cash_total_usd": 218560.0,
+              "clears_rung": false,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 29089,
+              "entered_cells": 563,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 5512.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 388.20603907637656,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 355.7068062827225,
+              "trades": 563,
+              "usd_per_asset_day": 1144.2931937172775
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 141852.5,
+              "NKD": 144515.0,
+              "SI": 218560.0
+            },
+            "clears_rungs": false,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 9553.75,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 291.5285796766744,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {
+              "HG": 1279.9365482233502,
+              "NKD": 755.0773195876288,
+              "SI": 355.7068062827225
+            },
+            "trades": 1732,
+            "usd_per_asset_day": {
+              "HG": 720.0634517766498,
+              "NKD": 744.9226804123712,
+              "SI": 1144.2931937172775
+            }
+          }
+        }
+      },
+      "pick_agreement": {
+        "assets": {
+          "HG": {
+            "denominator": 587,
+            "fraction": 0.9982964224872232,
+            "numerator": 586
+          },
+          "NKD": {
+            "denominator": 582,
+            "fraction": 0.9948453608247423,
+            "numerator": 579
+          },
+          "SI": {
+            "denominator": 563,
+            "fraction": 0.9911190053285968,
+            "numerator": 558
+          }
+        },
+        "denominator": 1732,
+        "dollar_attached": false,
+        "fraction": 0.9948036951501155,
+        "numerator": 1723
+      },
+      "primary_agreement": {
+        "assets": {
+          "HG": {
+            "denominator": 587,
+            "fraction": 0.12947189097103917,
+            "numerator": 76
+          },
+          "NKD": {
+            "denominator": 582,
+            "fraction": 0.14776632302405499,
+            "numerator": 86
+          },
+          "SI": {
+            "denominator": 563,
+            "fraction": 0.15452930728241562,
+            "numerator": 87
+          }
+        },
+        "denominator": 1732,
+        "dollar_attached": false,
+        "fraction": 0.14376443418013857,
+        "numerator": 249
+      }
+    },
+    "7200": {
+      "depth_regret_usd_per_day": {
+        "assets": {
+          "HG": 0.0,
+          "NKD": 35.05154639175271,
+          "SI": 56.02094240837687
+        },
+        "dollar_attached": false
+      },
+      "lines": {
+        "cellbest_control": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 404925.0,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 45326,
+              "entered_cells": 585,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 692.1794871794872,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 585,
+              "usd_per_asset_day": 2055.456852791878
+            },
+            "NKD": {
+              "cash_total_usd": 554240.0,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 52479,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 952.3024054982818,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 2856.907216494845
+            },
+            "SI": {
+              "cash_total_usd": 595407.5,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 49123,
+              "entered_cells": 556,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1070.8767985611512,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 556,
+              "usd_per_asset_day": 3117.3167539267015
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 404925.0,
+              "NKD": 554240.0,
+              "SI": 595407.5
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 0.0,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 902.2475333720255,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1723,
+            "usd_per_asset_day": {
+              "HG": 2055.456852791878,
+              "NKD": 2856.907216494845,
+              "SI": 3117.3167539267015
+            }
+          }
+        },
+        "oracleside_effprice": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 404925.0,
+              "clears_rung": true,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 22756,
+              "entered_cells": 585,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 0.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 692.1794871794872,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 0.0,
+              "trades": 585,
+              "usd_per_asset_day": 2055.456852791878
+            },
+            "NKD": {
+              "cash_total_usd": 549177.5,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 26350,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 930.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 943.6039518900344,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 2830.811855670103
+            },
+            "SI": {
+              "cash_total_usd": 589052.5,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 24633,
+              "entered_cells": 562,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 992.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 1048.1361209964414,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 562,
+              "usd_per_asset_day": 3084.044502617801
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 404925.0,
+              "NKD": 549177.5,
+              "SI": 589052.5
+            },
+            "clears_rungs": true,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 992.5,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 892.513013302487,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {},
+            "trades": 1729,
+            "usd_per_asset_day": {
+              "HG": 2055.456852791878,
+              "NKD": 2830.811855670103,
+              "SI": 3084.044502617801
+            }
+          }
+        },
+        "recordside_price_control": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 327125.0,
+              "clears_rung": false,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 22790,
+              "entered_cells": 585,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 367.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 559.1880341880342,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 339.4670050761422,
+              "trades": 585,
+              "usd_per_asset_day": 1660.5329949238578
+            },
+            "NKD": {
+              "cash_total_usd": 433152.5,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 26356,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 947.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 744.2482817869416,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 2232.744845360825
+            },
+            "SI": {
+              "cash_total_usd": 490015.0,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 24696,
+              "entered_cells": 562,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 635.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 871.9128113879003,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 562,
+              "usd_per_asset_day": 2565.523560209424
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 327125.0,
+              "NKD": 433152.5,
+              "SI": 490015.0
+            },
+            "clears_rungs": false,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 777.5,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 723.1304222093696,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {
+              "HG": 339.4670050761422
+            },
+            "trades": 1729,
+            "usd_per_asset_day": {
+              "HG": 1660.5329949238578,
+              "NKD": 2232.744845360825,
+              "SI": 2565.523560209424
+            }
+          }
+        },
+        "recside_effprice_all": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 327125.0,
+              "clears_rung": false,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 22790,
+              "entered_cells": 585,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 367.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 559.1880341880342,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 339.4670050761422,
+              "trades": 585,
+              "usd_per_asset_day": 1660.5329949238578
+            },
+            "NKD": {
+              "cash_total_usd": 426352.5,
+              "clears_rung": true,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": true,
+              "eligible_candidates": 26356,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 947.5,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 732.5644329896908,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 582,
+              "usd_per_asset_day": 2197.693298969072
+            },
+            "SI": {
+              "cash_total_usd": 479315.0,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 24696,
+              "entered_cells": 562,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1540.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 852.873665480427,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 562,
+              "usd_per_asset_day": 2509.502617801047
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 327125.0,
+              "NKD": 426352.5,
+              "SI": 479315.0
+            },
+            "clears_rungs": false,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 1197.5,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 713.008964719491,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {
+              "HG": 339.4670050761422
+            },
+            "trades": 1729,
+            "usd_per_asset_day": {
+              "HG": 1660.5329949238578,
+              "NKD": 2197.693298969072,
+              "SI": 2509.502617801047
+            }
+          }
+        },
+        "recside_lagrecord_all": {
+          "assets": {
+            "HG": {
+              "cash_total_usd": 209712.5,
+              "clears_rung": false,
+              "days": 197,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 22790,
+              "entered_cells": 585,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1138.75,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 358.482905982906,
+              "rung_usd": 2000.0,
+              "shortfall_usd": 935.469543147208,
+              "trades": 585,
+              "usd_per_asset_day": 1064.530456852792
+            },
+            "NKD": {
+              "cash_total_usd": 273090.0,
+              "clears_rung": false,
+              "days": 194,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 26356,
+              "entered_cells": 582,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 2715.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 469.22680412371136,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 92.31958762886597,
+              "trades": 582,
+              "usd_per_asset_day": 1407.680412371134
+            },
+            "SI": {
+              "cash_total_usd": 287215.0,
+              "clears_rung": true,
+              "days": 191,
+              "drawdown_limit_usd": 1000.0,
+              "drawdown_ok": false,
+              "eligible_candidates": 24696,
+              "entered_cells": 562,
+              "entry_cap": 12,
+              "entry_cap_ok": true,
+              "max_drawdown_usd": 1495.0,
+              "max_entries_portfolio_day": 3,
+              "overlap_violations": 0,
+              "per_trade_mean_usd": 511.05871886120997,
+              "rung_usd": 1500.0,
+              "shortfall_usd": 0.0,
+              "trades": 562,
+              "usd_per_asset_day": 1503.7434554973822
+            }
+          },
+          "portfolio_dollar_block": {
+            "cash_total_usd": {
+              "HG": 209712.5,
+              "NKD": 273090.0,
+              "SI": 287215.0
+            },
+            "clears_rungs": false,
+            "days": {
+              "HG": 197,
+              "NKD": 194,
+              "SI": 191
+            },
+            "entry_cap": 12,
+            "entry_cap_ok": true,
+            "max_drawdown_usd": 1852.5,
+            "max_entries_portfolio_day": 9,
+            "overlap_violations": 0,
+            "per_trade_mean_usd": 445.35425101214577,
+            "rungs_usd": {
+              "HG": 2000.0,
+              "NKD": 1500.0,
+              "SI": 1500.0
+            },
+            "shortfall_usd": {
+              "HG": 935.469543147208,
+              "NKD": 92.31958762886597
+            },
+            "trades": 1729,
+            "usd_per_asset_day": {
+              "HG": 1064.530456852792,
+              "NKD": 1407.680412371134,
+              "SI": 1503.7434554973822
+            }
+          }
+        }
+      },
+      "pick_agreement": {
+        "assets": {
+          "HG": {
+            "denominator": 585,
+            "fraction": 1.0,
+            "numerator": 585
+          },
+          "NKD": {
+            "denominator": 582,
+            "fraction": 0.9948453608247423,
+            "numerator": 579
+          },
+          "SI": {
+            "denominator": 562,
+            "fraction": 0.9928825622775801,
+            "numerator": 558
+          }
+        },
+        "denominator": 1729,
+        "dollar_attached": false,
+        "fraction": 0.9959514170040485,
+        "numerator": 1722
+      },
+      "primary_agreement": {
+        "assets": {
+          "HG": {
+            "denominator": 585,
+            "fraction": 0.305982905982906,
+            "numerator": 179
+          },
+          "NKD": {
+            "denominator": 582,
+            "fraction": 0.2663230240549828,
+            "numerator": 155
+          },
+          "SI": {
+            "denominator": 562,
+            "fraction": 0.3309608540925267,
+            "numerator": 186
+          }
+        },
+        "denominator": 1729,
+        "dollar_attached": false,
+        "fraction": 0.3007518796992481,
+        "numerator": 520
+      }
+    }
+  },
+  "primary_variants": [
+    "recside_effprice_all",
+    "recside_lagrecord_all"
+  ],
+  "prior_preconditions": {
+    "b0_judge": ".audit/briefs/threshold-b0-stage1-judge-out.md",
+    "b0_judge_sha256": "6f9040bd67dded89a879772dc6c99f3bbd905c17aacd7833de9fafc8c1ca6526",
+    "b0_receipt": ".audit/threshold-b0-stage1.json",
+    "b0_receipt_sha256": "a7d4dc99d30749814976dec4224540786d11ce2b73532c9045d210595742bd7e",
+    "b1_judge": ".audit/briefs/threshold-b1-picker-judge-out.md",
+    "b1_judge_sha256": "3df0ee4a17ea5872d8b271e3476d9cd9840064c062a3d915e0a1e69d4ec36b71",
+    "b1_receipt": ".audit/threshold-b1-picker.json",
+    "b1_receipt_sha256": "0bd4c19c81079323a3d23dd4548b8803a140c2f4fbf6f68cb38bdf1627cc6110",
+    "locked_asset_days": {
+      "HG": 197,
+      "NKD": 194,
+      "SI": 191
+    },
+    "manifest_sha256": "9974d40605d4bc710f803678f9b99739d9c5d17d23269b934b38c4789967d46f",
+    "status": "PASS"
+  },
+  "protected_trees_after": {
+    "candidates": {
+      "bytes": 593053587,
+      "files": 4096,
+      "metadata_sha256": "4cc8be2d551864b7c5d9792c4702f391cc77d457889c62016318ea76b609b31c"
+    },
+    "late": {
+      "bytes": 653168948,
+      "files": 583,
+      "metadata_sha256": "c4ddac4da58b1483ca09d8e9627c8c70e362724cf61b4f226c7cdd867572c08b"
+    },
+    "pivot": {
+      "bytes": 152838555,
+      "files": 3631,
+      "metadata_sha256": "02e389166622e27785453b18d41eccf8eeef4afaa519b9039c864ca306f48e9a"
+    },
+    "receipts": {
+      "bytes": 8917291,
+      "files": 8198,
+      "metadata_sha256": "0a3e61485d10c3b5a5f92ea9e137092b2522a3c63cce4a2d5bd18bb5af5eaeac"
+    },
+    "teacher": {
+      "bytes": 170848932,
+      "files": 4096,
+      "metadata_sha256": "a2ff9ec0a521d9deacf943e44d7f1c124b9dca6571db5d7a7c1f93d66e5a579d"
+    }
+  },
+  "protected_trees_before": {
+    "candidates": {
+      "bytes": 593053587,
+      "files": 4096,
+      "metadata_sha256": "4cc8be2d551864b7c5d9792c4702f391cc77d457889c62016318ea76b609b31c"
+    },
+    "late": {
+      "bytes": 653168948,
+      "files": 583,
+      "metadata_sha256": "c4ddac4da58b1483ca09d8e9627c8c70e362724cf61b4f226c7cdd867572c08b"
+    },
+    "pivot": {
+      "bytes": 152838555,
+      "files": 3631,
+      "metadata_sha256": "02e389166622e27785453b18d41eccf8eeef4afaa519b9039c864ca306f48e9a"
+    },
+    "receipts": {
+      "bytes": 8917291,
+      "files": 8198,
+      "metadata_sha256": "0a3e61485d10c3b5a5f92ea9e137092b2522a3c63cce4a2d5bd18bb5af5eaeac"
+    },
+    "teacher": {
+      "bytes": 170848932,
+      "files": 4096,
+      "metadata_sha256": "a2ff9ec0a521d9deacf943e44d7f1c124b9dca6571db5d7a7c1f93d66e5a579d"
+    }
+  },
+  "qualifying_ages_seconds": {
+    "HG": [
+      600,
+      1200,
+      2400,
+      3600,
+      5400,
+      7200
+    ],
+    "NKD": [
+      600,
+      1200,
+      2400,
+      3600,
+      5400,
+      7200,
+      10800
+    ],
+    "SI": [
+      600,
+      1200,
+      2400,
+      3600,
+      5400,
+      7200,
+      10800
+    ]
+  },
+  "recordside_price_control": {
+    "10800": {
+      "actual_sha256": "a2be466cb6bac13f9307a0e197c4e797cb974b46b3ad353d893a81c1f973b220",
+      "byte_equal": true,
+      "expected_sha256": "a2be466cb6bac13f9307a0e197c4e797cb974b46b3ad353d893a81c1f973b220",
+      "status": "PASS"
+    },
+    "1200": {
+      "actual_sha256": "d033be076ef0e6e29068b371c1dfd1a0843d6d27081e6afcf700de2b8aeea984",
+      "byte_equal": true,
+      "expected_sha256": "d033be076ef0e6e29068b371c1dfd1a0843d6d27081e6afcf700de2b8aeea984",
+      "status": "PASS"
+    },
+    "2400": {
+      "actual_sha256": "e06c3758fc3c5648a074056d19e94c6413da067aed4e965d47a3340ad6f97417",
+      "byte_equal": true,
+      "expected_sha256": "e06c3758fc3c5648a074056d19e94c6413da067aed4e965d47a3340ad6f97417",
+      "status": "PASS"
+    },
+    "3600": {
+      "actual_sha256": "e3fde31ae16d08d85fb130b63cf070f450631ed9e5700b477aecae991c988332",
+      "byte_equal": true,
+      "expected_sha256": "e3fde31ae16d08d85fb130b63cf070f450631ed9e5700b477aecae991c988332",
+      "status": "PASS"
+    },
+    "5400": {
+      "actual_sha256": "a7b7be449893ed5baa9d05e88403d4e591b2144f63aba44a7ea453febd23ba73",
+      "byte_equal": true,
+      "expected_sha256": "a7b7be449893ed5baa9d05e88403d4e591b2144f63aba44a7ea453febd23ba73",
+      "status": "PASS"
+    },
+    "600": {
+      "actual_sha256": "d769833b22cd08c6da03cd969cf586e4a567a13596192d8b829a82d955d2ef45",
+      "byte_equal": true,
+      "expected_sha256": "d769833b22cd08c6da03cd969cf586e4a567a13596192d8b829a82d955d2ef45",
+      "status": "PASS"
+    },
+    "7200": {
+      "actual_sha256": "3765b018d833cec6c61665b180d19dcd17e6001dc543ae36c19c2c81a01739fe",
+      "byte_equal": true,
+      "expected_sha256": "3765b018d833cec6c61665b180d19dcd17e6001dc543ae36c19c2c81a01739fe",
+      "status": "PASS"
+    }
+  },
+  "same_variant_witness": "recside_effprice_all",
+  "schema": "QRE2THRESHOLDB2PRICEPICKER1",
+  "scoring": {
+    "age0_cert_close_usd_values_used": 0,
+    "max_shard_wall_seconds": 3.678999664261937,
+    "passes_over_late_store": 1,
+    "ready_rows": 2768741,
+    "rows_read": 2923344,
+    "shards_read": 582,
+    "status": "PASS",
+    "three_asset_chains": true,
+    "wall_seconds": 127.27755604311824,
+    "worker_budget": 13
+  },
+  "selftest": {
+    "checks": {
+      "control_mismatch_accepted": {
+        "command": "QRE2_B2_MUTANT=control_mismatch_accepted python3 .audit/score_threshold_b2_price_picker.py --selftest",
+        "exit_code": 1,
+        "failure": "control_mismatch_accepted stayed green",
+        "status": "KILLED"
+      },
+      "future_mid_in_pick": {
+        "command": "QRE2_B2_MUTANT=future_mid_in_pick python3 .audit/score_threshold_b2_price_picker.py --selftest",
+        "exit_code": 1,
+        "failure": "future_mid_in_pick stayed green",
+        "status": "KILLED"
+      },
+      "nonready_entered": {
+        "command": "QRE2_B2_MUTANT=nonready_entered python3 .audit/score_threshold_b2_price_picker.py --selftest",
+        "exit_code": 1,
+        "failure": "nonready_entered stayed green",
+        "status": "KILLED"
+      },
+      "oracle_leak_primary": {
+        "command": "QRE2_B2_MUTANT=oracle_leak_primary python3 .audit/score_threshold_b2_price_picker.py --selftest",
+        "exit_code": 1,
+        "failure": "oracle_leak_primary stayed green",
+        "status": "KILLED"
+      },
+      "selftest": {
+        "command": "python3 .audit/score_threshold_b2_price_picker.py --selftest",
+        "exit_code": 0,
+        "failure": null,
+        "status": "PASS"
+      }
+    },
+    "failures_in_order": [
+      "oracle_leak_primary stayed green",
+      "nonready_entered stayed green",
+      "future_mid_in_pick stayed green",
+      "control_mismatch_accepted stayed green"
+    ],
+    "red_first_before_era_read": true,
+    "status": "PASS",
+    "synthetic_era_bytes_read": 0
+  },
+  "shard_hash_verification": {
+    "bytes": 652860307,
+    "max_shard_wall_seconds": 0.25552649050951004,
+    "shards": 582,
+    "status": "PASS",
+    "verified_before_any_dollar": true,
+    "wall_seconds": 2.373524270951748
+  },
+  "sol_2400_current_price_cap_started": false,
+  "sources": {
+    ".audit/briefs/threshold-b0-stage1-judge-out.md": "6f9040bd67dded89a879772dc6c99f3bbd905c17aacd7833de9fafc8c1ca6526",
+    ".audit/briefs/threshold-b1-picker-judge-out.md": "3df0ee4a17ea5872d8b271e3476d9cd9840064c062a3d915e0a1e69d4ec36b71",
+    ".audit/briefs/threshold-b2-price-picker.md": "b615154f2702c5d966955bb094169001572594e30e87d8e3a1880fb6099c2671",
+    ".audit/briefs/threshold-covering-after-b1-fable-out.md": "91bbe4cca88ee3f71788db6cd39dcf282c8fdc3ec927cc9b9713bd5dd48b21cd",
+    ".audit/score_h5_top2.py": "391194173b25e34f16a5a064ac0e3aa5d18453323ac3008eb5001073fb6b21cb",
+    ".audit/score_threshold_2022_2024_ceiling.py": "e60f1daf3ead475b5dd5e47192a4e6bf9b679ef5f2af083a19cb4a6ee11328f9",
+    ".audit/score_threshold_b0_stage1.py": "61b1b1566a3409dc6769b6180d032fe04827bf07b6d58e1ec7a625fbbf3d5899",
+    ".audit/score_threshold_b1_picker.py": "e291bd50d02cd3e56b80dcab8930d64f3118c414c86ad2cc21fec04a1e71e870",
+    ".audit/score_threshold_b2_price_picker.py": "f6abdea21d1a448d1770d26829b6813a81bb37a00790e38b1f613ab2a8f808d1",
+    ".audit/threshold-b0-stage1.json": "a7d4dc99d30749814976dec4224540786d11ce2b73532c9045d210595742bd7e",
+    ".audit/threshold-b1-picker.json": "0bd4c19c81079323a3d23dd4548b8803a140c2f4fbf6f68cb38bdf1627cc6110",
+    "engine/entry_v2/confirmation_index.py": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+    "engine/entry_v2/late_teacher.py": "0b9d7ca0098ec05bae5f5aeb7ced486535c2be7b3388dc8ca7a4cce5478657a7"
+  },
+  "status": "LIVE",
+  "stored_teacher_fields_parsed": [],
+  "stored_teacher_open_guard": "PASS",
+  "stored_tree_rewritten": false,
+  "teacher_cash_can_promote": false,
+  "tickets_37_46_47_started": false,
+  "touched_2025": false,
+  "training_scale_relabel_started": false,
+  "tripwire_seconds": 3600.0,
+  "unit": "B2",
+  "variant_witnesses": {
+    "recside_effprice_all": {
+      "ages_seconds": {
+        "HG": 600,
+        "NKD": 600,
+        "SI": 2400
+      },
+      "dollar_block": {
+        "cash_total_usd": {
+          "HG": 405777.5,
+          "NKD": 514852.5,
+          "SI": 570527.5
+        },
+        "clears_rungs": true,
+        "days": {
+          "HG": 197,
+          "NKD": 194,
+          "SI": 191
+        },
+        "entry_cap": 12,
+        "entry_cap_ok": true,
+        "max_drawdown_usd": 967.5,
+        "max_entries_portfolio_day": 9,
+        "overlap_violations": 0,
+        "per_trade_mean_usd": 861.44280762565,
+        "rungs_usd": {
+          "HG": 2000.0,
+          "NKD": 1500.0,
+          "SI": 1500.0
+        },
+        "shortfall_usd": {},
+        "trades": 1731,
+        "usd_per_asset_day": {
+          "HG": 2059.784263959391,
+          "NKD": 2653.8788659793813,
+          "SI": 2987.0549738219897
+        }
+      },
+      "eligible_ages_seconds": {
+        "HG": [
+          600,
+          1200,
+          2400,
+          3600
+        ],
+        "NKD": [
+          600,
+          1200,
+          2400,
+          3600,
+          5400,
+          7200,
+          10800
+        ],
+        "SI": [
+          2400
+        ]
+      },
+      "status": "PASS",
+      "variant": "recside_effprice_all"
+    },
+    "recside_lagrecord_all": {
+      "eligible_ages_seconds": {
+        "HG": [],
+        "NKD": [],
+        "SI": []
+      },
+      "status": "MISS",
+      "variant": "recside_lagrecord_all"
+    }
+  },
+  "verdict": "LIVE",
+  "wall_clock_seconds": 389.725101582706,
+  "worker_budget": 13,
+  "workers_by_asset": {
+    "HG": 5,
+    "NKD": 4,
+    "SI": 4
+  }
+}

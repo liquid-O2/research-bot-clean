@@ -46,14 +46,23 @@ class ConfirmationRefusal(RuntimeError):
 # resolution to 300 s. No live probe reads those, and recovering them means
 # rebuilding the corpus. Fixture: test_confirmation.CorpusAgeGrid.
 CORPUS_AGE_GRID_SECONDS: tuple[int, ...] = (0, 30, 60, 90, 120, 180, 240, 290, 300)
-AGE_GRIDS = frozenset({"FULL", "CORPUS"})
+# Ticket 46, funded by the B0 covering ruling in
+# .audit/briefs/threshold-covering-after-cfit-kill-out.md. The late grid is a
+# fixed label schedule. It is not an invitation to widen the FULL corpus path.
+LATE_AGE_GRID_SECONDS: tuple[int, ...] = (
+    0, 30, 60, 90, 120, 180, 240, 290, 300,
+    600, 1200, 2400, 3600, 5400, 7200, 10800,
+)
+SUPPORTED_MAX_DELAYS_SECONDS = frozenset({300, 600, 10800})
+AGE_GRIDS = frozenset({"FULL", "CORPUS", "LATE"})
 
 
 def training_offsets_seconds(max_delay_sec: int = 600) -> tuple[int, ...]:
     """The cheap registered training grid, including the formation baseline."""
 
-    if max_delay_sec not in (300, 600):
-        raise ConfirmationRefusal("confirmation expiry must be 300 or 600 seconds")
+    if max_delay_sec not in SUPPORTED_MAX_DELAYS_SECONDS:
+        raise ConfirmationRefusal(
+            "confirmation expiry must be 300, 600, or 10800 seconds")
     values = list(range(0, min(60, max_delay_sec) + 1, 5))
     if max_delay_sec > 60:
         values.extend(range(70, min(300, max_delay_sec) + 1, 10))
@@ -63,8 +72,9 @@ def training_offsets_seconds(max_delay_sec: int = 600) -> tuple[int, ...]:
 
 
 def replay_offsets_seconds(max_delay_sec: int = 600) -> tuple[int, ...]:
-    if max_delay_sec not in (300, 600):
-        raise ConfirmationRefusal("confirmation expiry must be 300 or 600 seconds")
+    if max_delay_sec not in SUPPORTED_MAX_DELAYS_SECONDS:
+        raise ConfirmationRefusal(
+            "confirmation expiry must be 300, 600, or 10800 seconds")
     return tuple(range(0, max_delay_sec + 1))
 
 
@@ -76,11 +86,10 @@ def _ceil_second(value: int) -> int:
 class ConfirmationConfig:
     max_delay_sec: int = 600
     snapshot_mode: str = "TRAINING"
-    # "FULL" schedules every training offset. "CORPUS" schedules only
-    # CORPUS_AGE_GRID_SECONDS, which is a 4.1x row cut for the corpus build and
-    # drops nothing any live probe reads (ticket 42). It is a strict subset, so
-    # the rows it keeps are the same rows, and `receipt_sha256` carries the
-    # offsets, so a reduced corpus can never pass as a full-resolution one.
+    # "FULL" schedules every training offset. "CORPUS" is ticket 42's nine-age
+    # row cut. "LATE" is ticket 46's fixed sixteen-age label schedule.
+    # `receipt_sha256` carries the resolved offsets, so different grids cannot
+    # share an identity.
     age_grid: str = "FULL"
     fee_usd: float = FEE_USD
     wall_usd: float = WALL_USD
@@ -89,13 +98,17 @@ class ConfirmationConfig:
     require_slow_context: bool = False
 
     def __post_init__(self) -> None:
-        if self.max_delay_sec not in (300, 600):
-            raise ConfirmationRefusal("max_delay_sec must be 300 or 600")
+        if self.max_delay_sec not in SUPPORTED_MAX_DELAYS_SECONDS:
+            raise ConfirmationRefusal(
+                "max_delay_sec must be 300, 600, or 10800")
         if self.snapshot_mode not in {"TRAINING", "REPLAY"}:
             raise ConfirmationRefusal("snapshot_mode must be TRAINING or REPLAY")
         if self.age_grid not in AGE_GRIDS:
             raise ConfirmationRefusal(
                 f"age_grid must be one of {sorted(AGE_GRIDS)}; got {self.age_grid!r}")
+        if self.max_delay_sec == 10800 and self.age_grid != "LATE":
+            raise ConfirmationRefusal(
+                "max_delay_sec=10800 is authorized only for the LATE age grid")
         if self.level_association_mode not in LEVEL_ASSOCIATION_MODES:
             raise ConfirmationRefusal("level_association_mode is invalid")
         if not isinstance(self.require_forecast_context, bool):
@@ -117,13 +130,16 @@ class ConfirmationConfig:
                      else replay_offsets_seconds(self.max_delay_sec))
         if self.age_grid == "FULL":
             return scheduled
-        keep = tuple(age for age in scheduled if age in confirmation_module.CORPUS_AGE_GRID_SECONDS)
+        requested = (confirmation_module.CORPUS_AGE_GRID_SECONDS
+                     if self.age_grid == "CORPUS"
+                     else confirmation_module.LATE_AGE_GRID_SECONDS)
+        keep = tuple(age for age in scheduled if age in requested)
         # A grid that silently loses an age it was asked for would build a
         # corpus missing rows nobody notices until a probe returns nothing.
-        missing = set(confirmation_module.CORPUS_AGE_GRID_SECONDS) - set(scheduled)
+        missing = set(requested) - set(scheduled)
         if missing:
             raise ConfirmationRefusal(
-                f"corpus age grid asks for ages the {self.snapshot_mode} schedule "
+                f"age grid asks for ages the {self.snapshot_mode} schedule "
                 f"at max_delay_sec={self.max_delay_sec} does not contain: "
                 f"{sorted(missing)}; expected a strict subset of {scheduled}")
         return keep

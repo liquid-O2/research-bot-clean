@@ -6,6 +6,7 @@ from dataclasses import replace
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 
 import numpy as np
 
@@ -163,7 +164,6 @@ class CorpusAgeGrid(unittest.TestCase):
         # AND the resolved offsets are in the receipt. Pin the second one too,
         # by moving the grid with the field held constant - otherwise a future
         # refactor could drop offsets from the receipt and nothing would notice.
-        from unittest import mock
         with mock.patch.object(confirmation, "CORPUS_AGE_GRID_SECONDS",
                                (0, 60, 180, 300)):
             narrower = confirmation.ConfirmationConfig(
@@ -176,6 +176,25 @@ class CorpusAgeGrid(unittest.TestCase):
     def test_an_unknown_grid_is_refused(self) -> None:
         with self.assertRaises(confirmation.ConfirmationRefusal):
             confirmation.ConfirmationConfig(age_grid="SOMETHING_ELSE")
+
+    def test_late_grid_resolves_the_preregistered_schedule(self) -> None:
+        expected = (
+            0, 30, 60, 90, 120, 180, 240, 290, 300,
+            600, 1200, 2400, 3600, 5400, 7200, 10800,
+        )
+        config = confirmation.ConfirmationConfig(
+            max_delay_sec=10800, age_grid="LATE")
+        self.assertEqual(config.offsets, expected)
+
+    def test_late_grid_refuses_an_off_schedule_age(self) -> None:
+        config = confirmation.ConfirmationConfig(
+            max_delay_sec=10800, age_grid="LATE")
+        with mock.patch.object(
+                confirmation, "LATE_AGE_GRID_SECONDS",
+                (*confirmation.LATE_AGE_GRID_SECONDS, 10830)):
+            with self.assertRaisesRegex(
+                    confirmation.ConfirmationRefusal, "does not contain"):
+                _ = config.offsets
 
 
 class ConfirmationUnitTests(unittest.TestCase):

@@ -783,6 +783,41 @@ plane (per-price defence history across phases and days, value-area
 position) is named as the missing family the mill has never been given and
 stands as the next unit after the in-flight three, pending the Sol pass.
 
+SESSION CLOSE: THE TRANCHE-2 RULING AND THE FEASIBILITY FACT (Fable,
+2026-08-28 morning, USER-ordered stop after this page; reconciling
+`.audit/briefs/mill-tranche2-sol-out.md`). All three tranche stamps
+stand (27 U1, 28 U1, 29 K2), the U0 residuals and sweep 29's letter
+precedence are accepted without correction, and the CSV-quoting drift
+is cosmetic. THE COMPOSITION IS ALREADY SPENT: sweep 29's S2 IS the
+R_GEN-plus-decline-on-break-close composition, sequentially gated and
+lawful once; a rerun would re-read the same 80 date vectors (observed
+effects need about 830-890 independent dates for 80 percent power);
+HOLD is the only independent plane and S2 has no HOLD license. THE
+FEASIBILITY FACT, measured, for the USER, no recommendation attached:
+at the causal selector's observed 100-300 usd per-trade scale the two
+deciders alone need about 23 seated trades per day against the 12-seat
+portfolio law; the one-isolated-wall drawdown ceiling implies wall
+rates near 0.1 percent against 23-35 percent observed in the selected
+pools; and the clean counterexample is the I4 zero-wall hindsight
+terminal oracle, 97-100 percent win rates, 878-1346 usd per trade, all
+rungs cleared, which STILL fails the binding portfolio event-time MDD
+at 5,893.75 against 1,000, because path risk from simultaneously open
+marks is not determined by win rate, payoff, count, or wall rate. No
+completed causal or hindsight mill book satisfies cash, cap, occupancy,
+and every MDD ledger at once; the one open question is the global
+pathwise capacity of the 3,497 priced break-close opportunities.
+NEXT SESSION, per the page: F25-PATHWISE-CAPACITY first and alone (a
+deterministic certified optimization, CAPACITY-EMPTY stops the mill
+and hands the USER the law-interaction result; CAPACITY-ROOM routes to
+the cash-free F26 source census; F27 one-source composite only behind
+both gates; the S2 and I4 reproduction fixtures and the event-time-cut
+mutant are written into its spec). Priors revised and adopted: program
+15 percent (from 25), within current laws 2 percent (from 10),
+judgments not stop rules. The loop cron is cancelled, records pushed,
+HOLD 131/129/127 asset-days, 2021 kill-only, and 2025H2 all sealed and
+unspent. The log closes at 1,007 rows, 731 KILL, 178 UNRESOLVED
+[recount at open], every verdict traceable to a receipt.
+
 Sweep 28 LANDED, THE FIRST POSITIVE INCREMENT, F24 LICENSED AND
 DISPATCHED (Fable, 2026-08-28). Receipts `.audit/mill-sweep28.json` and
 `.audit/mill-zone-history-build.json`, 40 rows stamped UNRESOLVED,

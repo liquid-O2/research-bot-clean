@@ -783,6 +783,37 @@ plane (per-price defence history across phases and days, value-area
 position) is named as the missing family the mill has never been given and
 stands as the next unit after the in-flight three, pending the Sol pass.
 
+Sweep 24 LANDED, THE VALID COLLISION KILL (Fable, 2026-08-28). Receipt
+`.audit/mill-sweep24.json`, 39 rows stamped KILL, selftest 44/44, both
+registered mutants red, 16,525 of 16,525 barrier reads centre-exact at
+the candidate zone, formation identical to sweep 22 (14,650). FAMILY
+LETTER LEVELCOLLISION-KILL, clause K3 CEILING-UNREACHED, one clause
+matching, both lanes. Best lane L2_EPISODE at NKD 0.036x and SI 0.078x
+of rung, formed ceiling 46.8x and 55.0x beside it, MDD 10,482 and 4,141
+against the 1,000 bound, controls unpowered. The corrected barrier
+score is substantially a DIFFERENT score (rank rho 0.34-0.53
+standardized, selection flips on 13-23 percent of shared candidates)
+and it still cannot reach the formed cash, so the collision mechanism
+is now validly tested at this selector and these bounds and validly
+killed there; the falsifier remains unfired (no powered non-positive
+upper bound). Builder disclosures recorded: a mid-unit NaN-fallback
+defect found and fixed with the fallback registered (sweep 22's
+approach-bar fallback carried component-for-component, refusal if it
+covers anything but the no-close set); the first run's 39 unreproducible
+log rows removed before re-append; sweep 22's pd_broke_close
+zero-default quirk on unresolved candidates reproduced for attribution
+and flagged to F20. Unit 3 branch taken per the tree: sweep 25
+(F20-STRUCTBREAK-ZONEANCHOR) dispatched with THREE registered lanes,
+Sol's promoted BREAK_CLOSE, Sol's marginal-law PULLBACK, and a
+parent-registered PULLBACK-JOINT variant whose depth and cancel train
+as one two-dimensional quantile (grounds: sweep 23 measured the
+marginals do not compose, fill 0.069; deviation flagged for Sol's next
+pass), fixed-zone B_opp on the trapped side snapshot before the breach,
+I_break at the last causal occurrence, high-and-high selector, the
+proven exhaustive partition, family maxT over 6 lines. On a valid F20
+KILL the tree routes to F21-SUBMINUTE-ORDER-ORACLE, outcome-only,
+lawful under the grain law.
+
 SOL REFUSAL ADOPTED, THE ZONE-ANCHOR CORRECTIONS (Fable, 2026-08-28,
 reconciling `.audit/briefs/mill-structbreak-sol-out.md`). Sol audited
 the implementation directly and found the defect every green selftest

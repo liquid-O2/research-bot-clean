@@ -1,0 +1,947 @@
+{
+ "audit": {
+  "cache_agreement": {
+   "agrees": true,
+   "counters": {
+    "agreed": 40,
+    "checked": 40,
+    "no_bar": 0,
+    "no_cell": 0,
+    "no_shard": 0,
+    "undefined_cache_row": 0,
+    "width_off_grid": 0
+   },
+   "problems": []
+  },
+  "coverage": {
+   "by_asset": {
+    "HG": 186,
+    "NKD": 202,
+    "SI": 208
+   },
+   "by_flavour": {
+    "L1_APPROACH": 504,
+    "L2_CLOSE_READ": 46,
+    "L2_ENTRY": 46
+   },
+   "by_zone_kind": {
+    "PD_CLOSE": 102,
+    "PD_HIGH": 94,
+    "PD_LOW": 96,
+    "PEXP_VALUE_HI": 92,
+    "PEXP_VALUE_LO": 102,
+    "SAME_DAY": 110
+   },
+   "defined_day_scale": 596,
+   "defined_prior_session": 596,
+   "defined_same_day": 596
+  },
+  "draw": {
+   "candidates": 14650,
+   "formation_counters": {
+    "candidates": 14650,
+    "cells": 591,
+    "cells_no_levels": 0,
+    "cells_too_short": 0,
+    "cells_zero_width": 0,
+    "days_formed": 192,
+    "days_warmup": 0,
+    "lane2_never_touched": 7117,
+    "lane2_no_next_bar": 4,
+    "lane2_resolved": 1875,
+    "lane2_unresolved": 5654,
+    "levels_missing_cell": 0,
+    "zone_day_level": 2955,
+    "zone_same_day": 2018,
+    "zone_same_day_capped": 2463,
+    "zone_same_day_deduped": 231177
+   },
+   "per_stratum": 28,
+   "strata": 18
+  },
+  "gap_stats": {
+   "max": -60000000000,
+   "median": -60000000000,
+   "min": -60000000000,
+   "p99": -60000000000
+  },
+  "gates": {
+   "cache_agreement": true,
+   "cache_agreement_rows": 40,
+   "center_exact": true,
+   "center_exact_rows": 596,
+   "hand_mismatches": 0,
+   "hand_recount_exact": true,
+   "hand_rows": 20,
+   "no_prior_session_clean": true,
+   "no_prior_session_rows": 3,
+   "prior_session_clean_rows": 596,
+   "prior_session_never_current_day": true,
+   "prior_session_rows": 596,
+   "strictly_prior": true,
+   "strictly_prior_rows": 596
+  },
+  "hand_checks": [
+   {
+    "accessor": {
+     "broke": 197.0,
+     "held": 136.0,
+     "mins_since_touch": 10.0,
+     "ps_broke": 0.0,
+     "ps_held": 0.0,
+     "ps_touches": 0.0,
+     "touch_delta": 772.0,
+     "touches": 333.0
+    },
+    "asset": "HG",
+    "band_width": 19419180.845028225,
+    "d8": 20221020,
+    "decision_stamp_ns": 1666243080000000000,
+    "phase": "0",
+    "recount": {
+     "broke": 197.0,
+     "held": 136.0,
+     "mins_since_touch": 10.0,
+     "ps_broke": 0.0,
+     "ps_held": 0.0,
+     "ps_touches": 0.0,
+     "touch_delta": 772.0,
+     "touches": 333.0
+    },
+    "row": 8,
+    "side": 1,
+    "zone_kind": "PD_CLOSE",
+    "zone_price": 6649000000.0
+   },
+   {
+    "accessor": {
+     "broke": 0.0,
+     "held": 0.0,
+     "mins_since_touch": null,
+     "ps_broke": 0.0,
+     "ps_held": 0.0,
+     "ps_touches": 0.0,
+     "touch_delta": 0.0,
+     "touches": 0.0
+    },
+    "asset": "HG",
+    "band_width": 23512361.729464713,
+    "d8": 20220520,
+    "decision_stamp_ns": 1653020700000000000,
+    "phase": "0",
+    "recount": {
+     "broke": 0.0,
+     "held": 0.0,
+     "mins_since_touch": null,
+     "ps_broke": 0.0,
+     "ps_held": 0.0,
+     "ps_touches": 0.0,
+     "touch_delta": 0.0,
+     "touches": 0.0
+    },
+    "row": 34,
+    "side": -1,
+    "zone_kind": "PD_HIGH",
+    "zone_price": 8594500000.0
+   },
+   {
+    "accessor": {
+     "broke": 43.0,
+     "held": 19.0,
+     "mins_since_touch": 91.0,
+     "ps_broke": 285.0,
+     "ps_held": 206.0,
+     "ps_touches": 491.0,
+     "touch_delta": -365.0,
+     "touches": 62.0
+    },
+    "asset": "HG",
+    "band_width": 19773651.92373837,
+    "d8": 20230315,
+    "decision_stamp_ns": 1678871940000000000,
+    "phase": "1",
+    "recount": {
+     "broke": 43.0,
+     "held": 19.0,
+     "mins_since_touch": 91.0,
+     "ps_broke": 285.0,
+     "ps_held": 206.0,
+     "ps_touches": 491.0,
+     "touch_delta": -365.0,
+     "touches": 62.0
+    },
+    "row": 79,
+    "side": -1,
+    "zone_kind": "PD_LOW",
+    "zone_price": 7970000000.0
+   },
+   {
+    "accessor": {
+     "broke": 0.0,
+     "held": 7.0,
+     "mins_since_touch": 82.0,
+     "ps_broke": 542.0,
+     "ps_held": 164.0,
+     "ps_touches": 706.0,
+     "touch_delta": 103.0,
+     "touches": 7.0
+    },
+    "asset": "HG",
+    "band_width": 11423929.451928604,
+    "d8": 20240201,
+    "decision_stamp_ns": 1706758020000000000,
+    "phase": "0",
+    "recount": {
+     "broke": 0.0,
+     "held": 7.0,
+     "mins_since_touch": 82.0,
+     "ps_broke": 542.0,
+     "ps_held": 164.0,
+     "ps_touches": 706.0,
+     "touch_delta": 103.0,
+     "touches": 7.0
+    },
+    "row": 107,
+    "side": 1,
+    "zone_kind": "PEXP_VALUE_HI",
+    "zone_price": 7739500000.0
+   },
+   {
+    "accessor": {
+     "broke": 106.0,
+     "held": 142.0,
+     "mins_since_touch": 13.0,
+     "ps_broke": 0.0,
+     "ps_held": 0.0,
+     "ps_touches": 0.0,
+     "touch_delta": 90.0,
+     "touches": 248.0
+    },
+    "asset": "NKD",
+    "band_width": 231952905721.25168,
+    "d8": 20240806,
+    "decision_stamp_ns": 1722960120000000000,
+    "phase": "2",
+    "recount": {
+     "broke": 106.0,
+     "held": 142.0,
+     "mins_since_touch": 13.0,
+     "ps_broke": 0.0,
+     "ps_held": 0.0,
+     "ps_touches": 0.0,
+     "touch_delta": 90.0,
+     "touches": 248.0
+    },
+    "row": 220,
+    "side": 1,
+    "zone_kind": "PD_CLOSE",
+    "zone_price": 66980000000000.0
+   },
+   {
+    "accessor": {
+     "broke": 0.0,
+     "held": 0.0,
+     "mins_since_touch": null,
+     "ps_broke": 0.0,
+     "ps_held": 0.0,
+     "ps_touches": 0.0,
+     "touch_delta": 0.0,
+     "touches": 0.0
+    },
+    "asset": "NKD",
+    "band_width": 119921119130.19055,
+    "d8": 20220513,
+    "decision_stamp_ns": 1652399160000000000,
+    "phase": "0",
+    "recount": {
+     "broke": 0.0,
+     "held": 0.0,
+     "mins_since_touch": null,
+     "ps_broke": 0.0,
+     "ps_held": 0.0,
+     "ps_touches": 0.0,
+     "touch_delta": 0.0,
+     "touches": 0.0
+    },
+    "row": 225,
+    "side": -1,
+    "zone_kind": "PD_HIGH",
+    "zone_price": 52090000000000.0
+   },
+   {
+    "accessor": {
+     "broke": 0.0,
+     "held": 29.0,
+     "mins_since_touch": 20.0,
+     "ps_broke": 0.0,
+     "ps_held": 0.0,
+     "ps_touches": 0.0,
+     "touch_delta": 7.0,
+     "touches": 29.0
+    },
+    "asset": "NKD",
+    "band_width": 100606492303.24875,
+    "d8": 20220714,
+    "decision_stamp_ns": 1657779660000000000,
+    "phase": "0",
+    "recount": {
+     "broke": 0.0,
+     "held": 29.0,
+     "mins_since_touch": 20.0,
+     "ps_broke": 0.0,
+     "ps_held": 0.0,
+     "ps_touches": 0.0,
+     "touch_delta": 7.0,
+     "touches": 29.0
+    },
+    "row": 263,
+    "side": 1,
+    "zone_kind": "PD_LOW",
+    "zone_price": 53225000000000.0
+   },
+   {
+    "accessor": {
+     "broke": 69.0,
+     "held": 207.0,
+     "mins_since_touch": 28.0,
+     "ps_broke": 0.0,
+     "ps_held": 0.0,
+     "ps_touches": 0.0,
+     "touch_delta": 79.0,
+     "touches": 276.0
+    },
+    "asset": "NKD",
+    "band_width": 71745476862.7309,
+    "d8": 20230314,
+    "decision_stamp_ns": 1678786260000000000,
+    "phase": "1",
+    "recount": {
+     "broke": 69.0,
+     "held": 207.0,
+     "mins_since_touch": 28.0,
+     "ps_broke": 0.0,
+     "ps_held": 0.0,
+     "ps_touches": 0.0,
+     "touch_delta": 79.0,
+     "touches": 276.0
+    },
+    "row": 274,
+    "side": -1,
+    "zone_kind": "PD_LOW",
+    "zone_price": 54160000000000.0
+   },
+   {
+    "accessor": {
+     "broke": 94.0,
+     "held": 41.0,
+     "mins_since_touch": 1.0,
+     "ps_broke": 209.0,
+     "ps_held": 244.0,
+     "ps_touches": 453.0,
+     "touch_delta": -34.0,
+     "touches": 144.0
+    },
+    "asset": "NKD",
+    "band_width": 120913637388.50255,
+    "d8": 20220523,
+    "decision_stamp_ns": 1653271680000000000,
+    "phase": "0",
+    "recount": {
+     "broke": 94.0,
+     "held": 41.0,
+     "mins_since_touch": 1.0,
+     "ps_broke": 209.0,
+     "ps_held": 244.0,
+     "ps_touches": 453.0,
+     "touch_delta": -34.0,
+     "touches": 144.0
+    },
+    "row": 289,
+    "side": -1,
+    "zone_kind": "PEXP_VALUE_HI",
+    "zone_price": 53850000000000.0
+   },
+   {
+    "accessor": {
+     "broke": 146.0,
+     "held": 520.0,
+     "mins_since_touch": 17.0,
+     "ps_broke": 244.0,
+     "ps_held": 209.0,
+     "ps_touches": 453.0,
+     "touch_delta": -98.0,
+     "touches": 666.0
+    },
+    "asset": "NKD",
+    "band_width": 120913637388.50255,
+    "d8": 20220523,
+    "decision_stamp_ns": 1653319080000000000,
+    "phase": "2",
+    "recount": {
+     "broke": 146.0,
+     "held": 520.0,
+     "mins_since_touch": 17.0,
+     "ps_broke": 244.0,
+     "ps_held": 209.0,
+     "ps_touches": 453.0,
+     "touch_delta": -98.0,
+     "touches": 666.0
+    },
+    "row": 292,
+    "side": 1,
+    "zone_kind": "PEXP_VALUE_HI",
+    "zone_price": 53850000000000.0
+   },
+   {
+    "accessor": {
+     "broke": 8.0,
+     "held": 127.0,
+     "mins_since_touch": 8.0,
+     "ps_broke": 111.0,
+     "ps_held": 162.0,
+     "ps_touches": 273.0,
+     "touch_delta": 25.0,
+     "touches": 135.0
+    },
+    "asset": "NKD",
+    "band_width": 132954898632.71548,
+    "d8": 20240405,
+    "decision_stamp_ns": 1712340300000000000,
+    "phase": "2",
+    "recount": {
+     "broke": 8.0,
+     "held": 127.0,
+     "mins_since_touch": 8.0,
+     "ps_broke": 111.0,
+     "ps_held": 162.0,
+     "ps_touches": 273.0,
+     "touch_delta": 25.0,
+     "touches": 135.0
+    },
+    "row": 333,
+    "side": -1,
+    "zone_kind": "PEXP_VALUE_LO",
+    "zone_price": 78810000000000.0
+   },
+   {
+    "accessor": {
+     "broke": 67.0,
+     "held": 342.0,
+     "mins_since_touch": 188.0,
+     "ps_broke": 96.0,
+     "ps_held": 9.0,
+     "ps_touches": 105.0,
+     "touch_delta": -34.0,
+     "touches": 409.0
+    },
+    "asset": "NKD",
+    "band_width": 96776024658.53563,
+    "d8": 20221021,
+    "decision_stamp_ns": 1666349580000000000,
+    "phase": "1",
+    "recount": {
+     "broke": 67.0,
+     "held": 342.0,
+     "mins_since_touch": 188.0,
+     "ps_broke": 96.0,
+     "ps_held": 9.0,
+     "ps_touches": 105.0,
+     "touch_delta": -34.0,
+     "touches": 409.0
+    },
+    "row": 359,
+    "side": -1,
+    "zone_kind": "SAME_DAY",
+    "zone_price": 53875000000000.0
+   },
+   {
+    "accessor": {
+     "broke": 90.0,
+     "held": 277.0,
+     "mins_since_touch": 19.0,
+     "ps_broke": 0.0,
+     "ps_held": 0.0,
+     "ps_touches": 38.0,
+     "touch_delta": -7.0,
+     "touches": 367.0
+    },
+    "asset": "NKD",
+    "band_width": 92393241141.23148,
+    "d8": 20221028,
+    "decision_stamp_ns": 1666967520000000000,
+    "phase": "2",
+    "recount": {
+     "broke": 90.0,
+     "held": 277.0,
+     "mins_since_touch": 19.0,
+     "ps_broke": 0.0,
+     "ps_held": 0.0,
+     "ps_touches": 38.0,
+     "touch_delta": -7.0,
+     "touches": 367.0
+    },
+    "row": 362,
+    "side": 1,
+    "zone_kind": "SAME_DAY",
+    "zone_price": 54325000000000.0
+   },
+   {
+    "accessor": {
+     "broke": 100.0,
+     "held": 241.0,
+     "mins_since_touch": 184.0,
+     "ps_broke": 568.0,
+     "ps_held": 315.0,
+     "ps_touches": 883.0,
+     "touch_delta": -671.0,
+     "touches": 341.0
+    },
+    "asset": "SI",
+    "band_width": 168136049.5930532,
+    "d8": 20240417,
+    "decision_stamp_ns": 1713383460000000000,
+    "phase": "2",
+    "recount": {
+     "broke": 100.0,
+     "held": 241.0,
+     "mins_since_touch": 184.0,
+     "ps_broke": 568.0,
+     "ps_held": 315.0,
+     "ps_touches": 883.0,
+     "touch_delta": -671.0,
+     "touches": 341.0
+    },
+    "row": 410,
+    "side": 1,
+    "zone_kind": "PD_CLOSE",
+    "zone_price": 56380000000.0
+   },
+   {
+    "accessor": {
+     "broke": 38.0,
+     "held": 122.0,
+     "mins_since_touch": 202.0,
+     "ps_broke": 0.0,
+     "ps_held": 0.0,
+     "ps_touches": 0.0,
+     "touch_delta": 66.0,
+     "touches": 160.0
+    },
+    "asset": "SI",
+    "band_width": 183895551.59152925,
+    "d8": 20240919,
+    "decision_stamp_ns": 1726761540000000000,
+    "phase": "2",
+    "recount": {
+     "broke": 38.0,
+     "held": 122.0,
+     "mins_since_touch": 202.0,
+     "ps_broke": 0.0,
+     "ps_held": 0.0,
+     "ps_touches": 0.0,
+     "touch_delta": 66.0,
+     "touches": 160.0
+    },
+    "row": 448,
+    "side": -1,
+    "zone_kind": "PD_HIGH",
+    "zone_price": 63165000000.0
+   },
+   {
+    "accessor": {
+     "broke": 0.0,
+     "held": 0.0,
+     "mins_since_touch": null,
+     "ps_broke": 563.0,
+     "ps_held": 101.0,
+     "ps_touches": 945.0,
+     "touch_delta": 0.0,
+     "touches": 0.0
+    },
+    "asset": "SI",
+    "band_width": 308817862.31481844,
+    "d8": 20220318,
+    "decision_stamp_ns": 1647599100000000000,
+    "phase": "2",
+    "recount": {
+     "broke": 0.0,
+     "held": 0.0,
+     "mins_since_touch": null,
+     "ps_broke": 563.0,
+     "ps_held": 101.0,
+     "ps_touches": 945.0,
+     "touch_delta": 0.0,
+     "touches": 0.0
+    },
+    "row": 487,
+    "side": 1,
+    "zone_kind": "PEXP_VALUE_HI",
+    "zone_price": 50195000000.0
+   },
+   {
+    "accessor": {
+     "broke": 215.0,
+     "held": 221.0,
+     "mins_since_touch": 70.0,
+     "ps_broke": 345.0,
+     "ps_held": 159.0,
+     "ps_touches": 504.0,
+     "touch_delta": -595.0,
+     "touches": 436.0
+    },
+    "asset": "SI",
+    "band_width": 168136049.5930532,
+    "d8": 20240417,
+    "decision_stamp_ns": 1713378660000000000,
+    "phase": "2",
+    "recount": {
+     "broke": 215.0,
+     "held": 221.0,
+     "mins_since_touch": 70.0,
+     "ps_broke": 345.0,
+     "ps_held": 159.0,
+     "ps_touches": 504.0,
+     "touch_delta": -595.0,
+     "touches": 436.0
+    },
+    "row": 511,
+    "side": 1,
+    "zone_kind": "PEXP_VALUE_HI",
+    "zone_price": 56615000000.0
+   },
+   {
+    "accessor": {
+     "broke": 16.0,
+     "held": 6.0,
+     "mins_since_touch": 25.0,
+     "ps_broke": 20.0,
+     "ps_held": 40.0,
+     "ps_touches": 60.0,
+     "touch_delta": -158.0,
+     "touches": 22.0
+    },
+    "asset": "SI",
+    "band_width": 169528780.85291785,
+    "d8": 20240912,
+    "decision_stamp_ns": 1726148820000000000,
+    "phase": "2",
+    "recount": {
+     "broke": 16.0,
+     "held": 6.0,
+     "mins_since_touch": 25.0,
+     "ps_broke": 20.0,
+     "ps_held": 40.0,
+     "ps_touches": 60.0,
+     "touch_delta": -158.0,
+     "touches": 22.0
+    },
+    "row": 517,
+    "side": -1,
+    "zone_kind": "PEXP_VALUE_HI",
+    "zone_price": 58735000000.0
+   },
+   {
+    "accessor": {
+     "broke": 0.0,
+     "held": 0.0,
+     "mins_since_touch": null,
+     "ps_broke": 53.0,
+     "ps_held": 296.0,
+     "ps_touches": 349.0,
+     "touch_delta": 0.0,
+     "touches": 0.0
+    },
+    "asset": "SI",
+    "band_width": 308817862.31481844,
+    "d8": 20220318,
+    "decision_stamp_ns": 1647613080000000000,
+    "phase": "2",
+    "recount": {
+     "broke": 0.0,
+     "held": 0.0,
+     "mins_since_touch": null,
+     "ps_broke": 53.0,
+     "ps_held": 296.0,
+     "ps_touches": 349.0,
+     "touch_delta": 0.0,
+     "touches": 0.0
+    },
+    "row": 520,
+    "side": 1,
+    "zone_kind": "PEXP_VALUE_LO",
+    "zone_price": 49635000000.0
+   },
+   {
+    "accessor": {
+     "broke": 209.0,
+     "held": 318.0,
+     "mins_since_touch": 29.0,
+     "ps_broke": 70.0,
+     "ps_held": 7.0,
+     "ps_touches": 77.0,
+     "touch_delta": -429.0,
+     "touches": 527.0
+    },
+    "asset": "SI",
+    "band_width": 159250068.51817262,
+    "d8": 20241206,
+    "decision_stamp_ns": 1733507220000000000,
+    "phase": "2",
+    "recount": {
+     "broke": 209.0,
+     "held": 318.0,
+     "mins_since_touch": 29.0,
+     "ps_broke": 70.0,
+     "ps_held": 7.0,
+     "ps_touches": 77.0,
+     "touch_delta": -429.0,
+     "touches": 527.0
+    },
+    "row": 594,
+    "side": -1,
+    "zone_kind": "SAME_DAY",
+    "zone_price": 63450000000.0
+   }
+  ],
+  "mismatches": [],
+  "no_prior_session": {
+   "clean": true,
+   "problems": [],
+   "rows": [
+    {
+     "asset": "HG",
+     "bar": 210,
+     "cell": 0,
+     "center_exact": true,
+     "d8": 20220315,
+     "ps_served": false,
+     "ps_sess_d8": -1,
+     "sd_touches": 27.0,
+     "src_minus_decision_ns": -60000000000
+    },
+    {
+     "asset": "NKD",
+     "bar": 255,
+     "cell": 204,
+     "center_exact": true,
+     "d8": 20220315,
+     "ps_served": false,
+     "ps_sess_d8": -1,
+     "sd_touches": 41.0,
+     "src_minus_decision_ns": -60000000000
+    },
+    {
+     "asset": "SI",
+     "bar": 270,
+     "cell": 402,
+     "center_exact": true,
+     "d8": 20220315,
+     "ps_served": false,
+     "ps_sess_d8": -1,
+     "sd_touches": 46.0,
+     "src_minus_decision_ns": -60000000000
+    }
+   ]
+  },
+  "prior_session_closed_after_day_open_rows": 0,
+  "prior_session_gap_stats": {
+   "max": -182940000000000,
+   "median": -492420000000000,
+   "min": -15019980000000000,
+   "rows": 596
+  },
+  "prior_session_minus_day_open_stats": {
+   "max": -174660000000000,
+   "median": -435660000000000,
+   "min": -14950860000000000,
+   "rows": 596
+  },
+  "reader_counters": {
+   "empty_window": 0,
+   "outcome_builds": 503,
+   "prior_session_absent": 3,
+   "prior_session_served": 636,
+   "rows": 639,
+   "tape_builds": 263,
+   "undefined_same_day": 0
+  },
+  "rows": 596,
+  "sample_rows": [
+   {
+    "asset": "HG",
+    "band_width": 19419180.845028225,
+    "cell": 67,
+    "center_price": 6649000000.0,
+    "d8": 20221020,
+    "day_scale_broke": 1.0,
+    "day_scale_held": 0.0,
+    "day_scale_mode": "approach",
+    "day_scale_persistence": -1.0,
+    "decision_stamp_ns": 1666243080000000000,
+    "max_source_stamp": 1666243020000000000,
+    "n_day_scale_bars": 438,
+    "n_ps_source_bars": 1379,
+    "n_source_bars": 437,
+    "phase": "0",
+    "ps_broke": 0.0,
+    "ps_held": 0.0,
+    "ps_mins_since_touch": null,
+    "ps_served": true,
+    "ps_sess_d8": 20221017,
+    "ps_touch_delta": 0.0,
+    "ps_touches": 0.0,
+    "sd_broke": 197.0,
+    "sd_held": 136.0,
+    "sd_mins_since_touch": 10.0,
+    "sd_touch_delta": 772.0,
+    "sd_touches": 333.0,
+    "side": 1,
+    "zone_kind": "PD_CLOSE"
+   },
+   {
+    "asset": "HG",
+    "band_width": 23512361.729464713,
+    "cell": 22,
+    "center_price": 8594500000.0,
+    "d8": 20220520,
+    "day_scale_broke": 0.0,
+    "day_scale_held": 1.0,
+    "day_scale_mode": "approach",
+    "day_scale_persistence": 1.0,
+    "decision_stamp_ns": 1653020700000000000,
+    "max_source_stamp": 1653020640000000000,
+    "n_day_scale_bars": 385,
+    "n_ps_source_bars": 1379,
+    "n_source_bars": 384,
+    "phase": "0",
+    "ps_broke": 0.0,
+    "ps_held": 0.0,
+    "ps_mins_since_touch": null,
+    "ps_served": true,
+    "ps_sess_d8": 20220517,
+    "ps_touch_delta": 0.0,
+    "ps_touches": 0.0,
+    "sd_broke": 0.0,
+    "sd_held": 0.0,
+    "sd_mins_since_touch": null,
+    "sd_touch_delta": 0.0,
+    "sd_touches": 0.0,
+    "side": -1,
+    "zone_kind": "PD_HIGH"
+   },
+   {
+    "asset": "HG",
+    "band_width": 19773651.92373837,
+    "cell": 94,
+    "center_price": 7970000000.0,
+    "d8": 20230315,
+    "day_scale_broke": 1.0,
+    "day_scale_held": 1.0,
+    "day_scale_mode": "approach",
+    "day_scale_persistence": 0.0,
+    "decision_stamp_ns": 1678871940000000000,
+    "max_source_stamp": 1678871880000000000,
+    "n_day_scale_bars": 139,
+    "n_ps_source_bars": 1379,
+    "n_source_bars": 678,
+    "phase": "1",
+    "ps_broke": 285.0,
+    "ps_held": 206.0,
+    "ps_mins_since_touch": 6616.0,
+    "ps_served": true,
+    "ps_sess_d8": 20230310,
+    "ps_touch_delta": 517.0,
+    "ps_touches": 491.0,
+    "sd_broke": 43.0,
+    "sd_held": 19.0,
+    "sd_mins_since_touch": 91.0,
+    "sd_touch_delta": -365.0,
+    "sd_touches": 62.0,
+    "side": -1,
+    "zone_kind": "PD_LOW"
+   }
+  ],
+  "sweep22_comparability": {
+   "agree": {
+    "approach": 504,
+    "close": 46
+   },
+   "checked": {
+    "approach": 504,
+    "close": 46
+   }
+  },
+  "worst_gap_ns": -60000000000,
+  "worst_gap_row": 0
+ },
+ "breach_bands": 1.0,
+ "build_levels_code_sha256": "433ccd3c19a29139adc85815935cc44792656a493d07220aabc88151a6bbb8b6",
+ "cache_written": false,
+ "code_sha256": "fc9f275b3219ef3d473c393ecd1dedcc4971c95ea43b81958c5eddd76c7c8101",
+ "day_scale_modes": [
+  "approach",
+  "close"
+ ],
+ "day_scale_turn_kinds": [
+  "PD_HIGH",
+  "PD_LOW",
+  "PEXP_VALUE_HI",
+  "PEXP_VALUE_LO"
+ ],
+ "hold_bands": 1.0,
+ "levels_code_sha256": "cd98dbc298a2d603fe502b9f8f317f2d6c23dbdefe4bb940f1a1580aa13765aa",
+ "mutants": [
+  "center_uses_current_mid"
+ ],
+ "query_schema": [
+  "cell",
+  "zone_price",
+  "band_width",
+  "decision_stamp_ns",
+  "side",
+  "zone_kind",
+  "approach_side",
+  "day_scale_mode"
+ ],
+ "row_schema": [
+  "asset",
+  "d8",
+  "phase",
+  "cell",
+  "side",
+  "zone_kind",
+  "center_price",
+  "band_width",
+  "decision_stamp_ns",
+  "max_source_stamp",
+  "n_source_bars",
+  "sd_touches",
+  "sd_held",
+  "sd_broke",
+  "sd_mins_since_touch",
+  "sd_touch_delta",
+  "ps_touches",
+  "ps_held",
+  "ps_broke",
+  "ps_mins_since_touch",
+  "ps_touch_delta",
+  "ps_sess_d8",
+  "ps_served",
+  "n_ps_source_bars",
+  "day_scale_held",
+  "day_scale_broke",
+  "day_scale_persistence",
+  "day_scale_mode",
+  "n_day_scale_bars"
+ ],
+ "schema": "QRE2MILLLEVELSZONE1",
+ "seed": 20260827,
+ "sources": [
+  "mill_prep",
+  "mill_flow"
+ ],
+ "tier": "exploratory",
+ "unit": "fixed-zone memory accessor (Sol unit 1)",
+ "wall_seconds": 66.54,
+ "written_unix": 1787882705
+}

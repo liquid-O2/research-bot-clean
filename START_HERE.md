@@ -12,7 +12,71 @@ candidate generator is frozen. 2025H2 is sealed.
 **Read this file first.** Every host, every model. Compaction summaries are
 not the record. `MEMORY.md` plus this page are.
 
-## Live cursor (2026-08-27)
+## Live cursor (2026-08-28, the mill era, read this first)
+
+The overnight mill ran sweeps 1 through 29 and closed on a USER stop
+order after the tranche-2 Sol ruling. A fresh session needs exactly this
+reading order, nothing else first:
+
+1. `.audit/briefs/mill-side-resolution.md`, the charter. The newest
+   rulings are stacked ABOVE the section "Sol's closure ruling after
+   sweep 14"; read from "SESSION CLOSE" at the top of that stack down
+   as far as needed. Every sweep, refusal, stamp, and adopted ruling of
+   the era is in there in order.
+2. `.audit/briefs/mill-tranche2-sol-out.md`, the LIVE ruling. It fixes
+   the next unit: **F25-PATHWISE-CAPACITY**, a deterministic certified
+   bound over the 3,497 priced break-close opportunities (its exact
+   spec, fixtures, and stop rules are in that page's section D).
+   CAPACITY-EMPTY stops the mill and hands the USER the measured
+   law-interaction fact; CAPACITY-ROOM routes to the cash-free
+   F26 source census; F27 only behind both gates. Do not dispatch
+   anything before reading it.
+3. The other Sol pages, in order if context is needed:
+   `mill-sweep14-sol-out.md` (closure), `mill-fixhold-sol-out.md`
+   (F13 death, magnitude route), `mill-pinpoint-sol-out.md` (the root
+   cause: hold-or-break is barrier against impulse and the plane
+   carries only the impulse; the candidate answer; the path),
+   `mill-structbreak-sol-out.md` (the zone-miscentering REFUSAL of
+   sweeps 22-23 and the fixed-zone corrections),
+   `mill-powerplan-sol-out.md` (power arithmetic, F22/F23/F24 specs).
+4. `.audit/mill-hypothesis-log.tsv`: 1,006 data rows, 831 KILL, 144
+   UNRESOLVED, 31 deliberately unstamped (sweep 23, refused lineage,
+   never judged). Receipts `.audit/mill-sweep15.json` through
+   `mill-sweep29.json`, plus `mill-levels-build.json`,
+   `mill-levels-zone-build.json`, `mill-zone-history-build.json`.
+   Code in `tools/mill/` (sweep15-29, levels.py, levels_zone.py,
+   zone_history.py). Ledger notes #644-758 cover the era.
+
+The standing facts a new session must not re-derive: the state predicts
+session-scale move SIZE out of fold on both deciders and never
+direction; timing works as a FILTER (ordinal-2, confirmation, the
+USER's break-close and box-exit events); formed universes carry 9x-55x
+of the rungs in hindsight while the best causal book reached 0.14x;
+the genealogy increment is the one positive two-decider result
+(frozen UNRESOLVED); the sub-minute grain lever is DEAD with a receipt
+(sweep 26 ORDER-POOR, both halves of the evidence bar); and THE
+FEASIBILITY FACT: at observed trade sizes the two deciders need about
+23 seats a day against the 12-seat law, and even the zero-wall
+hindsight terminal oracle fails the portfolio event-time MDD at 5,894
+against 1,000. Sol priors at close: program 15 percent, current laws
+2 percent, judgments not stop rules. HOLD (131/129/127), 2021
+(kill-only), and 2025H2 are sealed and unspent. No USER law has a
+measured case for change.
+
+Seat corrections that supersede anything below: the parent seat is
+FABLE on Claude Code (this session's lineage), not Grok. Sol is invoked
+PLAIN, `codex exec -m gpt-5.6-sol -c model_reasoning_effort="max"
+-c service_tier="fast" --dangerously-bypass-approvals-and-sandbox`,
+with NO model_instructions_file (USER order 2026-08-27, revoking the
+sol-instructions override). Implementation goes to Opus subagents;
+Fable stays main-thread; Sol reviews every design decision and every
+major result before the parent acts (USER standing law). USER
+directives of the era live in the Claude memory files
+user-working-style, unslop-exact, and fable-failings-2026-08-27
+(14 recorded failings with fixes) under
+/home/algo/.claude/projects/-workspace/memory/.
+
+## Prior cursor (2026-08-27, superseded by the mill era)
 
 The 2022-2024 ceiling is already known. Do not re-prove it. Capture miss is
 the work. `.audit/threshold-capture-gap.json` verdict MISS. Identity is 99.98%
@@ -416,6 +480,15 @@ in the same sentence it is reported.
 | What | Where |
 |---|---|
 | This file | `START_HERE.md` |
+| Mill charter (the era's record, newest rulings on top) | `.audit/briefs/mill-side-resolution.md` |
+| LIVE ruling and next unit F25 | `.audit/briefs/mill-tranche2-sol-out.md` |
+| Sol pages of the era, in order | `.audit/briefs/mill-sweep14-sol-out.md`, `mill-fixhold-sol-out.md`, `mill-pinpoint-sol-out.md`, `mill-structbreak-sol-out.md`, `mill-powerplan-sol-out.md`, `mill-tranche2-sol-out.md` |
+| Hypothesis log (1,006 rows, stamped) | `.audit/mill-hypothesis-log.tsv` |
+| Mill receipts | `.audit/mill-sweep15.json` ... `mill-sweep29.json`, `mill-levels-build.json`, `mill-levels-zone-build.json`, `mill-zone-history-build.json` |
+| Mill code | `tools/mill/` (sweep15-29.py, mill.py, levels.py, levels_zone.py, zone_history.py, build_levels.py) |
+| Level caches | `artifacts/cache/mill_levels/` (R2, not git) |
+| Discretionary library distillations | `research/discretionary/*.md` (crosswalks, diagram notes with the gap addendum, delta notes) |
+| USER directives and failings memory | `/home/algo/.claude/projects/-workspace/memory/` (user-working-style, unslop-exact, fable-failings-2026-08-27) |
 | Agent pointer | `AGENTS.md` |
 | Session memory | `MEMORY.md`, `tools/memory_ledger.py` |
 | Covering map (live) | `.audit/briefs/threshold-covering-after-cfit-kill-out.md` |

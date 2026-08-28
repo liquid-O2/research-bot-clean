@@ -1,0 +1,2026 @@
+{
+  "accessor_code_sha": "fc9f275b3219ef3d473c393ecd1dedcc4971c95ea43b81958c5eddd76c7c8101",
+  "asset_days": {
+    "HG": 66,
+    "NKD": 65,
+    "SI": 64
+  },
+  "candidates_match_parent": true,
+  "causality": {
+    "feature_width": [
+      16
+    ],
+    "max_abs_corr_with_payoff": 0.03297305961518225,
+    "max_abs_corr_with_y1800": 0.404728608421998,
+    "no_outcome_in_features": true,
+    "remaining_floor_ok": true,
+    "rows_match_plane": true,
+    "stream_is_chronological": true
+  },
+  "clause_order": [
+    "LIVE",
+    "K1",
+    "K2",
+    "U1",
+    "U0"
+  ],
+  "clauses": {
+    "K1": "the PAIRED CASH 95 percent simultaneous upper bound is non-positive on either deciding asset",
+    "K2": "S2's binding MDD does not fall below 1000 USD",
+    "LIVE": "S2 clears the full live bounds: both deciding assets clear the rung at the point estimate AND at mean minus two SE, both paired deltas are positive at maxT adjusted p <= 0.05, every S2 binding MDD is below 1000, the cap and occupancy are lawful, both stresses clear, and neither decline neighbour flips a deciding paired-delta sign",
+    "U0": "THE REGISTERED RESIDUAL: a deciding paired bound or delta is undefined, or a deciding paired point estimate is non-positive while neither kill clause fires",
+    "U1": "both deciding paired deltas are positive but the live bounds fail or the power is inadequate"
+  },
+  "code_sha": "87b3aa412cf5fd8e2a10aadc8735e4d8a55762e794d52e1128807cfff1258f27",
+  "collisions": {
+    "cross_asset_stamp_groups": 1,
+    "note": "a cross-asset equal stamp costs no seat while the portfolio cap does not bind, since occupancy is per asset",
+    "same_asset_events_in_groups": 4,
+    "same_asset_groups_reordered": 0,
+    "same_asset_stamp_groups": 2
+  },
+  "compression_note": "WHY THE COMPONENTS AND NOT THE MEAN.  F19's and F20's barrier score was the arithmetic mean of three standardized differences - same-day held minus broke, the day-scale persistence proxy, and prior-session held minus broke.  That compression is not a neutral summary.  It forces one sign and one weight on three horizons, it discards the touch COUNT that says how much evidence a rate carries, and it cannot see recency, signed touch flow, zone kind or band width at all.  A mean of standardized parts is also exactly cancellable: if one component's information is opposed by another's, their mean can be identically zero while a ranker over the parts recovers the gradient perfectly.  The selftest plants that world - the payoff rises monotonically in the prior-session HELD RATE while the same-day held rate falls with it by construction - and asserts that the component ranker recovers the ordering out of fold while the compressed single-mean score selects nothing at all.  That is the measurement the first three fixed-zone units never made.",
+  "contamination_note": "Sweep 23's SELECTOR SIGN NOTE is printed beside this one and is carried as the parent's, verbatim.  One clause of it is stated in sweep 23's own frame and is STRONGER here, so it is restated rather than left to be read across.  The note's live risk is contamination: if the present breach were counted in sd_broke, the high-B_opp events would be exactly the ones scored down and the trapped-cohort sign would invert.  Sweep 23 answered that with the cache's verdict law at a READ BAR that is itself strictly before the breach.  This unit does not read a bar's cache row at all.  It calls the fixed-zone accessor with a decision stamp of lat[breach_bar - 1], and the accessor counts only bars closing STRICTLY BEFORE that stamp, so the breach bar and the bar naming the stamp are both outside the window by construction - not by a property of the cache. The receipt's centre-exact and strictly-prior counts are the mechanical evidence, and the formed-universe component means are printed above so a reader can check the sign rather than trust it.",
+  "decline_law": {
+    "cap": "seats already spent on the portfolio date < 11",
+    "clock": "n_bars - bar - 1 >= gap_thr, with gap_thr the trained median within-day bar gap between consecutive arrivals",
+    "counters": {
+      "cells": 585,
+      "defined": 351,
+      "no_gap": 21,
+      "no_mag": 234
+    },
+    "fails_closed": "an undefined threshold never declines",
+    "gap_quantile": 0.5,
+    "neighbours": [
+      0.4,
+      0.6
+    ],
+    "pool": "every PRICED candidate of the same asset and phase on EXPLORE days STRICTLY EARLIER than the day being seated",
+    "quantile": 0.5,
+    "reads_future": false
+  },
+  "decline_ledger": {
+    "declined": 147,
+    "definition": "a decline WORKED if its asset-day later seats an entry under S2; a MIRROR decline is one where nothing later seated, and its forgone cash is the honest cost of the rule, already inside every S2 cash line",
+    "mirror": 87,
+    "mirror_forgone_usd": -8872.5,
+    "per_asset": {
+      "HG": {
+        "declined": 38,
+        "declined_cash_usd": 1360.0,
+        "mean_magnitude": 121.5109338665141,
+        "mirror": 18,
+        "mirror_forgone_usd": 435.0,
+        "worked": 20,
+        "worked_declined_cash_usd": 925.0
+      },
+      "NKD": {
+        "declined": 34,
+        "declined_cash_usd": 155.0,
+        "mean_magnitude": 155.93561923668727,
+        "mirror": 21,
+        "mirror_forgone_usd": -3667.5,
+        "worked": 13,
+        "worked_declined_cash_usd": 3822.5
+      },
+      "SI": {
+        "declined": 75,
+        "declined_cash_usd": -4450.000000000001,
+        "mean_magnitude": 230.7272260287544,
+        "mirror": 48,
+        "mirror_forgone_usd": -5640.000000000001,
+        "worked": 27,
+        "worked_declined_cash_usd": 1190.0000000000005
+      }
+    },
+    "seat_swaps": {
+      "both": 197,
+      "s1_only": 111,
+      "s2_only": 17
+    },
+    "worked": 60,
+    "worked_declined_cash_usd": 5937.5
+  },
+  "decline_note": "WHY THE DECLINE RULE IS SHAPED THIS WAY.  A seat is a scarce, DURABLE resource: under the frozen wall-or-close law an entry holds its asset until the phase closes, so the first arrival of a session usually spends the whole session's seat.  Sweep 28 lost 153 of 461 qualified events - a third of them - to exactly that.  The honest question is not 'which events are good' (that is selection, and it is frozen here) but 'is this arrival worth the seat, or is the session long enough that waiting is affordable'.  That question has a causal answer: the arrival's own frozen score against what this asset-phase has historically served, and the clock.  It has an ILLEGAL answer too - look at what arrives later - and the whole design of this unit is to make the legal answer testable and the illegal one detectable.  The mirror case is the price: sometimes the session ends with the seat unspent and the declined cash forgone.  That cost is counted, printed, and included in every cash line.",
+  "elapsed_s": 526.6,
+  "family": "F24-SIZE-SEAT",
+  "family_clause": "K2",
+  "family_letter": "SIZESEAT-KILL",
+  "feature_law": {
+    "n": 26,
+    "names": [
+      "sd_log_touches",
+      "sd_held_rate",
+      "sd_broke_rate",
+      "sd_mins_since_touch",
+      "sd_touch_flow_per_touch",
+      "ps_log_touches",
+      "ps_held_rate",
+      "ps_broke_rate",
+      "ps_mins_since_touch",
+      "ps_touch_flow_per_touch",
+      "day_scale_persistence",
+      "zone_kind=PD_HIGH",
+      "zone_kind=PD_LOW",
+      "zone_kind=PD_CLOSE",
+      "zone_kind=PEXP_VALUE_HI",
+      "zone_kind=PEXP_VALUE_LO",
+      "zone_kind=SAME_DAY",
+      "band_width_over_prior_atr",
+      "I_break",
+      "gen_generations",
+      "gen_log_touches",
+      "gen_held_rate",
+      "gen_broke_rate",
+      "gen_role_flips",
+      "gen_events_since_flip",
+      "gen_sessions_since_event"
+    ],
+    "source": "sweep28.GEN_FEATURES_ALL, by value; the ranker is sweep 27's by call graph"
+  },
+  "formation": {
+    "counters": {
+      "breach_closes": 19532,
+      "breach_deduped": 15411,
+      "breach_down": 1874,
+      "breach_no_defence_history": 329,
+      "breach_no_zone_visit": 2,
+      "breach_up": 1916,
+      "candidates": 3790,
+      "cells": 591,
+      "cells_no_levels": 0,
+      "cells_too_short": 0,
+      "cells_zero_width": 0,
+      "days_formed": 192,
+      "days_warmup": 0,
+      "levels_missing_cell": 0,
+      "zone_day_level": 2955,
+      "zone_same_day": 2018,
+      "zone_same_day_capped": 2463,
+      "zone_same_day_deduped": 231177
+    },
+    "flow_counters": {
+      "cells": 591,
+      "missing_cell": 0,
+      "missing_shard": 0,
+      "ragged": 0
+    },
+    "max_src_minus_breach_ns": -60000003910,
+    "read_gap_bars": {
+      "is_previous_bar_share": 0.9973614775725593,
+      "max": 84,
+      "mean": 1.0717678100263852
+    },
+    "strictly_prior": true
+  },
+  "genealogy_read": {
+    "counters": {
+      "candidates": 3790,
+      "current_day_events": 0,
+      "generations_max": 13,
+      "generations_mean": 3.296833773087071,
+      "generations_median": 3.0,
+      "identity_contains_price": 3790,
+      "identity_key_drifted": 0,
+      "identity_key_stable": 3790,
+      "identity_price_outside": 0,
+      "no_decision_stamp": 0,
+      "no_history": 0,
+      "queried": 3790,
+      "strict_time_ok": 3790,
+      "strict_time_violations": 0,
+      "with_any_event": 3140,
+      "with_any_flip": 2830,
+      "with_multiple_generations": 2459
+    },
+    "finite_per_column": {
+      "gen_broke_rate": 3140,
+      "gen_events_since_flip": 2830,
+      "gen_generations": 3790,
+      "gen_held_rate": 3140,
+      "gen_log_touches": 3790,
+      "gen_role_flips": 3790,
+      "gen_sessions_since_event": 3140
+    },
+    "worst": {
+      "latest_event_stamp_minus_decision_ns": -176460000000000,
+      "max_event_d8_minus_decision_d8": -3
+    }
+  },
+  "headline": {
+    "clause": "K2",
+    "letter": "SIZESEAT-KILL",
+    "mdd_ceiling_usd": 1000.0,
+    "paired_delta": {
+      "HG": -17.03125,
+      "NKD": 36.4375,
+      "SI": 96.15625000000003
+    },
+    "paired_p_adjusted": {
+      "NKD": 0.35506449355064496,
+      "SI": 0.34366563343665635
+    },
+    "paired_upper95": {
+      "NKD": 121.006943617247,
+      "SI": 311.4691953021106
+    },
+    "s2_max_binding_mdd_usd": 11466.25,
+    "s2_mdd_clears": false,
+    "s2_over_rung": {
+      "NKD": 0.14351282051282052,
+      "SI": 0.06825520833333333
+    },
+    "s2_usd_day": {
+      "HG": 43.04924242424242,
+      "NKD": 215.26923076923077,
+      "SI": 102.3828125
+    }
+  },
+  "impulse": {
+    "counters": {
+      "folds": 120,
+      "r2_days": 120,
+      "skipped_rows": 0,
+      "skipped_warmup": 75,
+      "train_rows": 74487
+    },
+    "horizon_s": 1800,
+    "pooled_within_day_r2": {
+      "HG": -0.22627371342511404,
+      "NKD": -0.2392208963090272,
+      "SI": -0.16731911173751834
+    },
+    "target": "no-wall ABSMOVE"
+  },
+  "impulse_counters": {
+    "no_features": 204,
+    "no_fold": 1372,
+    "scored": 2214
+  },
+  "impulse_join": {
+    "joined": 2374,
+    "no_prior_occurrence": 1416
+  },
+  "letter": {
+    "bounds_defined": true,
+    "cap_ok": true,
+    "clause": "K2",
+    "clause_text": "S2's binding MDD does not fall below 1000 USD",
+    "clauses_matching": [
+      "K2"
+    ],
+    "deltas_positive": true,
+    "letter": "SIZESEAT-KILL",
+    "licence": "LICENSED: both deciding matched deltas are positive and the lane loses seats to occupancy, so F24-SIZE-SEAT may be run on this qualified entry set",
+    "mdd_not_below_ceiling": true,
+    "mdd_ok": false,
+    "neighbours_ok": false,
+    "not_licensed_possible": false,
+    "occupancy_ok": true,
+    "paired_ok": false,
+    "paired_upper_nonpositive": false,
+    "reasons": [
+      "NKD misses the rung (215.26923076923077 point, -111.89077189716272 at -2SE)",
+      "SI misses the rung (102.3828125 point, -140.15140692144737 at -2SE)",
+      "S2 binding MDD 11466.2 >= 1000.0",
+      "a stress replay breaches MDD",
+      "NKD paired delta p 0.3551 > 0.05",
+      "SI paired delta p 0.3437 > 0.05",
+      "a decline-threshold neighbour flips a deciding paired-delta sign"
+    ],
+    "rung_ok": false,
+    "stress_ok": false
+  },
+  "licence": {
+    "licensed": true,
+    "matched_deltas": {
+      "NKD": 86.39240506329114,
+      "SI": 200.00000000000006
+    },
+    "not_licensed_can_fire": false,
+    "note": "NOT-LICENSED cannot fire in this unit: the licence is already in the parent receipt and is cited, not re-derived",
+    "occupancy": {
+      "R_BASE": {
+        "occupancy_share": 0.32051282051282054,
+        "rejected_cap": 0,
+        "rejected_occupancy": 150,
+        "seated": 318,
+        "selected": 468
+      },
+      "R_GEN": {
+        "occupancy_share": 0.3318872017353579,
+        "rejected_cap": 0,
+        "rejected_occupancy": 153,
+        "seated": 308,
+        "selected": 461
+      }
+    },
+    "source": "sweep 28's receipt, .audit/mill-sweep28.json key f24_licence, log row sweep28-039",
+    "verdict": "LICENSED: both deciding matched deltas are positive and the lane loses seats to occupancy, so F24-SIZE-SEAT may be run on this qualified entry set"
+  },
+  "magnitude_law": {
+    "channel": "I_break, the frozen out-of-fold impulse score computed by sweep22.impulse_scores under sweep 22's walk-forward ridge on strictly prior days",
+    "finite_selected": 453,
+    "horizon_s": 1800,
+    "recomputed_here": false,
+    "selected": 461
+  },
+  "mutant": "",
+  "neighbours": {
+    "0.4": {
+      "cash": {
+        "HG": {
+          "clears_rung": false,
+          "days": 66,
+          "mean_minus_2se_usd": -150.4866330162444,
+          "rung_usd": 2000.0,
+          "se_usd": 97.72437711418281,
+          "seats_max": 4,
+          "seats_mean": 1.3484848484848484,
+          "total_usd": 2967.5,
+          "trades": 89,
+          "usd_per_day": 44.96212121212121,
+          "zero_entry_fraction": 0.3939393939393939
+        },
+        "NKD": {
+          "clears_rung": false,
+          "days": 65,
+          "mean_minus_2se_usd": -131.43948312955354,
+          "rung_usd": 1500.0,
+          "se_usd": 165.3158954109306,
+          "seats_max": 4,
+          "seats_mean": 1.2769230769230768,
+          "total_usd": 12947.5,
+          "trades": 83,
+          "usd_per_day": 199.19230769230768,
+          "zero_entry_fraction": 0.4307692307692308
+        },
+        "SI": {
+          "clears_rung": false,
+          "days": 64,
+          "mean_minus_2se_usd": -153.4592950345425,
+          "rung_usd": 1500.0,
+          "se_usd": 151.33902251727125,
+          "seats_max": 3,
+          "seats_mean": 1.015625,
+          "total_usd": 9550.0,
+          "trades": 65,
+          "usd_per_day": 149.21875,
+          "zero_entry_fraction": 0.484375
+        },
+        "_portfolio": {
+          "at_cap_dates": 0,
+          "cap_lawful": true,
+          "dates_with_entries": 74,
+          "portfolio_seats_max": 9
+        }
+      },
+      "declined": 110,
+      "delta": {
+        "HG": -15.453125,
+        "NKD": 23.375,
+        "SI": 133.625
+      },
+      "p_max_adjusted": {
+        "NKD": 0.5422457754224578,
+        "SI": 0.13738626137386262
+      },
+      "quantile": 0.4,
+      "seated": 237,
+      "sign_flips": [],
+      "threshold_counters": {
+        "cells": 585,
+        "defined": 351,
+        "no_gap": 21,
+        "no_mag": 234
+      }
+    },
+    "0.6": {
+      "cash": {
+        "HG": {
+          "clears_rung": false,
+          "days": 66,
+          "mean_minus_2se_usd": -185.0756172410746,
+          "rung_usd": 2000.0,
+          "se_usd": 87.11167225690095,
+          "seats_max": 4,
+          "seats_mean": 0.9393939393939394,
+          "total_usd": -716.25,
+          "trades": 62,
+          "usd_per_day": -10.852272727272727,
+          "zero_entry_fraction": 0.4696969696969697
+        },
+        "NKD": {
+          "clears_rung": false,
+          "days": 65,
+          "mean_minus_2se_usd": -180.922173563701,
+          "rung_usd": 1500.0,
+          "se_usd": 156.84570216646588,
+          "seats_max": 4,
+          "seats_mean": 1.1384615384615384,
+          "total_usd": 8630.0,
+          "trades": 74,
+          "usd_per_day": 132.76923076923077,
+          "zero_entry_fraction": 0.4461538461538462
+        },
+        "SI": {
+          "clears_rung": false,
+          "days": 64,
+          "mean_minus_2se_usd": -30.671211771205435,
+          "rung_usd": 1500.0,
+          "se_usd": 116.46841838560272,
+          "seats_max": 3,
+          "seats_mean": 0.640625,
+          "total_usd": 12945.0,
+          "trades": 41,
+          "usd_per_day": 202.265625,
+          "zero_entry_fraction": 0.609375
+        },
+        "_portfolio": {
+          "at_cap_dates": 0,
+          "cap_lawful": true,
+          "dates_with_entries": 68,
+          "portfolio_seats_max": 8
+        }
+      },
+      "declined": 198,
+      "delta": {
+        "HG": -61.5,
+        "NKD": -30.59375,
+        "SI": 176.0625
+      },
+      "p_max_adjusted": {
+        "NKD": 0.8653134686531346,
+        "SI": 0.15958404159584041
+      },
+      "quantile": 0.6,
+      "seated": 177,
+      "sign_flips": [
+        "NKD"
+      ],
+      "threshold_counters": {
+        "cells": 585,
+        "defined": 351,
+        "no_gap": 21,
+        "no_mag": 234
+      }
+    },
+    "agree": false
+  },
+  "order_note": "WHAT THE SEAT ORDER CAN AND CANNOT BUY.  Reordering seats cannot create cash that the selected events do not already carry; the SELECTED cash is identical under both seatings by construction.  All a seating discipline can do is change WHICH of the qualified events are actually held.  So the paired delta is bounded above by the cash the occupancy rejections were carrying, and a positive delta means the magnitude channel ranks seatable arrivals better than the clock does.  A negative delta means the clock was already the better ranker and size is noise at this grain.",
+  "outcome_law_sha": "64df3f7006ae02445de56f13ddd1f563a0db50f96eaec60e6a7a760e9901a720",
+  "paired": {
+    "by_line": {
+      "A_BREAK_CLOSE|HG": {
+        "dates": 80,
+        "delta_usd_per_date": -17.03125,
+        "eligible": false,
+        "lower95_simultaneous_usd": -80.62872654605546,
+        "p_max_adjusted": null,
+        "se_usd": 33.007901268980326,
+        "t": -0.5159749437328017,
+        "upper95_simultaneous_usd": 46.56622654605546
+      },
+      "A_BREAK_CLOSE|NKD": {
+        "dates": 80,
+        "delta_usd_per_date": 36.4375,
+        "eligible": true,
+        "lower95_simultaneous_usd": -48.131943617247,
+        "p_max_adjusted": 0.35506449355064496,
+        "se_usd": 43.89261959582929,
+        "t": 0.830150953292893,
+        "upper95_simultaneous_usd": 121.006943617247
+      },
+      "A_BREAK_CLOSE|SI": {
+        "dates": 80,
+        "delta_usd_per_date": 96.15625000000003,
+        "eligible": true,
+        "lower95_simultaneous_usd": -119.15669530211059,
+        "p_max_adjusted": 0.34366563343665635,
+        "se_usd": 111.75016410153826,
+        "t": 0.8604573494194665,
+        "upper95_simultaneous_usd": 311.4691953021106
+      }
+    },
+    "c95": 1.9267349362142618,
+    "dates": 80,
+    "definition": "S2_MAGNITUDE seated cash MINUS S1_CHRONOLOGICAL seated cash over the SAME fixed qualified entry set, summed inside each shared calendar date under the frozen close label, studentized and read under one shared-date-sign maxT family over NKD and SI",
+    "draws": 10000,
+    "event_level_p": "FORBIDDEN and not computed: several events share one impulse, one day and one seat ledger, so the independent unit is the calendar date",
+    "family": [
+      "A_BREAK_CLOSE|NKD",
+      "A_BREAK_CLOSE|SI"
+    ]
+  },
+  "paired_1800": {
+    "by_line": {
+      "A_BREAK_CLOSE|HG": {
+        "dates": 80,
+        "delta_usd_per_date": 23.90625,
+        "eligible": false,
+        "lower95_simultaneous_usd": -2.954513678400275,
+        "p_max_adjusted": null,
+        "se_usd": 13.628388684829122,
+        "t": 1.7541508796716379,
+        "upper95_simultaneous_usd": 50.767013678400275
+      },
+      "A_BREAK_CLOSE|NKD": {
+        "dates": 80,
+        "delta_usd_per_date": 29.34375,
+        "eligible": true,
+        "lower95_simultaneous_usd": -28.4530062248707,
+        "p_max_adjusted": 0.3094690530946905,
+        "se_usd": 29.324432766900618,
+        "t": 1.000658741918486,
+        "upper95_simultaneous_usd": 87.1405062248707
+      },
+      "A_BREAK_CLOSE|SI": {
+        "dates": 80,
+        "delta_usd_per_date": 49.28125,
+        "eligible": true,
+        "lower95_simultaneous_usd": -88.53620467813485,
+        "p_max_adjusted": 0.43545645435456454,
+        "se_usd": 69.9246626937043,
+        "t": 0.7047763707616291,
+        "upper95_simultaneous_usd": 187.09870467813485
+      }
+    },
+    "c95": 1.9709420019918564,
+    "dates": 80,
+    "draws": 10000,
+    "family": [
+      "A_BREAK_CLOSE|NKD",
+      "A_BREAK_CLOSE|SI"
+    ],
+    "note": "INFORMATION ONLY, carries no letter: the 1800 s label is the frozen sensitivity, reported beside the primary pairing as the charter requires and never used to decide one"
+  },
+  "paired_per_date": {
+    "A_BREAK_CLOSE|HG": {
+      "1800": {
+        "20221107": 230.0,
+        "20221116": 85.0,
+        "20230320": -15.0,
+        "20230323": 747.5,
+        "20230615": 17.5,
+        "20231027": 30.0,
+        "20231208": 80.0,
+        "20231215": -33.75,
+        "20231222": 241.25,
+        "20240126": 272.5,
+        "20240214": 57.5,
+        "20240220": -122.5,
+        "20240319": 30.0,
+        "20240419": 171.25,
+        "20240801": -406.25,
+        "20240806": 86.25,
+        "20240814": 322.5,
+        "20240823": 290.0,
+        "20240906": 96.25,
+        "20240912": -63.75,
+        "20240919": -13.75,
+        "20241206": 51.25,
+        "20241219": -71.25,
+        "20241224": -170.0
+      },
+      "close": {
+        "20221107": -63.75,
+        "20221116": 960.0,
+        "20230320": 905.0,
+        "20230323": -770.0,
+        "20231208": 80.0,
+        "20231215": -646.25,
+        "20231222": 155.0,
+        "20240126": -550.0,
+        "20240214": 241.25,
+        "20240220": -1283.75,
+        "20240419": -790.0,
+        "20240801": -400.0,
+        "20240806": -407.5,
+        "20240814": 123.75,
+        "20240823": -432.5,
+        "20240906": 391.25,
+        "20241206": 608.75,
+        "20241219": 648.75,
+        "20241224": -132.5
+      }
+    },
+    "A_BREAK_CLOSE|NKD": {
+      "1800": {
+        "20221213": -215.0,
+        "20230104": 822.5,
+        "20230203": 22.5,
+        "20230314": 220.0,
+        "20230317": -145.0,
+        "20230322": 380.0,
+        "20230505": -32.5,
+        "20231222": -20.0,
+        "20240201": 205.0,
+        "20240319": 905.0,
+        "20240613": -132.5,
+        "20240729": -395.0,
+        "20240801": 755.0,
+        "20240809": 735.0,
+        "20240823": -872.5,
+        "20240912": -847.5,
+        "20241004": 965.0,
+        "20241206": 67.5,
+        "20241224": -70.0
+      },
+      "close": {
+        "20221213": 17.5,
+        "20230104": 405.0,
+        "20230203": 142.5,
+        "20230314": -2.5,
+        "20230317": 905.0,
+        "20230322": 905.0,
+        "20230505": -162.5,
+        "20240201": 255.0,
+        "20240319": 905.0,
+        "20240613": 1075.0,
+        "20240729": 905.0,
+        "20240801": -312.5,
+        "20240809": -120.0,
+        "20240823": 772.5,
+        "20240912": -2615.0,
+        "20241004": -165.0,
+        "20241206": 5.0
+      }
+    },
+    "A_BREAK_CLOSE|SI": {
+      "1800": {
+        "20221116": 385.00000000000006,
+        "20221215": -852.5000000000001,
+        "20230202": 1370.0,
+        "20230315": 1757.5,
+        "20230321": -622.5,
+        "20230324": -70.0,
+        "20230504": 455.0,
+        "20231020": 242.5,
+        "20231102": 360.0,
+        "20231212": 352.5,
+        "20240104": -297.50000000000006,
+        "20240130": -2335.0000000000005,
+        "20240202": 222.4999999999999,
+        "20240215": 1382.5,
+        "20240221": 105.00000000000001,
+        "20240320": 1122.5000000000002,
+        "20240410": 1215.0000000000002,
+        "20240417": 797.5,
+        "20240426": 1222.5,
+        "20240515": 947.5000000000001,
+        "20240712": -127.50000000000006,
+        "20240719": 730.0000000000001,
+        "20240725": -1370.0000000000002,
+        "20240808": -257.5,
+        "20240813": -1152.5,
+        "20240816": -672.5000000000001,
+        "20240905": -1267.5,
+        "20240912": 10.0,
+        "20241004": -1022.5,
+        "20241107": 1527.5,
+        "20241206": -1065.0000000000002,
+        "20241219": 30.0,
+        "20241224": 820.0
+      },
+      "close": {
+        "20221116": 1810.0000000000002,
+        "20221215": -2770.0000000000005,
+        "20230202": 1157.5,
+        "20230315": 2015.0000000000002,
+        "20230321": -527.5000000000001,
+        "20230504": 905.0000000000002,
+        "20231020": 905.0000000000001,
+        "20231102": 530.0,
+        "20231212": 1810.0000000000002,
+        "20240104": 1810.0000000000002,
+        "20240130": 905.0000000000001,
+        "20240202": 422.4999999999999,
+        "20240215": 110.0,
+        "20240320": 1085.0,
+        "20240410": 1452.5000000000005,
+        "20240417": 1810.0000000000005,
+        "20240426": 297.5000000000001,
+        "20240515": 1242.5,
+        "20240719": 905.0000000000001,
+        "20240725": 700.0000000000001,
+        "20240808": -3487.5000000000005,
+        "20240813": 905.0000000000001,
+        "20240816": -2190.0,
+        "20240905": 157.50000000000017,
+        "20240912": -4702.500000000001,
+        "20241004": 1035.0000000000002,
+        "20241107": 947.5000000000001,
+        "20241206": -1470.0000000000002,
+        "20241224": -77.50000000000006
+      }
+    }
+  },
+  "parent_code_sha": "8b795a17ed3b66599342424fe66a4b9bc3274331289e640cf0265b778a2d7ce8",
+  "parent_spec_sha": "781746a9114b7d8113996a7c50c830e62b0fdee554922ea8c25a2da10f1efa50",
+  "parent_trial": "sweep28-040",
+  "ranker": {
+    "assets": 3,
+    "candidates_priced": 3497,
+    "candidates_unpriced": 293,
+    "days_scored": 120,
+    "days_thin": 0,
+    "days_warmup": 71,
+    "scored_rows": 2248,
+    "train_rows_total": 94077
+  },
+  "registered_utc": "2026-08-28T07:38:38+00:00",
+  "reproduction": {
+    "banked_certifiable": {
+      "HG": 138,
+      "NKD": 132,
+      "SI": 132
+    },
+    "banked_counters": {
+      "cancelled": 0,
+      "candidates_seen": 313131,
+      "cells_with_rows": 385,
+      "dropped_eligibility": 49564,
+      "dropped_identity": 74139,
+      "dropped_window": 62,
+      "dropped_zone": 141964
+    },
+    "banked_rows": 47402,
+    "banked_scoring_days": {
+      "HG": 41,
+      "NKD": 40,
+      "SI": 39
+    },
+    "live_certifiable": {
+      "HG": 138,
+      "NKD": 132,
+      "SI": 132
+    },
+    "live_counters": {
+      "cancelled": 0,
+      "candidates_seen": 313131,
+      "cells_with_rows": 385,
+      "dropped_eligibility": 49564,
+      "dropped_identity": 74139,
+      "dropped_window": 62,
+      "dropped_zone": 141964
+    },
+    "live_rows": 47402,
+    "live_scoring_days": {
+      "HG": 41,
+      "NKD": 40,
+      "SI": 39
+    },
+    "matches": true
+  },
+  "reproduction_gate": {
+    "expected": {
+      "per_asset": {
+        "HG": 157,
+        "NKD": 149,
+        "SI": 155
+      },
+      "rejected_cap": 0,
+      "rejected_occupancy": 153,
+      "seated": 308,
+      "selected": 461,
+      "trades": {
+        "HG": 103,
+        "NKD": 97,
+        "SI": 108
+      },
+      "usd_per_day": {
+        "HG": 63.69318181818182,
+        "NKD": 170.42307692307693,
+        "SI": -17.812500000000018
+      }
+    },
+    "failures": [],
+    "observed": {
+      "per_asset": {
+        "HG": 157,
+        "NKD": 149,
+        "SI": 155
+      },
+      "rejected_cap": 0,
+      "rejected_occupancy": 153,
+      "seated": 308,
+      "selected": 461,
+      "trades": {
+        "HG": 103,
+        "NKD": 97,
+        "SI": 108
+      },
+      "usd_per_day": {
+        "HG": 63.69318181818182,
+        "NKD": 170.42307692307693,
+        "SI": -17.812500000000018
+      }
+    },
+    "ok": true,
+    "source": "sweep 28's own receipt, .audit/mill-sweep28.json"
+  },
+  "residual_note": "REGISTERED RESIDUAL.  U0 is written before any outcome is read and it absorbs every receipt the four named clauses do not: an undefined paired bound or delta on a decider, and a non-positive-but-not-yet-killed paired point estimate.  The partition is proved over constructed receipts in the selftest, not asserted: exactly one clause fires on every combination of the nine registered flags.",
+  "schema": "QRE2MILLSWEEP29",
+  "scoring_days": {
+    "HG": [
+      20221102,
+      20221107,
+      20221116,
+      20221215,
+      20230202,
+      20230310,
+      20230315,
+      20230320,
+      20230323,
+      20230503,
+      20230615,
+      20231027,
+      20231208,
+      20231215,
+      20231222,
+      20240126,
+      20240201,
+      20240214,
+      20240220,
+      20240319,
+      20240405,
+      20240416,
+      20240419,
+      20240503,
+      20240613,
+      20240718,
+      20240724,
+      20240729,
+      20240801,
+      20240806,
+      20240809,
+      20240814,
+      20240823,
+      20240906,
+      20240912,
+      20240919,
+      20241004,
+      20241107,
+      20241206,
+      20241219,
+      20241224
+    ],
+    "NKD": [
+      20221103,
+      20221110,
+      20221213,
+      20230104,
+      20230203,
+      20230314,
+      20230317,
+      20230322,
+      20230327,
+      20230505,
+      20231026,
+      20231115,
+      20231215,
+      20231222,
+      20240126,
+      20240201,
+      20240214,
+      20240220,
+      20240319,
+      20240405,
+      20240416,
+      20240419,
+      20240503,
+      20240613,
+      20240718,
+      20240724,
+      20240729,
+      20240801,
+      20240806,
+      20240809,
+      20240814,
+      20240823,
+      20240906,
+      20240912,
+      20240919,
+      20241004,
+      20241107,
+      20241206,
+      20241219,
+      20241224
+    ],
+    "SI": [
+      20221104,
+      20221116,
+      20221215,
+      20230202,
+      20230310,
+      20230315,
+      20230321,
+      20230324,
+      20230504,
+      20231020,
+      20231102,
+      20231212,
+      20231219,
+      20240104,
+      20240130,
+      20240202,
+      20240215,
+      20240221,
+      20240320,
+      20240410,
+      20240417,
+      20240426,
+      20240515,
+      20240712,
+      20240719,
+      20240725,
+      20240731,
+      20240805,
+      20240808,
+      20240813,
+      20240816,
+      20240905,
+      20240912,
+      20240919,
+      20241004,
+      20241107,
+      20241206,
+      20241219,
+      20241224
+    ]
+  },
+  "seating": {
+    "S1_CHRONOLOGICAL": {
+      "1800": {
+        "cash": {
+          "HG": {
+            "clears_rung": false,
+            "days": 66,
+            "mean_minus_2se_usd": -119.92204866688084,
+            "rung_usd": 2000.0,
+            "se_usd": 39.032994030410116,
+            "seats_max": 4,
+            "seats_mean": 2.196969696969697,
+            "total_usd": -2762.5,
+            "trades": 145,
+            "usd_per_day": -41.85606060606061,
+            "zero_entry_fraction": 0.3939393939393939
+          },
+          "NKD": {
+            "clears_rung": false,
+            "days": 65,
+            "mean_minus_2se_usd": -302.4549852099592,
+            "rung_usd": 1500.0,
+            "se_usd": 75.612107989595,
+            "seats_max": 4,
+            "seats_mean": 2.0153846153846153,
+            "total_usd": -9830.0,
+            "trades": 131,
+            "usd_per_day": -151.23076923076923,
+            "zero_entry_fraction": 0.38461538461538464
+          },
+          "SI": {
+            "clears_rung": false,
+            "days": 64,
+            "mean_minus_2se_usd": -268.6533224579444,
+            "rung_usd": 1500.0,
+            "se_usd": 101.27978622897221,
+            "seats_max": 4,
+            "seats_mean": 2.203125,
+            "total_usd": -4230.0,
+            "trades": 141,
+            "usd_per_day": -66.09374999999999,
+            "zero_entry_fraction": 0.390625
+          },
+          "_portfolio": {
+            "at_cap_dates": 2,
+            "cap_lawful": true,
+            "dates_with_entries": 79,
+            "portfolio_seats_max": 12
+          }
+        },
+        "label": "1800",
+        "mdd": {
+          "HG|day": 5018.75,
+          "HG|trade": 5215.0,
+          "NKD|day": 11392.5,
+          "NKD|trade": 11692.5,
+          "PORTFOLIO|day": 22585.0,
+          "PORTFOLIO|event": 28641.25,
+          "PORTFOLIO|trade": 22585.0,
+          "SI|day": 10072.5,
+          "SI|trade": 10280.0,
+          "binding_ledgers": [
+            "NKD|trade",
+            "NKD|day",
+            "SI|trade",
+            "SI|day",
+            "PORTFOLIO|trade",
+            "PORTFOLIO|day",
+            "PORTFOLIO|event"
+          ],
+          "clears": false,
+          "max_binding_usd": 28641.25
+        },
+        "n_selected": 461,
+        "occupancy_lawful": true,
+        "replay": {
+          "decline_blocked_cap": 0,
+          "decline_blocked_clock": 0,
+          "decline_undefined": 0,
+          "declined": 0,
+          "rejected_cap": 0,
+          "rejected_occupancy": 44,
+          "seated": 417
+        },
+        "seating": "S1_CHRONOLOGICAL",
+        "stress": {
+          "adversarial": {
+            "cash": {
+              "HG": {
+                "clears_rung": false,
+                "days": 66,
+                "mean_minus_2se_usd": -141.62408669483332,
+                "rung_usd": 2000.0,
+                "se_usd": 35.77416455953787,
+                "seats_max": 4,
+                "seats_mean": 2.196969696969697,
+                "total_usd": -4625.0,
+                "trades": 145,
+                "usd_per_day": -70.07575757575758,
+                "zero_entry_fraction": 0.3939393939393939
+              },
+              "NKD": {
+                "clears_rung": false,
+                "days": 65,
+                "mean_minus_2se_usd": -365.1978894836847,
+                "rung_usd": 1500.0,
+                "se_usd": 72.84894474184236,
+                "seats_max": 4,
+                "seats_mean": 2.0153846153846153,
+                "total_usd": -14267.5,
+                "trades": 131,
+                "usd_per_day": -219.5,
+                "zero_entry_fraction": 0.38461538461538464
+              },
+              "SI": {
+                "clears_rung": false,
+                "days": 64,
+                "mean_minus_2se_usd": -336.0066799047325,
+                "rung_usd": 1500.0,
+                "se_usd": 93.55021495236625,
+                "seats_max": 4,
+                "seats_mean": 2.203125,
+                "total_usd": -9530.0,
+                "trades": 141,
+                "usd_per_day": -148.90625,
+                "zero_entry_fraction": 0.390625
+              },
+              "_portfolio": {
+                "at_cap_dates": 2,
+                "cap_lawful": true,
+                "dates_with_entries": 79,
+                "portfolio_seats_max": 12
+              }
+            },
+            "mdd": {
+              "HG|day": 5625.0,
+              "HG|trade": 5821.25,
+              "NKD|day": 14530.0,
+              "NKD|trade": 14600.0,
+              "PORTFOLIO|day": 30362.5,
+              "PORTFOLIO|event": 30403.75,
+              "PORTFOLIO|trade": 30432.5,
+              "SI|day": 13247.5,
+              "SI|trade": 13402.5,
+              "binding_ledgers": [
+                "NKD|trade",
+                "NKD|day",
+                "SI|trade",
+                "SI|day",
+                "PORTFOLIO|trade",
+                "PORTFOLIO|day",
+                "PORTFOLIO|event"
+              ],
+              "clears": false,
+              "max_binding_usd": 30432.5
+            },
+            "seated": 417
+          },
+          "spread": {
+            "cash": {
+              "HG": {
+                "clears_rung": false,
+                "days": 66,
+                "mean_minus_2se_usd": -163.53390019311882,
+                "rung_usd": 2000.0,
+                "se_usd": 40.10028342989275,
+                "seats_max": 4,
+                "seats_mean": 2.196969696969697,
+                "total_usd": -5500.0,
+                "trades": 145,
+                "usd_per_day": -83.33333333333333,
+                "zero_entry_fraction": 0.3939393939393939
+              },
+              "NKD": {
+                "clears_rung": false,
+                "days": 65,
+                "mean_minus_2se_usd": -420.42696667720384,
+                "rung_usd": 1500.0,
+                "se_usd": 83.25194487706345,
+                "seats_max": 4,
+                "seats_mean": 2.0153846153846153,
+                "total_usd": -16505.0,
+                "trades": 131,
+                "usd_per_day": -253.92307692307693,
+                "zero_entry_fraction": 0.38461538461538464
+              },
+              "SI": {
+                "clears_rung": false,
+                "days": 64,
+                "mean_minus_2se_usd": -341.96172659838874,
+                "rung_usd": 1500.0,
+                "se_usd": 102.38711329919437,
+                "seats_max": 4,
+                "seats_mean": 2.203125,
+                "total_usd": -8780.0,
+                "trades": 141,
+                "usd_per_day": -137.1875,
+                "zero_entry_fraction": 0.390625
+              },
+              "_portfolio": {
+                "at_cap_dates": 2,
+                "cap_lawful": true,
+                "dates_with_entries": 79,
+                "portfolio_seats_max": 12
+              }
+            },
+            "mdd": {
+              "HG|day": 6768.75,
+              "HG|trade": 6927.5,
+              "NKD|day": 16612.5,
+              "NKD|trade": 17027.5,
+              "PORTFOLIO|day": 32097.5,
+              "PORTFOLIO|event": 33278.75,
+              "PORTFOLIO|trade": 32097.5,
+              "SI|day": 12797.5,
+              "SI|trade": 13002.5,
+              "binding_ledgers": [
+                "NKD|trade",
+                "NKD|day",
+                "SI|trade",
+                "SI|day",
+                "PORTFOLIO|trade",
+                "PORTFOLIO|day",
+                "PORTFOLIO|event"
+              ],
+              "clears": false,
+              "max_binding_usd": 33278.75
+            },
+            "seated": 417
+          }
+        }
+      },
+      "close": {
+        "cash": {
+          "HG": {
+            "clears_rung": false,
+            "days": 66,
+            "mean_minus_2se_usd": -146.31889902964542,
+            "rung_usd": 2000.0,
+            "se_usd": 105.00604042391362,
+            "seats_max": 4,
+            "seats_mean": 1.5606060606060606,
+            "total_usd": 4203.75,
+            "trades": 103,
+            "usd_per_day": 63.69318181818182,
+            "zero_entry_fraction": 0.3939393939393939
+          },
+          "NKD": {
+            "clears_rung": false,
+            "days": 65,
+            "mean_minus_2se_usd": -176.7092439401205,
+            "rung_usd": 1500.0,
+            "se_usd": 173.56616043159872,
+            "seats_max": 4,
+            "seats_mean": 1.4923076923076923,
+            "total_usd": 11077.5,
+            "trades": 97,
+            "usd_per_day": 170.42307692307693,
+            "zero_entry_fraction": 0.38461538461538464
+          },
+          "SI": {
+            "clears_rung": false,
+            "days": 64,
+            "mean_minus_2se_usd": -373.92070242633764,
+            "rung_usd": 1500.0,
+            "se_usd": 178.05410121316882,
+            "seats_max": 4,
+            "seats_mean": 1.6875,
+            "total_usd": -1140.000000000001,
+            "trades": 108,
+            "usd_per_day": -17.812500000000018,
+            "zero_entry_fraction": 0.390625
+          },
+          "_portfolio": {
+            "at_cap_dates": 0,
+            "cap_lawful": true,
+            "dates_with_entries": 79,
+            "portfolio_seats_max": 10
+          }
+        },
+        "label": "close",
+        "mdd": {
+          "HG|day": 3871.25,
+          "HG|trade": 4078.75,
+          "NKD|day": 5735.0,
+          "NKD|trade": 5975.0,
+          "PORTFOLIO|day": 20250.0,
+          "PORTFOLIO|event": 22046.25,
+          "PORTFOLIO|trade": 21281.25,
+          "SI|day": 18872.5,
+          "SI|trade": 20132.5,
+          "binding_ledgers": [
+            "NKD|trade",
+            "NKD|day",
+            "SI|trade",
+            "SI|day",
+            "PORTFOLIO|trade",
+            "PORTFOLIO|day",
+            "PORTFOLIO|event"
+          ],
+          "clears": false,
+          "max_binding_usd": 22046.25
+        },
+        "n_selected": 461,
+        "occupancy_lawful": true,
+        "replay": {
+          "decline_blocked_cap": 0,
+          "decline_blocked_clock": 0,
+          "decline_undefined": 0,
+          "declined": 0,
+          "rejected_cap": 0,
+          "rejected_occupancy": 153,
+          "seated": 308
+        },
+        "seating": "S1_CHRONOLOGICAL",
+        "stress": {
+          "adversarial": {
+            "cash": {
+              "HG": {
+                "clears_rung": false,
+                "days": 66,
+                "mean_minus_2se_usd": -224.3559286316108,
+                "rung_usd": 2000.0,
+                "se_usd": 88.53213098247207,
+                "seats_max": 4,
+                "seats_mean": 1.5606060606060606,
+                "total_usd": -3121.25,
+                "trades": 103,
+                "usd_per_day": -47.291666666666664,
+                "zero_entry_fraction": 0.3939393939393939
+              },
+              "NKD": {
+                "clears_rung": false,
+                "days": 65,
+                "mean_minus_2se_usd": -254.86200364690603,
+                "rung_usd": 1500.0,
+                "se_usd": 117.35407874652994,
+                "seats_max": 4,
+                "seats_mean": 1.4923076923076923,
+                "total_usd": -1310.0,
+                "trades": 97,
+                "usd_per_day": -20.153846153846153,
+                "zero_entry_fraction": 0.38461538461538464
+              },
+              "SI": {
+                "clears_rung": false,
+                "days": 64,
+                "mean_minus_2se_usd": -550.6630990108729,
+                "rung_usd": 1500.0,
+                "se_usd": 153.24170575543644,
+                "seats_max": 4,
+                "seats_mean": 1.6875,
+                "total_usd": -15627.500000000002,
+                "trades": 108,
+                "usd_per_day": -244.1796875,
+                "zero_entry_fraction": 0.390625
+              },
+              "_portfolio": {
+                "at_cap_dates": 0,
+                "cap_lawful": true,
+                "dates_with_entries": 79,
+                "portfolio_seats_max": 10
+              }
+            },
+            "mdd": {
+              "HG|day": 4001.25,
+              "HG|trade": 4316.25,
+              "NKD|day": 7352.5,
+              "NKD|trade": 7352.5,
+              "PORTFOLIO|day": 24861.25,
+              "PORTFOLIO|event": 28041.25,
+              "PORTFOLIO|trade": 27458.75,
+              "SI|day": 22215.0,
+              "SI|trade": 22582.5,
+              "binding_ledgers": [
+                "NKD|trade",
+                "NKD|day",
+                "SI|trade",
+                "SI|day",
+                "PORTFOLIO|trade",
+                "PORTFOLIO|day",
+                "PORTFOLIO|event"
+              ],
+              "clears": false,
+              "max_binding_usd": 28041.25
+            },
+            "seated": 308
+          },
+          "spread": {
+            "cash": {
+              "HG": {
+                "clears_rung": false,
+                "days": 66,
+                "mean_minus_2se_usd": -176.55567576675662,
+                "rung_usd": 2000.0,
+                "se_usd": 105.162307580348,
+                "seats_max": 4,
+                "seats_mean": 1.5606060606060606,
+                "total_usd": 2228.75,
+                "trades": 103,
+                "usd_per_day": 33.76893939393939,
+                "zero_entry_fraction": 0.3939393939393939
+              },
+              "NKD": {
+                "clears_rung": false,
+                "days": 65,
+                "mean_minus_2se_usd": -254.9928493988105,
+                "rung_usd": 1500.0,
+                "se_usd": 175.7848862378668,
+                "seats_max": 4,
+                "seats_mean": 1.4923076923076923,
+                "total_usd": 6277.5,
+                "trades": 97,
+                "usd_per_day": 96.57692307692308,
+                "zero_entry_fraction": 0.38461538461538464
+              },
+              "SI": {
+                "clears_rung": false,
+                "days": 64,
+                "mean_minus_2se_usd": -431.84594992644395,
+                "rung_usd": 1500.0,
+                "se_usd": 178.69641246322198,
+                "seats_max": 4,
+                "seats_mean": 1.6875,
+                "total_usd": -4765.000000000001,
+                "trades": 108,
+                "usd_per_day": -74.45312500000001,
+                "zero_entry_fraction": 0.390625
+              },
+              "_portfolio": {
+                "at_cap_dates": 0,
+                "cap_lawful": true,
+                "dates_with_entries": 79,
+                "portfolio_seats_max": 10
+              }
+            },
+            "mdd": {
+              "HG|day": 4256.25,
+              "HG|trade": 4758.75,
+              "NKD|day": 7610.0,
+              "NKD|trade": 7750.0,
+              "PORTFOLIO|day": 23312.5,
+              "PORTFOLIO|event": 25070.0,
+              "PORTFOLIO|trade": 24707.5,
+              "SI|day": 20372.5,
+              "SI|trade": 21707.5,
+              "binding_ledgers": [
+                "NKD|trade",
+                "NKD|day",
+                "SI|trade",
+                "SI|day",
+                "PORTFOLIO|trade",
+                "PORTFOLIO|day",
+                "PORTFOLIO|event"
+              ],
+              "clears": false,
+              "max_binding_usd": 25070.0
+            },
+            "seated": 308
+          }
+        }
+      }
+    },
+    "S2_MAGNITUDE": {
+      "1800": {
+        "cash": {
+          "HG": {
+            "clears_rung": false,
+            "days": 66,
+            "mean_minus_2se_usd": -86.80990402763607,
+            "rung_usd": 2000.0,
+            "se_usd": 36.965558074424095,
+            "seats_max": 4,
+            "seats_mean": 1.5151515151515151,
+            "total_usd": -850.0,
+            "trades": 100,
+            "usd_per_day": -12.878787878787879,
+            "zero_entry_fraction": 0.42424242424242425
+          },
+          "NKD": {
+            "clears_rung": false,
+            "days": 65,
+            "mean_minus_2se_usd": -248.28140983829437,
+            "rung_usd": 1500.0,
+            "se_usd": 66.58301261145488,
+            "seats_max": 4,
+            "seats_mean": 1.523076923076923,
+            "total_usd": -7482.5,
+            "trades": 99,
+            "usd_per_day": -115.11538461538461,
+            "zero_entry_fraction": 0.4307692307692308
+          },
+          "SI": {
+            "clears_rung": false,
+            "days": 64,
+            "mean_minus_2se_usd": -105.49301869891036,
+            "rung_usd": 1500.0,
+            "se_usd": 50.50041559945518,
+            "seats_max": 4,
+            "seats_mean": 1.015625,
+            "total_usd": -287.5000000000001,
+            "trades": 65,
+            "usd_per_day": -4.4921875,
+            "zero_entry_fraction": 0.515625
+          },
+          "_portfolio": {
+            "at_cap_dates": 0,
+            "cap_lawful": true,
+            "dates_with_entries": 73,
+            "portfolio_seats_max": 9
+          }
+        },
+        "label": "1800",
+        "mdd": {
+          "HG|day": 3515.0,
+          "HG|trade": 3715.0,
+          "NKD|day": 8282.5,
+          "NKD|trade": 9455.0,
+          "PORTFOLIO|day": 12420.0,
+          "PORTFOLIO|event": 18040.0,
+          "PORTFOLIO|trade": 13830.0,
+          "SI|day": 2747.5000000000005,
+          "SI|trade": 2907.5000000000005,
+          "binding_ledgers": [
+            "NKD|trade",
+            "NKD|day",
+            "SI|trade",
+            "SI|day",
+            "PORTFOLIO|trade",
+            "PORTFOLIO|day",
+            "PORTFOLIO|event"
+          ],
+          "clears": false,
+          "max_binding_usd": 18040.0
+        },
+        "n_selected": 461,
+        "occupancy_lawful": true,
+        "replay": {
+          "decline_blocked_cap": 0,
+          "decline_blocked_clock": 11,
+          "decline_undefined": 12,
+          "declined": 165,
+          "rejected_cap": 0,
+          "rejected_occupancy": 32,
+          "seated": 264
+        },
+        "seating": "S2_MAGNITUDE",
+        "stress": {
+          "adversarial": {
+            "cash": {
+              "HG": {
+                "clears_rung": false,
+                "days": 66,
+                "mean_minus_2se_usd": -96.13557599024548,
+                "rung_usd": 2000.0,
+                "se_usd": 32.11134860118335,
+                "seats_max": 4,
+                "seats_mean": 1.5151515151515151,
+                "total_usd": -2106.25,
+                "trades": 100,
+                "usd_per_day": -31.91287878787879,
+                "zero_entry_fraction": 0.42424242424242425
+              },
+              "NKD": {
+                "clears_rung": false,
+                "days": 65,
+                "mean_minus_2se_usd": -285.3978981443029,
+                "rung_usd": 1500.0,
+                "se_usd": 64.94894907215146,
+                "seats_max": 4,
+                "seats_mean": 1.523076923076923,
+                "total_usd": -10107.5,
+                "trades": 99,
+                "usd_per_day": -155.5,
+                "zero_entry_fraction": 0.4307692307692308
+              },
+              "SI": {
+                "clears_rung": false,
+                "days": 64,
+                "mean_minus_2se_usd": -105.49301869891036,
+                "rung_usd": 1500.0,
+                "se_usd": 50.50041559945518,
+                "seats_max": 4,
+                "seats_mean": 1.015625,
+                "total_usd": -287.5000000000001,
+                "trades": 65,
+                "usd_per_day": -4.4921875,
+                "zero_entry_fraction": 0.515625
+              },
+              "_portfolio": {
+                "at_cap_dates": 0,
+                "cap_lawful": true,
+                "dates_with_entries": 73,
+                "portfolio_seats_max": 9
+              }
+            },
+            "mdd": {
+              "HG|day": 3515.0,
+              "HG|trade": 3715.0,
+              "NKD|day": 10365.0,
+              "NKD|trade": 10365.0,
+              "PORTFOLIO|day": 14538.75,
+              "PORTFOLIO|event": 18040.0,
+              "PORTFOLIO|trade": 14658.75,
+              "SI|day": 2747.5000000000005,
+              "SI|trade": 2907.5000000000005,
+              "binding_ledgers": [
+                "NKD|trade",
+                "NKD|day",
+                "SI|trade",
+                "SI|day",
+                "PORTFOLIO|trade",
+                "PORTFOLIO|day",
+                "PORTFOLIO|event"
+              ],
+              "clears": false,
+              "max_binding_usd": 18040.0
+            },
+            "seated": 264
+          },
+          "spread": {
+            "cash": {
+              "HG": {
+                "clears_rung": false,
+                "days": 66,
+                "mean_minus_2se_usd": -116.77677103204334,
+                "rung_usd": 2000.0,
+                "se_usd": 37.555052182688335,
+                "seats_max": 4,
+                "seats_mean": 1.5151515151515151,
+                "total_usd": -2750.0,
+                "trades": 100,
+                "usd_per_day": -41.666666666666664,
+                "zero_entry_fraction": 0.42424242424242425
+              },
+              "NKD": {
+                "clears_rung": false,
+                "days": 65,
+                "mean_minus_2se_usd": -340.41802125679874,
+                "rung_usd": 1500.0,
+                "se_usd": 75.15131832070705,
+                "seats_max": 4,
+                "seats_mean": 1.523076923076923,
+                "total_usd": -12357.5,
+                "trades": 99,
+                "usd_per_day": -190.1153846153846,
+                "zero_entry_fraction": 0.4307692307692308
+              },
+              "SI": {
+                "clears_rung": false,
+                "days": 64,
+                "mean_minus_2se_usd": -138.9442905602163,
+                "rung_usd": 1500.0,
+                "se_usd": 51.40573903010815,
+                "seats_max": 4,
+                "seats_mean": 1.015625,
+                "total_usd": -2312.5,
+                "trades": 65,
+                "usd_per_day": -36.1328125,
+                "zero_entry_fraction": 0.515625
+              },
+              "_portfolio": {
+                "at_cap_dates": 0,
+                "cap_lawful": true,
+                "dates_with_entries": 73,
+                "portfolio_seats_max": 9
+              }
+            },
+            "mdd": {
+              "HG|day": 4686.25,
+              "HG|trade": 4882.5,
+              "NKD|day": 12465.0,
+              "NKD|trade": 13645.0,
+              "PORTFOLIO|day": 18801.25,
+              "PORTFOLIO|event": 21252.5,
+              "PORTFOLIO|trade": 19930.0,
+              "SI|day": 3892.5,
+              "SI|trade": 4042.5000000000005,
+              "binding_ledgers": [
+                "NKD|trade",
+                "NKD|day",
+                "SI|trade",
+                "SI|day",
+                "PORTFOLIO|trade",
+                "PORTFOLIO|day",
+                "PORTFOLIO|event"
+              ],
+              "clears": false,
+              "max_binding_usd": 21252.5
+            },
+            "seated": 264
+          }
+        }
+      },
+      "close": {
+        "cash": {
+          "HG": {
+            "clears_rung": false,
+            "days": 66,
+            "mean_minus_2se_usd": -147.06696643083797,
+            "rung_usd": 2000.0,
+            "se_usd": 95.05810442754019,
+            "seats_max": 4,
+            "seats_mean": 1.1818181818181819,
+            "total_usd": 2841.25,
+            "trades": 78,
+            "usd_per_day": 43.04924242424242,
+            "zero_entry_fraction": 0.42424242424242425
+          },
+          "NKD": {
+            "clears_rung": false,
+            "days": 65,
+            "mean_minus_2se_usd": -111.89077189716272,
+            "rung_usd": 1500.0,
+            "se_usd": 163.58000133319675,
+            "seats_max": 4,
+            "seats_mean": 1.2153846153846153,
+            "total_usd": 13992.5,
+            "trades": 79,
+            "usd_per_day": 215.26923076923077,
+            "zero_entry_fraction": 0.4307692307692308
+          },
+          "SI": {
+            "clears_rung": false,
+            "days": 64,
+            "mean_minus_2se_usd": -140.15140692144737,
+            "rung_usd": 1500.0,
+            "se_usd": 121.26710971072369,
+            "seats_max": 3,
+            "seats_mean": 0.890625,
+            "total_usd": 6552.5,
+            "trades": 57,
+            "usd_per_day": 102.3828125,
+            "zero_entry_fraction": 0.515625
+          },
+          "_portfolio": {
+            "at_cap_dates": 0,
+            "cap_lawful": true,
+            "dates_with_entries": 73,
+            "portfolio_seats_max": 9
+          }
+        },
+        "label": "close",
+        "mdd": {
+          "HG|day": 6575.0,
+          "HG|trade": 7127.5,
+          "NKD|day": 3140.0,
+          "NKD|trade": 3852.5,
+          "PORTFOLIO|day": 9511.25,
+          "PORTFOLIO|event": 11466.25,
+          "PORTFOLIO|trade": 11206.25,
+          "SI|day": 5462.5,
+          "SI|trade": 6270.0,
+          "binding_ledgers": [
+            "NKD|trade",
+            "NKD|day",
+            "SI|trade",
+            "SI|day",
+            "PORTFOLIO|trade",
+            "PORTFOLIO|day",
+            "PORTFOLIO|event"
+          ],
+          "clears": false,
+          "max_binding_usd": 11466.25
+        },
+        "n_selected": 461,
+        "occupancy_lawful": true,
+        "replay": {
+          "decline_blocked_cap": 0,
+          "decline_blocked_clock": 8,
+          "decline_undefined": 7,
+          "declined": 147,
+          "rejected_cap": 0,
+          "rejected_occupancy": 100,
+          "seated": 214
+        },
+        "seating": "S2_MAGNITUDE",
+        "stress": {
+          "adversarial": {
+            "cash": {
+              "HG": {
+                "clears_rung": false,
+                "days": 66,
+                "mean_minus_2se_usd": -219.95159915808674,
+                "rung_usd": 2000.0,
+                "se_usd": 76.00799654874034,
+                "seats_max": 4,
+                "seats_mean": 1.1818181818181819,
+                "total_usd": -4483.75,
+                "trades": 78,
+                "usd_per_day": -67.93560606060606,
+                "zero_entry_fraction": 0.42424242424242425
+              },
+              "NKD": {
+                "clears_rung": false,
+                "days": 65,
+                "mean_minus_2se_usd": -188.05460007124512,
+                "rung_usd": 1500.0,
+                "se_usd": 154.35422311254564,
+                "seats_max": 4,
+                "seats_mean": 1.2153846153846153,
+                "total_usd": 7842.5,
+                "trades": 79,
+                "usd_per_day": 120.65384615384616,
+                "zero_entry_fraction": 0.4307692307692308
+              },
+              "SI": {
+                "clears_rung": false,
+                "days": 64,
+                "mean_minus_2se_usd": -207.824242100588,
+                "rung_usd": 1500.0,
+                "se_usd": 87.525402300294,
+                "seats_max": 3,
+                "seats_mean": 0.890625,
+                "total_usd": -2097.5000000000005,
+                "trades": 57,
+                "usd_per_day": -32.7734375,
+                "zero_entry_fraction": 0.515625
+              },
+              "_portfolio": {
+                "at_cap_dates": 0,
+                "cap_lawful": true,
+                "dates_with_entries": 73,
+                "portfolio_seats_max": 9
+              }
+            },
+            "mdd": {
+              "HG|day": 6575.0,
+              "HG|trade": 7127.5,
+              "NKD|day": 3977.5,
+              "NKD|trade": 4072.5,
+              "PORTFOLIO|day": 9511.25,
+              "PORTFOLIO|event": 11466.25,
+              "PORTFOLIO|trade": 11206.25,
+              "SI|day": 6855.000000000001,
+              "SI|trade": 8007.500000000001,
+              "binding_ledgers": [
+                "NKD|trade",
+                "NKD|day",
+                "SI|trade",
+                "SI|day",
+                "PORTFOLIO|trade",
+                "PORTFOLIO|day",
+                "PORTFOLIO|event"
+              ],
+              "clears": false,
+              "max_binding_usd": 11466.25
+            },
+            "seated": 214
+          },
+          "spread": {
+            "cash": {
+              "HG": {
+                "clears_rung": false,
+                "days": 66,
+                "mean_minus_2se_usd": -169.893666054975,
+                "rung_usd": 2000.0,
+                "se_usd": 95.10781787597234,
+                "seats_max": 4,
+                "seats_mean": 1.1818181818181819,
+                "total_usd": 1341.25,
+                "trades": 78,
+                "usd_per_day": 20.321969696969695,
+                "zero_entry_fraction": 0.42424242424242425
+              },
+              "NKD": {
+                "clears_rung": false,
+                "days": 65,
+                "mean_minus_2se_usd": -175.82624191451038,
+                "rung_usd": 1500.0,
+                "se_usd": 165.93235172648596,
+                "seats_max": 4,
+                "seats_mean": 1.2153846153846153,
+                "total_usd": 10142.5,
+                "trades": 79,
+                "usd_per_day": 156.03846153846155,
+                "zero_entry_fraction": 0.4307692307692308
+              },
+              "SI": {
+                "clears_rung": false,
+                "days": 64,
+                "mean_minus_2se_usd": -168.32069792436047,
+                "rung_usd": 1500.0,
+                "se_usd": 121.09394271218024,
+                "seats_max": 3,
+                "seats_mean": 0.890625,
+                "total_usd": 4727.5,
+                "trades": 57,
+                "usd_per_day": 73.8671875,
+                "zero_entry_fraction": 0.515625
+              },
+              "_portfolio": {
+                "at_cap_dates": 0,
+                "cap_lawful": true,
+                "dates_with_entries": 73,
+                "portfolio_seats_max": 9
+              }
+            },
+            "mdd": {
+              "HG|day": 7512.5,
+              "HG|trade": 8015.0,
+              "NKD|day": 4005.0,
+              "NKD|trade": 4802.5,
+              "PORTFOLIO|day": 11853.75,
+              "PORTFOLIO|event": 13833.75,
+              "PORTFOLIO|trade": 13406.25,
+              "SI|day": 6112.5,
+              "SI|trade": 6895.0,
+              "binding_ledgers": [
+                "NKD|trade",
+                "NKD|day",
+                "SI|trade",
+                "SI|day",
+                "PORTFOLIO|trade",
+                "PORTFOLIO|day",
+                "PORTFOLIO|event"
+              ],
+              "clears": false,
+              "max_binding_usd": 13833.75
+            },
+            "seated": 214
+          }
+        }
+      }
+    }
+  },
+  "seed": 20260827,
+  "selection_rule": "none, and that is the point: the qualified entry set is sweep 28's R_GEN out-of-fold top-four selection, reproduced event-for-event and gated against its receipt before any cash of this unit is read; the only thing this unit varies is the SEATING discipline over that fixed set, with the decline law registered in full before pricing and no variant search",
+  "selector_sign_note": "The parent's sign is RIGHT and the builder ran it as written.  F19 faded a level, so its selector wanted a strong barrier and PENALIZED impulse through the margin B - I: a big incoming move is bad news for a fade.  F20 trades the break, so both terms turn positive and for different reasons.  High B is the trapped-cohort term: only a level that was repeatedly DEFENDED can strand a cohort when it finally fails, and the size of that cohort is proportional to the defence that failed - a shelf nobody held is a break that traps nobody.  High I is the fuel term: sweep 15's one durable out-of-fold fact is that the plane predicts SIZE and never direction, and a break supplies the direction the plane cannot, so the magnitude channel is finally being asked a question it can answer.  The one live risk in the sign is contamination rather than direction: if the cache counted the present break in sd_broke at the read bar, high-B events would be exactly the ones scored down.  It cannot.  The cache resolves an outcome only from the bar its verdict lands on and only when that bar is strictly before the reading bar, the manifest certifies max(source - stamp) < 0, and the read bar is itself strictly before the breach.  The component means are printed beside the barrier table so a reader can check this rather than trust it.",
+  "spec_sha": "a0591703b5b3b9584bc76d0a65c372f952643af411e1bed1b1391b39c2ebb571",
+  "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f",
+  "store_audit": {
+    "counters": {
+      "candidates_formed": 3790,
+      "current_day_events": 0,
+      "events_returned": 805934,
+      "generations_max": 13,
+      "generations_mean": 3.7333333333333334,
+      "identity_contains_price": 300,
+      "identity_key_drifted": 0,
+      "identity_key_stable": 300,
+      "identity_price_outside": 0,
+      "queries": 300,
+      "strata": 18,
+      "strict_time_ok": 300,
+      "strict_time_violations": 0,
+      "with_any_event": 277,
+      "with_any_flip": 264,
+      "with_multiple_generations": 232
+    },
+    "worst": {
+      "latest_event_stamp_minus_decision_ns": -176820000000000,
+      "max_event_d8_minus_decision_d8": -3
+    }
+  },
+  "store_build": {
+    "counters": {
+      "bands_touched": 162,
+      "broke": 106976,
+      "flip": 6980,
+      "held": 110649,
+      "sessions": 195,
+      "sessions_absent": 0,
+      "touch": 267432,
+      "unresolved": 49807
+    },
+    "elapsed_s": 40.0,
+    "per_asset": {
+      "HG": {
+        "atr_ref_mid2": 218953086.1160822,
+        "band_half_width_mid2": 43790617.223216444,
+        "band_step_mid2": 87581234.44643289,
+        "bands": 38,
+        "bands_with_multiple_sessions": 33,
+        "broke": 33447,
+        "checkpoints_verified": {
+          "bands": 38,
+          "checkpoints": 209,
+          "events": 159100,
+          "mismatched": 0
+        },
+        "events": 159100,
+        "flip": 1851,
+        "held": 33958,
+        "max_events_in_one_band": 9699,
+        "median_events_per_band": 3802.0,
+        "session_closes_increasing": true,
+        "sessions": 66,
+        "sessions_absent": 0,
+        "touch": 89844,
+        "unresolved": 22439
+      },
+      "NKD": {
+        "atr_ref_mid2": 1035109031575.6189,
+        "band_half_width_mid2": 207021806315.12378,
+        "band_step_mid2": 414043612630.24756,
+        "bands": 62,
+        "bands_with_multiple_sessions": 45,
+        "broke": 36319,
+        "checkpoints_verified": {
+          "bands": 62,
+          "checkpoints": 281,
+          "events": 169519,
+          "mismatched": 0
+        },
+        "events": 169519,
+        "flip": 2796,
+        "held": 40890,
+        "max_events_in_one_band": 12994,
+        "median_events_per_band": 1808.5,
+        "session_closes_increasing": true,
+        "sessions": 65,
+        "sessions_absent": 0,
+        "touch": 89514,
+        "unresolved": 12305
+      },
+      "SI": {
+        "atr_ref_mid2": 1272521058.7020538,
+        "band_half_width_mid2": 254504211.74041077,
+        "band_step_mid2": 509008423.48082155,
+        "bands": 62,
+        "bands_with_multiple_sessions": 54,
+        "broke": 37210,
+        "checkpoints_verified": {
+          "bands": 62,
+          "checkpoints": 261,
+          "events": 163418,
+          "mismatched": 0
+        },
+        "events": 163418,
+        "flip": 2333,
+        "held": 35801,
+        "max_events_in_one_band": 13107,
+        "median_events_per_band": 2174.0,
+        "session_closes_increasing": true,
+        "sessions": 64,
+        "sessions_absent": 0,
+        "touch": 88074,
+        "unresolved": 15063
+      }
+    }
+  },
+  "store_code_sha": "c9b3612f87256c4eb34161118cc4a5371dd719d82d1bbbbb377b5d647d106ae8",
+  "stream_counters": {
+    "below_floor": 0,
+    "illegal_entries": 0,
+    "label_leak_feature": 0,
+    "occs": 47402,
+    "rows": 47402,
+    "streams": 385
+  },
+  "zone_read": {
+    "candidates": 3790,
+    "center_exact": 3790,
+    "center_mismatched": 0,
+    "day_scale_defined": 3766,
+    "day_scale_undefined": 24,
+    "fallback_reads": 0,
+    "no_decision_stamp": 0,
+    "not_strictly_prior": 0,
+    "prior_session_absent": 0,
+    "prior_session_served": 3790,
+    "ps_touches_defined": 3790,
+    "ps_touches_undefined": 0,
+    "queries": 3790,
+    "rows": 3790,
+    "sd_touches_defined": 3771,
+    "sd_touches_undefined": 19,
+    "strictly_prior": 3790,
+    "worst_center_gap_mid2": 0.0,
+    "worst_source_minus_decision_ns": -60000000000,
+    "zero_default_used": 0
+  }
+}

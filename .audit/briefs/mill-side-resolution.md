@@ -783,6 +783,40 @@ plane (per-price defence history across phases and days, value-area
 position) is named as the missing family the mill has never been given and
 stands as the next unit after the in-flight three, pending the Sol pass.
 
+Sweep 25 LANDED, THE VALID STRUCTBREAK KILL, F21 DISPATCHED (Fable,
+2026-08-28). Receipt `.audit/mill-sweep25.json`, 51 rows stamped KILL,
+selftest 77/77, both mutants red by NAMED roster (a contract upgrade the
+builder registered: a mutant must red its exact checks, not anything),
+3,790 zone-anchored reads centre-exact on the former defending side at
+the pre-breach snapshot, zero defaults, zero fallbacks. FAMILY LETTER
+STRUCTBREAK-KILL clause K3 on all THREE lanes, including the USER's
+promoted BREAK_CLOSE, so the kill cannot be blamed on a pullback-only
+test. Best lane NKD -0.060x and SI -0.028x of rung; formed ceiling
+14.27x and 15.85x. Carrying facts: (1) SI's break-close matched delta
+is +726.6 usd/date at maxT p 0.0545, the closest any causal line came
+to the family bar all night, on the USER's timing; NKD runs the other
+way (p 0.996). (2) Lane A's SELECTED ceiling alone carries both rungs
+(2.11x, 1.39x) while its causal line does not: the failure is selection
+and seating, not formation, stated in the receipt. (3) Lane C proves
+sweep 23's marginal arming was a genuine estimator fault (fill 0.069 to
+0.397, a 5.7x gap) without the repair changing any letter. (4) The
+builder disclosed honestly that the centre mutant does not flip the
+planted RANKING on its fixture (a wrong key can look plausible), which
+is exactly why the gate is mechanical centre equality per row. Both
+zone-anchored families are now validly dead under registered clauses;
+the falsifier remains unfired (all upper bounds positive, unpowered).
+Per the tree, sweep 26 (F21-SUBMINUTE-ORDER-ORACLE) is dispatched: the
+outcome-only raw-tick oracle over both formed universes, five
+preregistered within-minute pattern classes (absorb-then-reject,
+reject-without-absorb, absorb-then-breach, multi-cycle,
+breach-then-return), EXECUTABLE next-bar entries so the sub-minute
+information is only the condition, each class priced beside its
+MINUTE-COARSENED TWIN with the collapse rate measured, letters
+ORDER-RICH / ORDER-PRESENT / ORDER-POOR / UNPOWERED. ORDER-RICH is the
+one receipt that meets Sol's grain evidence bar in full; ORDER-POOR
+kills the grain lever and the next session stays at one-minute
+formation and power. No law changes from this unit either way.
+
 Sweep 24 LANDED, THE VALID COLLISION KILL (Fable, 2026-08-28). Receipt
 `.audit/mill-sweep24.json`, 39 rows stamped KILL, selftest 44/44, both
 registered mutants red, 16,525 of 16,525 barrier reads centre-exact at

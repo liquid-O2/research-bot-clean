@@ -783,6 +783,36 @@ plane (per-price defence history across phases and days, value-area
 position) is named as the missing family the mill has never been given and
 stands as the next unit after the in-flight three, pending the Sol pass.
 
+Sweep 27 LANDED, UNRESOLVED U1, F23 DISPATCHED (Fable, 2026-08-28).
+Receipt `.audit/mill-sweep27.json`, 21 rows stamped UNRESOLVED, selftest
+80/80, both mutants red by named roster, formation and reads exact.
+Letter LEVELMEMORY-UNRESOLVED clause U1, the registered
+positive-but-underpowered case: matched deltas NKD +210.2 usd/date
+(adjusted p 0.278) and SI +149.5 (p 0.478), both positive, neither
+powered; cash NKD -0.0002x and SI -0.120x of rung; MDD 33,970 against
+1,000; the kill clauses cannot fire (both upper bounds positive, both
+deltas positive). The receipt freezes per the no-coverage-tuning rule.
+The findings that carry: (1) the component-level plane adds almost
+nothing over the compressed mean, OOF rank rho 0.07/-0.003/0.031, and a
+PERMUTED level vector clears the selector's bar 50 percent of the time,
+so level memory as currently measured is barely distinguishable from
+shuffled level memory; the only consistent coefficient is
+day_scale_persistence and it is NEGATIVE, against the defence story.
+(2) SEATING, not the cap, binds: 150 of 468 selections rejected on the
+one-position rule, 0 on the twelve-cap, the precondition F24-SIZE-SEAT
+was written for, though this lane also loses cash outright. (3) The
+builder registered U0 for Sol's letter residual before outcomes (the
+third partition gap of the night, caught pre-registration this time)
+and measured that the center mutant's wrong key can return
+right-looking counts, which is why the gate stays mechanical equality.
+Per the charter, the next information source runs: sweep 28
+(F23-ZONE-GENEALOGY) dispatched to Sol's row-2 spec, the causal
+ZoneHistory store (ordered touch, held, broke, role-flip events across
+earlier EXPLORE sessions, identity, strict-time, and flip-order gates
+before any cash) and the INCREMENT test, R_GEN versus R_BASE paired by
+date plus the permuted matched control, Sol's two kill clauses only,
+U0 registered, the F24 licensing line printed either way.
+
 THE POWER PLAN, ADOPTED, F22 DISPATCHED (Fable, 2026-08-28 dawn,
 reconciling `.audit/briefs/mill-powerplan-sol-out.md`). Sol's rulings,
 all adopted: no SI break-close rescue unit (the p 0.0545 line is close

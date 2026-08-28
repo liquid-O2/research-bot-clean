@@ -783,6 +783,108 @@ plane (per-price defence history across phases and days, value-area
 position) is named as the missing family the mill has never been given and
 stands as the next unit after the in-flight three, pending the Sol pass.
 
+SOL REFUSAL ADOPTED, THE ZONE-ANCHOR CORRECTIONS (Fable, 2026-08-28,
+reconciling `.audit/briefs/mill-structbreak-sol-out.md`). Sol audited
+the implementation directly and found the defect every green selftest
+missed: the level-cache law centers `band_center_mid2` on the READING
+BAR'S MID, and sweeps 22 and 23 read `plane[bar]` as if it described
+the candidate's fixed zone price. Sol's own formation-only audit over
+the landed 14,650 candidates: ZERO exact zone centers, median offset
+1.90 zone widths at the approach read and 3.32 at the episode-close
+read. The selector never read the named barrier; lane 2 scored memory
+around the exit price. RULINGS ADOPTED: F19 is REFUSE ZONE-MISCENTERED
+(the miscentered selector is dead, the collision mechanism and a valid
+LEVELCOLLISION rule are UNTESTED; the sweep-22 KILL stamps stand as
+measurements of the refused run, no registered clause fired); sweep 23
+is HELD as a refused-lineage build receipt, its rows stay unstamped and
+its outcome is not judged; the falsifier was never reached. Standing
+corrections for the rerun: one fixed-zone accessor (center equals
+`candidate.zone_price` exactly, sources strictly prior, a current-mid
+mutant red) under BOTH F19 and F20; the USER's break-close line is
+PROMOTED into F20's letter family (two lanes by two deciders) before
+any F20 read; the selector is high-B_opp and high-I_break with the
+defence snapshot taken strictly before the breach on the defending
+side; the day-scale pd term stays numerically but must be named a
+day-scale persistence proxy. Morning priors from Sol: corrected F19 to
+a joint EXPLORE live line 20 percent; corrected two-lane F20 after a
+valid F19 kill 15 percent; the program reaching NKD 1500 + SI 1500
+causally 35 percent overall, 20 percent within the current laws. Law
+changes stay unearned: the grain bar requires an outcome-only raw-tick
+oracle clearing rungs and MDD on both deciders WHILE powered one-minute
+tests have non-positive bounds; no current result justifies touching
+the exit law or the universe. The next tree: Unit 1 the fixed-zone
+accessor (build only, REFUSE gates, no outcomes), Unit 2 the
+F19-ZONEANCHOR rerun with the original two lanes and an exhaustive
+partition, Unit 3 branch on its letter (LIVE freeze, KILL corrected
+two-lane F20, UNRESOLVED a power unit). Parent failing 14 recorded in
+memory: green causality selftests do not prove the price KEY; every
+keyed-plane read must gate on key equality from now on.
+
+Sweep 23 LANDED, F20 KILLED under a registered clause (Fable,
+2026-08-28). Receipt `.audit/mill-sweep23.json`, 31 rows, selftest
+49/49 with the letter partition proven exhaustive over all 512 outcome
+points, mutant red, causality chain source-breach-arm-fill asserted per
+row. FAMILY LETTER STRUCTBREAK-KILL, clause K3 CEILING-UNREACHED, one
+clause matching, no fallthrough. The carrying facts: (1) the pullback
+lane STARVED, fill rate 0.069, 19 selected entries, because median
+pullback depth and median return speed do not compose, the fills that
+happen retrace 1.2 widths within 1.4 bars, so any successor arming a
+pullback limit must train depth and cancel JOINTLY on
+reachable-within-window depth, never as independent quantiles. (2) The
+pattern is now three universes long: formation finds money (formed
+ceiling 14.27x and 15.85x of the deciding rungs, 9.0x and 12.0x capped
+at 12 per date) and the preregistered causal selector cannot reach it
+(-0.040x and -0.012x); same shape as F19 and the G1 universe. (3) The
+pinpoint falsifier again did NOT fire, unpowered against control (upper
+bounds +91.7 and +12.4, maxT p 0.47 and 0.83 on n 19); the collision
+mechanism stands, this selector is dead. (4) The USER's box-exit timing
+(report-only NOPULLBACK line, 365 selected, 227 seated, the only
+powered line in the receipt) posts SI +140.5 usd/day seated with a
+matched delta of +431.2 per date at t 1.93, the largest positive causal
+delta anywhere tonight, and NKD -202.2 with a negative delta; it does
+not carry both deciders and its MDD is worse. The question whether the
+USER's late decision event enters the letter family is already charged
+to the in-flight Sol page. (5) Parent correction of the builder's
+routing note: Sol's grain-change evidence bar requires POWERED
+one-minute tests with non-positive upper bounds, and ours are UNPOWERED
+with positive upper bounds, so the sub-minute oracle route is NOT yet
+licensed; the immediate lever is power (fill law, impulse join at 62
+percent, joint-quantile arming), not grain. Verdict stamps and the
+morning position wait on the structbreak Sol page.
+
+Sweep 22 LANDED, F19 KILLED, F20 DISPATCHED (Fable, 2026-08-28). Receipt
+`.audit/mill-sweep22.json`, 33 rows stamped KILL, selftest 29/29,
+selector mutant red, lane-2 certs cross-checked to 0.0 usd, formation
+14,650 candidates. FAMILY LETTER LEVELCOLLISION-KILL, both lanes. The
+facts that carry forward: (1) the USER's episode-resolution lane BEAT
+the pre-touch lane on every measure, seated NKD +84.6 and SI +48.0
+usd/day against -147.5 and -114.4, binding MDD 4,596 against 19,622,
+and lane-2 NKD beat a count-matched draw from its own formed blocks at
+unadjusted p 0.0010; still 0.056x and 0.032x of the rungs, minus-2SE
+negative, SI sign flips at the adjacent margin cut, matched controls
+unpowered (upper bounds positive, maxT p 0.53 and 0.996). The late
+decision event is the right direction; the selector is not yet the
+right instrument. (2) The formed universe carries the cash: ceilings
+46.8x and 55.0x of the deciding rungs, 10.8x and 16.1x when capped at
+12 events per date. Formation found money; the preregistered selector
+cannot causally reach it. (3) The pinpoint's falsifier did NOT fire
+(unpowered against control, no non-positive upper bound); the collision
+mechanism stands, this selector and these bounds are dead. (4) Sol's
+letters failed to partition a third time; routed to KILL with the
+clause labeled FALLTHROUGH; the F20 letters register the partition
+completely (K3 CEILING-UNREACHED). (5) Builder deviations recorded: the
+pd defence pair constructed at day scale (minute-grain prior-day paths
+are HOLD-sealed), lane-1 fill rate 0.090 with depth pinned at its
+floor, impulse joined to about 62 percent of candidates. Sweep 23
+(F20-STRUCTBREAK-PULLBACK) dispatched per the pre-named successor,
+break of a persistent zone then the first pullback, entry in the break
+direction, same replay, controls, and bounds, the USER's no-pullback
+box-exit timing as a report-only line. Sol reconciliation dispatched in
+parallel (`.audit/briefs/mill-structbreak-sol.md`): F19 reconciled, the
+F20 spec reviewed, and the morning position for the USER charged, with
+the question whether the USER's late decision event should be promoted
+into F20's letter family before judgment.
+
 Unit 0 JUDGED and F19 DISPATCHED (Fable, 2026-08-28, after sweep 21).
 Sweep 21 (F18-CONTORACLE, receipt `.audit/mill-sweep21.json`, 66 rows,
 selftest 44/44, mutant red, P3 reproduces sweep 19's slow lane exactly)

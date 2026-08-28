@@ -446,3 +446,333 @@ read; pages 4 and 10 carry further screenshots that were not opened. Nothing in
 the pages read contradicts the consolidated section above, but the refill-effect
 gap is the one worth closing if the model decomposition needs more than the p9
 and p23 statements.
+
+---
+
+## Gap closure addendum, 2026-08-28
+
+The pages the 2026-08-27 pass left unopened were rendered with PyMuPDF at 3x and
+read as images. `refill-effect` 5, 7, 8, 12, 14, 15, 17, 18, 19, 20 and 21, and
+`trapped-buyers-one-retest` 4 and 10. Page 8 was added to the list because the
+census showed it carries the feature-family table, which is the model
+decomposition the earlier pass went looking for and did not find.
+
+**refill-effect p5, "The two outcomes of a touch."** Two side-by-side
+schematics with identical construction, headed "The level HOLDS: defenders are
+still there" and "The level BREAKS: defenders are gone." In each, the zone is a
+pale teal horizontal **band** spanning most of the panel, with a tight cluster
+of dark circles sitting at its left end, captioned "zone built earlier by large
+aggressive orders (circles = big prints)". A black jagged price path rises out
+of the cluster to a peak and comes back down, with a straight black arrow
+labelled "the touch" marking the return leg. In the HOLDS panel the path
+terminates **inside the band** and a green zig-zag rises out of it, annotated
+"buyers reload inside the zone, sellers get absorbed". In the BREAKS panel the
+same descent continues as a **red dashed line straight down through the band**
+and out the bottom, annotated "nobody reloads, price cuts straight through".
+Caption: "A schematic, not a trade example... Everything in this paper exists to
+answer, *before the touch resolves*, which of these two pictures you are in."
+Below it, a real chart titled "Aggression bubbles: MNQ, 10 Jan 2025, 9:36 to
+9:44 ET", price axis 21,080 to 21,160, with green buy-aggressor and red
+sell-aggressor bubbles sized by contracts in the print (only prints of 40 or
+more shown, individual bubbles labelled 122, 127, 184, 186, 201, 202, 217, 233).
+Red sell bubbles cluster at the session low around 21,080, green buy bubbles sit
+on and just above them, and price turns and trends up to 21,120. Geometry: the
+band is drawn as a zone rather than a line, the reload is drawn strictly
+**inside** it, and the failure case is drawn as continuation through it rather
+than as a shallow overshoot. This is the cleanest single statement of
+near-not-at at zone scale in the library, and it is a schematic the author drew
+on purpose rather than a chart that happened to look that way.
+
+**refill-effect p7, "A live read: the level gets tested twice before buyers take
+it."** A full NQ session screenshot on a dark chart. Purple and magenta
+rectangles scattered across the chart are zones built from clusters of large
+aggressive orders; small circles on the candles are individual large prints. A
+wide **red rectangle** spanning roughly 29,810 to 29,835 and about twenty
+minutes of time marks the level under study. Four callouts: "level built here,
+first test: no result" with an arrow into the left edge of the red box; "price
+returns to the same level: no result again" with an arrow into the second
+descent hours later; a green box labelled "buyers regain control here" sitting
+**just above** the red level around 29,820 to 29,835; and a teal "level holds,
+trend resumes" up near 29,900. A "Speed of Tape (10)" histogram runs along the
+bottom in alternating teal and red. Caption: the level is built early and tested
+twice, "once on the first touch and again on a sharp sell-off back into it, and
+both times the sellers get nothing: price holds, not breaks," after which buyers
+build a small base just above the level and take control. Geometry: two marked
+peaks at the same level within one session, the second test penetrating **into**
+the red box rather than stopping at its upper edge, and the base that follows
+sitting above the level rather than on it. The closing sentence is the useful
+one for the model: the paper is quantifying "not the entry trigger, but whether
+the defenders are still there when price comes back."
+
+**refill-effect p8, "The data and the feature set."** Four stat cards (199M
+ticks aggressor-side; 235 regular sessions; 41,152 zone-touch events; Dec 24 to
+Nov 25, CME NQ and MNQ) above the table the earlier pass was missing. Roughly
+twenty pre-touch features in **four** families, not two. Memory answers "has
+this zone been defended before?", with examples "held earlier this session;
+prior-day defence". Construction answers "was it built by real size?", with
+examples "number and size of aggressive prints; zone width". Location answers
+"is it at a real auction edge?", with examples "value-area edges, session
+extremes, distance from open". Flow and state answers "what is happening as
+price arrives?", with examples "delta into the touch, approach speed, balance vs
+imbalance". Below, the baseline restated: only 42% of touches hold, fading every
+touch loses 0.285R after costs. This is the decomposition panel proper, and it
+sharpens the p9 and p23 statements rather than replacing them. There is no
+ranked feature-importance chart anywhere in the document; the "memory and
+location do the work, flow alone is AUC 0.54" claim is asserted in prose on p9
+and in the p23 table, and the families table is the only structural breakdown
+published. Note that Location's examples are macro-scale (value-area edges,
+session extremes), which is the same macro sense `your-mistakes` p6 uses when it
+vetoes POC, not the micro "inside the zone" sense of p10.
+
+**refill-effect p12, "The out-of-sample record."** The deployed configuration
+stated as one sentence, and it is a fuller execution rule than the notes above
+carried: at a model-selected zone, rest a limit 12 ticks inside the level, stop
+32 ticks, target 96 ticks, **cancel after 30 minutes**, one position at a time,
+with a 1-tick round-trip cost and 1 tick of stop slippage charged. Four stat
+cards (+0.143R per trade after costs, 1.19 profit factor, +78R cumulative over
+542 trades, about 6.8 trades per day) sit above a teal equity curve of all 542
+trades in sequence. Two annotations carry the geometry: pale red shaded pools
+under each running peak, labelled "shaded pools = drawdown, the give-back from
+each running peak (**worst -16.6 R**)", and a teal arrow into a rising segment
+labelled "each stair-step up = one +3R winner". The curve is visibly flat to
+mildly negative from roughly trade 40 to trade 140 before the first sustained
+climb. Geometry relevance: the 30-minute cancel gives the episode an explicit
+expiry, so a resting order that is never filled by the flush is simply
+withdrawn, and the -16.6R worst drawdown is a number the earlier pass did not
+have.
+
+**refill-effect p14, "An independent engine agrees."** A five-row table of the
+same signals run on Quant Charts' tick-level backtester, an engine the authors
+did not write, over the full year at default sizing. Q1 Dec to Mar, 64 trades,
+68.8%, PF 1.80, +$2,112. Q2 Apr to Jun, 60 trades, 55.0%, PF 1.28, +$928. Q3 Jul
+to Sep, 65 trades, 55.4%, PF 1.73, +$1,410. Q4 Oct to Nov, 34 trades, 52.9%, PF
+0.76, -$647. Year, 223 trades, 58.7%, PF 1.45, +$3,803. Under it: "per-trade
+expectancy on this engine is about +0.07R, **about half the research
+simulation's +0.14R, because its fills are stricter**. We quote both rather than
+the friendlier one." A red-bordered box headed "NOTE THE LOSING QUARTER" adds
+that Q4 "lost money at **every** parameter setting we tried. The edge is
+regime-dependent: weakest when volatility compressed late in the sample." This
+page reframes the numbers the consolidated section above quotes. The
+68.8% / 1.80 / +$2,112 triple is **Q1 of four quarters on this engine**, not the
+strategy's headline result, and it is the same 64 fills the p11 order-type
+comparison uses. The like-for-like conclusion of p11 stands, because both arms
+of that comparison were run over the same quarter, but 1.80 and 68.8% should not
+be carried forward as the resting-limit result in general.
+
+**refill-effect p15, "Straight from the engine."** Raw, unrestyled Quant Charts
+output for Q1. A pale green equity curve, one contract compounding from a
+$100,000 base across the 64 trades, x axis labelled by trade number from #0 to
+#63: it runs up to about $101,400 by trade 10, gives most of that back and
+chops sideways into a low near $100,500 around trade 27, then climbs steadily to
+about $102,300 by trade 60. Below it, the engine's own performance summary panel
+in monospace, headed with the strategy's config line verbatim:
+`Aggression-Memory Tick · rest_min=30 variant=3 entry_in=12 t_minutes=30
+sl_ticks=32 tp_ticks=96`. The panel reads Net P&L +$2112.39, Trades 64, Win Rate
+68.8%, Profit Factor 1.80, Sharpe 0.22, Max DD -$1051.98, Avg Trade +$33.01,
+Largest Win +$475.01, Largest Loss -$300.62. Two things here matter beyond the
+arithmetic. The strategy's own name inside the engine is
+**"Aggression-Memory Tick"**, which puts memory in the identifier and
+independently corroborates the memory-dominance claim. And the execution triple
+appears as machine parameters (`entry_in=12`, `sl_ticks=32`, `tp_ticks=96`,
+`t_minutes=30`), confirming the 12 / 32 / 96 spec is a literal order
+configuration rather than a rounded description.
+
+**refill-effect p17, "A plateau, not a spike."** A scatter of one hundred exit
+configurations, each circle placed by its average R on the first half of the
+data (x axis, used for tuning) against the untouched second half (y axis), both
+axes running from about -0.45 to +0.3, with a faint dashed identity line.
+Configurations profitable in both halves are drawn green and cluster tightly in
+the upper right around +0.0 to +0.2 on both axes; the losing configurations
+trail down the identity line to the lower left in grey. Annotation top left: "if
+the first half of the data predicts the second half (rank correlation 0.92), the
+result is not a fluke." A filled dark teal dot near (0.19, 0.15) is called out
+with "the setting we deployed, on a broad plateau, not a spike." The caption
+names the swept axes: **stop by target by entry depth**. That last axis is the
+sharpening for the model. The 12-tick entry depth was swept along with stop and
+target and sits on a plateau, so the ordering 12 < 18 < 32 that the consolidated
+section reads off p10 and p23 is the right shape, but the exact 12 is not a
+knife edge and should not be treated as a tuned constant.
+
+**refill-effect p18, "The whole parameter space, two ways."** Two panels of the
+same hundred configurations on the untouched half. Top, a 3D surface titled "The
+ridge: expectancy across every stop and target", target in ticks running 20 to
+100 on one floor axis, stop in ticks running 25 to 65 on the other, expectancy
+in R on the vertical, coloured on a teal scale from 0.000 to 0.125 with contour
+lines projected onto the floor. The surface is a single broad raised ridge
+rather than an isolated peak, and a red "deployed" label sits on its crest.
+Bottom, "The same space, point by point", the identical grid as a
+dark-background 3D scatter coloured on a viridis-style scale from -0.3 to +0.1,
+with the warm red and orange points forming a coherent connected region and the
+deployed configuration circled in white inside it. Caption: "A curve-fit edge is
+one bright dot in a sea of noise; this is a coherent warm region. **The
+parameters barely matter, the concept does.**"
+
+**refill-effect p19, "The evaluation as a barrier problem."** Left panel, "400
+simulated evaluations at $80 per R": several hundred grey paths fanning out from
+$50,000 over 60 trading days, a green dashed "$53,000 pass target" line, a red
+dotted "fail line (trailing drawdown)" at $48,000, and one bold teal median path
+annotated "the typical account passes around day 27". A second annotation reads
+"each grey line = one simulated evaluation, built from real held-out trading
+days". Right panel, "Smaller risk, higher pass rate": three teal bars, $60 at
+96.7%, $80 at 92.2%, $100 at 85.7%. The prose states the method (4,000 replays
+of the held-out daily results through a Topstep-style 50K evaluation with the
+consistency rule enforced) and the one self-imposed policy, **stop trading any
+day that reaches -4R**. Geometry relevance is indirect but real: the shape being
+exploited is "many small bounded losses, steady drift, and a fat right tail from
+the 3-to-1 target", which is the same bimodal -1R / +3R distribution p13 draws,
+so the fixed 96-tick target and hard stop are load-bearing for the whole
+prop-economics chapter.
+
+**refill-effect p20, "Pass rate and time-to-pass, by risk size."** A combination
+chart. Teal bars on the left axis give chance of passing at six risk sizes: $40
+at 99.8%, $60 at 98.3%, $80 at 95.0%, $100 at 90.1%, $120 at 85.4%, $150 at
+79.6%, with the last two bars rendered in progressively lighter shades as a
+visual warning. An amber line on the right axis gives median trading days to
+reach the target: 60, 39, 28, 21, 17 and 12 days across the same sizes. Two
+cards below, "PATIENT SIZING" ($60 to $80 per R, pass rate in the 90s, a month
+or more of trading) and "FASTER SIZING" ($100 to $150 per R, a pass in 10 to 20
+days at 80 to 86% odds). Note an internal inconsistency in the document: these
+bars do not match the three bars on p19 ($60 reads 98.3% here against 96.7%
+there, $80 reads 95.0% against 92.2%, $100 reads 90.1% against 85.7%), while
+p20's own caption quotes p19's numbers rather than its own chart. Nothing in the
+geometry claims depends on which set is right.
+
+**refill-effect p21, "The daily stop, and what a pass is worth."** Two charts.
+Top, "One rule: stop at -4R a day, add ~14 points everywhere": paired bars at
+six risk sizes, grey for "trade through bad days" against teal for "stop the day
+at -4R", each pair carrying a green arrow and a labelled gain of +3 at $40, +7
+at $60, +11 at $80, +13 at $100, +14 at $120 and +13 at $150. The prose claim
+that the rule is "worth about fourteen points of pass rate at every size we
+tested" is contradicted by its own chart, where the benefit scales with size and
+is only three points at the smallest. Bottom, "Scale by accounts, not by size":
+five bars giving the chance that at least one funded account reaches a payout,
+95.6% for one account, 99.8% for two and 100.0% for three, four and five, with a
+dashed reference line at the one-account level. Between them, the structural
+point: the payout is "structurally capped near $2,000 per cycle by the same
+trailing drawdown, and no edge, however large, lifts that ceiling," so the lever
+for income is account count, not size. The page closes on the Ethos trial link,
+so this is the commercial end of the document.
+
+**trapped-buyers p4, "Reading trapped buyers on the Delta."** A full-width
+screenshot of the daily volume profile with Delta laid over it, rendered as
+horizontal **blue** (buy volume) and **red** (sell volume) bars read against
+price on the same axis, with two profile columns visible for two successive
+sessions, several horizontal grey structural lines running the width of the
+chart, and a red moving-average trace through the candles. The figure caption
+identifies the object under discussion: "the concentration of blue sitting right
+at the recent high is the print in question." The argument is the inversion the
+page exists for. Heavy buying Delta at a high reads bullish on sight and the
+author reads it the opposite way, because "buyers who buy into a high and then
+watch price turn against them are now in a losing position... the moment price
+fails to keep going their way, they become forced sellers: exiting isn't
+optional, it's how a losing trade gets closed." The stated rule is that a heavy
+one-sided Delta print at an extreme is "a flag to watch for exactly this, not as
+a reason to join the buyers." Geometry: the marked print sits **at** the extreme,
+which is not in tension with near-not-at. Near-not-at governs where the episode
+resolves and where the entry sits; this page governs where the *fuel* is
+located, and it puts the fuel at the extreme and the trade on the other side of
+it. This is the same discriminator `reading-delta` p6 and p7 build from the
+delta profile maximum, stated here from the trapped side rather than the
+rewarded side.
+
+**trapped-buyers p10, "The result."** A screenshot of the platform with the
+broker's browser execution panel floated over it, showing the MNQ ticket with
+realized P&L of $501.5, and a teal shaded rectangle on the inset chart marking
+the short from roughly 29,706 down to roughly 29,675, with the session volume
+profile down the right edge. The italic caption is a methodological warning
+rather than a market claim: read the number off the execution panel, "not off
+the spoken number, which whisper's transcription of this clip garbled into
+something unrelated. The panel is the source of truth here, not the audio."
+The prose adds three things worth carrying. The fills on both ends "line up with
+the exact levels marked well before either one printed," so nothing about the
+exit was improvised. The trade was normal size "on a level built from three
+independent confirmations." And the target was "chosen specifically to not
+depend on an outsized session," which is the same discipline `refill-effect`
+encodes as a fixed 96-tick target with no partialling. No new geometry, but it
+closes the loop on the p6 and p7 plan by showing the plan and the fill agreeing.
+
+**The remaining pages, read as text rather than rendered.** To retire the
+completeness gap properly, every other page of both documents was read as
+extracted text and checked for figures: `refill-effect` 1, 2, 3, 4, 6, 16, 22
+and 24, and `trapped-buyers` 1, 2, 3, 8, 11, 12 and 13. None carries a chart or
+annotated screenshot. Four of them carry claims that bear on the model.
+`refill-effect` p16 is the seven-part robustness battery, and two of its items
+matter here: item 05, rotating folds, gives mean R of +0.14 to +0.22 with
+grading skill 0.61 to 0.64 in every slice, and item 07 states the mechanism test
+plainly, "the profit lives exactly where the mechanism says it must, on the
+passive side of the level, and dies when you chase." `refill-effect` p4 splits
+the credit the same way the crosswalk does: "the entry signal alone is modest.
+The selection layer (which levels have memory) and the execution layer (being
+the refill, rather than chasing it) carry nearly all of the money," and it names
+what did not survive, "raw aggression with no context, tight scalp brackets that
+lived on fill assumptions, and a losing final quarter." `trapped-buyers` p11
+enumerates the six confluences in the order they appeared, and one clause in it
+is the strongest near-not-at wording in that document: "an extreme of that
+balance, **reached and not exceeded**", followed by a Delta print at that
+extreme read as trapped buyers, two independent sessions failing the same level,
+an intraday breakout, "the retest he waited for rather than chased," and
+aggressive selling on the tape confirming in real time. `trapped-buyers` p12 is
+the printable checklist, whose load-bearing items are "heavy one sided volume at
+an extreme is a flag for trapped positioning, not automatically a signal in that
+direction", "I've checked whether a prior session already failed at the same
+level", and "**I have a breakout AND a retest, not just the breakout.**"
+
+**Reconciliation.** Nothing read in this pass contradicts the consolidated
+section, and four of its five claims are strengthened. *Near-not-at* is
+confirmed twice more and at both scales: `refill-effect` p5 draws the reload
+strictly inside the band and the failure case as a clean cut through it, p7
+shows the second test penetrating into the red level with the buyers' base
+forming above it, and `trapped-buyers` p11 states the macro half as an extreme
+"reached and not exceeded". `refill-effect` p8's Location family is macro
+(value-area edges, session extremes, distance from open), which independently
+supports reading location as two axes rather than one. *Multi-peak* is confirmed
+and, for the first time, shown to be modelled rather than merely observed: p7's
+headline is "the level gets tested twice before buyers take it", and p8's Memory
+family encodes prior defence ("held earlier this session; prior-day defence") as
+a pre-touch feature, so repetition is an input to the grader, not just a
+narrative. *Two-gate confirmation* is confirmed on the discretionary side by
+`trapped-buyers` p12's "breakout AND a retest, not just the breakout" and p11's
+ordering. The refill paper does not contradict this so much as sit outside it,
+and the distinction is worth stating precisely: refill replaces post-touch
+confirmation with pre-touch selection, which is exactly what p5's caption says
+the paper is for, answering "before the touch resolves" which picture you are
+in, and what p12's 30-minute cancel implies, since an order that is never filled
+by the flush simply expires. That is a third lane alongside the fast and slow
+lanes the consolidated section already names, and it should be carried as such.
+The *absorption versus exhaustion fork* gets no new evidence either way; p5's
+BREAKS panel adds a third state, defenders absent, which is neither absorption
+nor exhaustion but the null case, and nothing in these pages reconciles
+`dom-lesson-6` p7 against `reading-delta` p8. *Memory and location dominance* is
+confirmed and widened: p8 shows four families rather than two, adding
+Construction ("was it built by real size", number and size of prints, zone
+width) and Flow and state, and the engine's own strategy identifier on p15 is
+"Aggression-Memory Tick". No ranked feature-importance chart exists anywhere in
+the document, so the AUC 0.54 flow-alone figure on p9 and p23 remains the only
+quantified decomposition and should keep being cited as such rather than
+attributed to a breakdown panel.
+
+One number in the consolidated section above needs correcting rather than
+sharpening. It quotes profit factor 1.80, win rate 68.8% and +$2,112 on 64 fills
+as the resting-limit result. `refill-effect` p14 and p15 show that triple is
+**Q1 of four quarters** on the independent Quant Charts engine, whose full-year
+figures are 223 trades, 58.7%, profit factor 1.45 and +$3,803, and whose
+per-trade expectancy is about +0.07R, roughly half the +0.143R research
+simulation. The p11 order-type comparison is still sound because both arms ran
+on the same quarter, but the headline resting-limit numbers carried forward
+should be the year, not Q1, and the two expectancies should be quoted together
+the way the source does. Two smaller internal inconsistencies in the source are
+noted for the record and touch nothing structural: p19's and p20's pass-rate
+bars disagree by two to four points at the same risk sizes, and p21's "about
+fourteen points at every size" is contradicted by its own chart, which shows the
+daily stop worth three points at $40 rising to fourteen at $120.
+
+**Completeness note, updated.** The gap is closed. `refill-effect (1).pdf` has
+now been read in full, all 24 pages, with every figure page rendered at 3x and
+read as an image (5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21, 23)
+and the remaining pages read as extracted text (1, 2, 3, 4, 6, 16, 22, 24).
+`trapped-buyers-one-retest.pdf` has now been read in full, all 13 pages, with
+figure pages 4, 5, 6, 7, 9 and 10 read as images and 1, 2, 3, 8, 11, 12 and 13
+read as text. `reading-delta`, `your-mistakes-with-absorption`, `dom-lesson-6`
+and `fp-lesson-9` remain as described in the original note. No unexamined
+model-decomposition or feature-importance panel remains anywhere in the
+order-flow half of the library.

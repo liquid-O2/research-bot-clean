@@ -650,6 +650,409 @@ certificate and the regime-scoped variant. 7b's lawful influence is
 exactly: branch priority (late-dominated losses tighten the lateness law;
 hard-wrong-dominated opens variant C) - nothing else.
 
+## The magnitude turn: USER exit ruling, sweep 15, sweep 16, the fixhold Sol pass (Fable, 2026-08-28 early)
+
+USER rulings, mid-turn 2026-08-28, verbatim intent. Fixed-duration exits are
+authorized as a learning label whose purpose is proper ENTRY learning ("the
+fixed exits are there to make the model learn to take entries, not to take
+exits"). Final exits stay tunable later toward the end goal, ATR-based named
+by the USER. Full autonomy, no go-ahead waits. If noise is the main issue,
+find ways to fix the noise issue. The frozen wall-or-close law remains the
+promotion-era outcome law until a specific replacement is ruled in; the
+authorization covers learning labels and later exit engineering.
+
+Sweep 15 landed (F12-NOISECEIL, rows sweep15-001..017, receipt
+`.audit/mill-sweep15.json`, both reproduction gates exact, selftest 16/16,
+mutant red). Parent judgment on its three facts:
+
+1. The order-statistic premium hypothesis is DEAD in reverse. The real
+   per-cell-max oracle sits BELOW the p5 of cross-cell within-stratum
+   shuffles on every asset at both grains (percentile 0.0 of 200 draws; fine
+   excess -1555/-3300/-3666, coarse -436/-651/-472 usd/day). Big outcomes
+   cluster inside the same cells; scattering identical pooled outcomes across
+   cells RAISES the per-cell-max sum. The pre-registered table did not
+   enumerate below-p5, so PARTIAL fired by elimination; the parent records
+   the gap and judges all 17 rows KILL (the family's registered claim, that
+   an order-statistic premium explains the oracle, is dead; the excess column
+   is not a feasibility budget in either direction).
+2. The decisive finding of the night. The 16-feature state predicts SIZE,
+   not DIRECTION. |Y| out-of-fold R2 +0.119/+0.127/+0.096 on HG/NKD/SI, the
+   first genuinely predictable out-of-fold quantity in 467 rows. Signed Y and
+   sign(Y) are negative out-of-fold on all three. E[Y] per occurrence is
+   negative everywhere. This explains every side-calling kill in one line:
+   the plane knows when the market will move big, never which way.
+3. The coarse post-reset grain (9.0-9.6 occurrences per cell against
+   110-136) keeps 93.7/92.1/93.9 percent of the ceiling. Any future fitting
+   starts on the coarse grain; the 14x pool cut is nearly free.
+
+Successor route registered (pending the Sol page, no unit dispatched for it
+yet): entries selected by predicted move size, direction made irrelevant by
+exit asymmetry, a stop well below the predicted favorable excursion with a
+horizon exit otherwise, stop scale auto-adaptive per asset and regime (the
+USER's ATR shape). Entries remain the learned object. The measuring unit
+would be favorable and adverse excursion curves at horizons on
+magnitude-selected states under the frozen entry cost law. Failure modes to
+price before belief: gap through the stop, spread at stop scale, chop where
+both sides stop out, capacity, regime dependence of the magnitude signal.
+
+USER objection and directed test (2026-08-28, after the sweep-15 report). The
+USER rejects the "direction" framing: at an extreme the trade side is given
+by the extreme; the open question is whether the extreme holds or breaks;
+the USER hypothesis is size first (a big move is coming), then absorption
+evidence resolves hold versus break. Adopted as the correct reading:
+sign(Y) on the fade stream IS hold-versus-break, and sweep 15's
+unconditional sign fit could hide a signal that lives only on
+predicted-big-move states (a tenth of rows). Sweep 17 (F14-CONDSIGN)
+dispatched: out-of-fold magnitude score m under the sweep-14 walk-forward
+law with train-only thresholds; hold/break base rates per m-decile; sign
+fits restricted to top-m subsets; absorption flow/zone features interacted
+inside the high-m slice (USER-directed exploratory reopening of flow INPUTS
+for this composition only, the flow composite as a policy stays closed);
+the antifade branch priced with continue-side certs computed via the frozen
+law with the flipped side, never by negation, since the -900 wall follows
+the held position. Letters CONDSIGN / ANTIFADE / NONE, block-permutation
+max-stat nulls. Judged only after Sol's fixhold page reconciles.
+
+Second USER correction (2026-08-28, after sweep 17 dispatch): the library
+already specifies the composition, and my sweep-17 mapping got the "size"
+object wrong. The library's size is OBSERVED incoming effort being absorbed
+(effort in, wall inside the zone, no reward, opposite aggression, pull-away,
+retest, repetition raising hold odds; DIAGRAM_NOTES_FLOW consolidated
+section), not a FORECAST of future move size. Sweep 17 stands as the
+forecast-conditioned variant. Sweep 18 (F15-EPISODE) dispatched as the
+library-literal test: the six-gate ordered ladder G1 location veto, G2
+effort in, G3 no reward, G4 absorption-versus-exhaustion fork carried as
+separate branches, G5 repeat (the sweep-13 causal gate), G6 opposite
+aggression; cumulative rung table with cash, Wilson hold rates, and usd/day;
+controls are matched-coverage random draws, the sweep-13 lateness match,
+a scrambled-gate order control, and block-permutation max-stat nulls;
+letters GRAMMAR-LIVE / PARTIAL-GATE / NONE / UNPOWERED. All thresholds
+train-day adaptive per asset and phase-type; the PDF tick constants are
+shapes to re-measure, and post-effort adverse excursion is a constituent,
+never a veto, per the refill p10 law. Scope: individual pre-registered
+gates in fixed order, no fitted weights, one shot, inside the sweep-6
+closure's own carve-out; the flow composite and R4mem stay closed. A
+reader agent is also closing the recorded diagram gap (refill-effect
+pages 5-21 odd ones out, trapped-buyers 4 and 10) with an addendum to the
+notes file. Sweep 13's ordinal-2 survivor is recognized as the library's
+repeat-and-retest gate measured alone; the grammar test asks whether the
+full ordered conjunction beats it.
+
+Third USER reframe (2026-08-28): the continuation frame. USER: do not
+predict the reversal at all; after the extreme forms and the reversal
+displaces away, catch the trend continuation. The library paper
+a-clean-continuation-short prescribes exactly this (remainder notes lines
+850-980): the initiative displacement ARMS the level and never triggers;
+the trigger is the return where the same side wins again; the stop sits at
+the opposing side's absorption point; a fast lane waives the retest when
+displacement is fast and the counter-attack is absorbed immediately; trend
+days are continuation-only per the day-type table; the volume-profile
+author trades continuations over reversals for win rate. Why the frame is
+materially new against the kill record: every dead family entered at the
+extreme and had to FORECAST hold-versus-break, the one bit the features
+cannot see; the continuation entry waits until one hold has been OBSERVED
+(displacement plus retest-hold), so the forecast becomes an observation;
+the lateness it spends is already priced affordable (O4b 45/60-minute
+budgets, B0 waiting receipts); what it collects is the verified
+session-scale size signal; and the B5 momentum KILL does not cover it
+(B5 was clock-sampled mid-run, unconditioned). Sweep 19 (F16-CONT)
+dispatched: slow and fast lanes per the paper, day-type and size variants,
+controls C1 lateness-matched draws, C2 fade-at-occurrence head-to-head on
+the same cells, C3 fixed-clock momentum (the B5 control brought forward),
+C4 max-stat permutation nulls; letters CONT-LIVE / CONT-PARTIAL / NONE /
+UNPOWERED; all thresholds train-adaptive, no constants. Known risks
+recorded for the judgment: later entry surrenders part of the run; a held
+retest can break after entry; chop whipsaw (day-type gate is the library's
+answer); and the unpredictability may reappear one level up at the retest,
+which is precisely what the unit measures. Sol review queued as the
+follow-up consult when the fixhold page lands (parallel-dispatch pattern,
+reconciled before judgment).
+
+The diagram gap is CLOSED (gap addendum appended to
+DIAGRAM_NOTES_FLOW_2026-08-27.md, both flow decks now read end to end).
+New facts carried into design: the refill paper has FOUR feature families
+(memory, construction, location, flow-and-state) with memory and location
+dominant and flow alone at AUC 0.54, matching our flow kills; the refill
+strategy is a THIRD lane, pre-touch selection with a resting limit and a
+30-minute cancel, not post-touch confirmation; the PF 1.80 / 68.8 percent
+triple previously quoted is Q1 only, the full year is 223 trades, 58.7
+percent, PF 1.45, about +0.07R per trade; worst out-of-sample drawdown
+-16.6R; entry depth sits on a plateau, not a tuned constant. Nothing
+overturns the consolidated mechanism. The level-memory and location input
+plane (per-price defence history across phases and days, value-area
+position) is named as the missing family the mill has never been given and
+stands as the next unit after the in-flight three, pending the Sol pass.
+
+Unit 0 JUDGED and F19 DISPATCHED (Fable, 2026-08-28, after sweep 21).
+Sweep 21 (F18-CONTORACLE, receipt `.audit/mill-sweep21.json`, 66 rows,
+selftest 44/44, mutant red, P3 reproduces sweep 19's slow lane exactly)
+registered no letters by design; its facts: best causal placement
+P3/close on SI at 0.1026 of rung; every causal placement under 0.11 and
+ALL negative under the 1800-second hold (the two positive close lines
+ride session drift); the retest TOUCH beats the confirmation by +33 to
++65 usd per episode and the resumption by +48 to +74 (max-stat p_adj <=
+0.0036), yet the confirmation's standalone line wins because waiting is
+a FILTER, not timing ("a selector wearing timing's clothes"); the
+one-bit oracle ceiling is 0.80 of rung (SI close), the two-bit
+bar-plus-side ceiling 4.08, side flipped on 47-63 percent of episodes;
+the paper's re-entry is a phantom (8 entries). Unit 0 route condition
+applied: no causalizable placement marker carries the rungs, so
+POST-TOUCH CONTINUATION ON THE CURRENT UNIVERSE IS CLOSED; sweep 21's 66
+rows stamped KILL and sweep 19's 12 UNRESOLVED slow rows flipped to KILL
+(the pending condition resolved against). F19 receives no post-touch
+companion from the old universe.
+
+USER DIRECTIVE on F19's shape (2026-08-28, the four-chart drawing): the
+decision need not happen at candidate generation or shortly after; let
+the WHOLE episode at the level complete (the green box, the entire
+multi-peak fight), read everything inside it, and decide at the box's
+resolution, entering in the exit direction ("we might be looking for
+confirmation a bit too early"). Parent reconciliation: this is the
+sweep-21 filter effect pushed to full length, and the box is exactly
+where the pinpoint's barrier evidence accumulates; the measured cost is
+that every late placement so far died under the fixed hold, so the lane
+must win on selection by more than the lateness costs. ADOPTED as LANE 2
+of sweep 22 (F19-LEVELCOLLISION): episode window opens at first
+approach, closes at the first one-minute close beyond a fold-trained
+band on either side after at least one touch, entry next bar in the exit
+direction, completed-window features lawful. Lane 1 stays Sol's
+pre-touch resting limit. One preregistered monotone selector both lanes
+(B = mean standardized held-minus-broke across same-day, prior-day,
+prior-session; I = frozen magnitude score; trade iff B >= train tercile
+AND B-I >= train median; neighbor grid reported), one maxT family across
+2 lanes x 2 deciding assets, paired level-permuted controls, frozen
+outcome law primary with the 1800 s label beside, full seat replay and
+MDD ledger law, letters verbatim from the pinpoint page per lane plus
+the family letter. DEVIATION RECORDED: Sol's default was one lane; the
+USER's order adds the second; flagged for Sol's next pass.
+
+THE PINPOINT RULING, ADOPTED (Fable reconciliation of
+`.audit/briefs/mill-pinpoint-sol-out.md`, 2026-08-28). Root cause, in
+mechanism terms: hold-versus-break at an extreme is decided by BARRIER
+strength relative to IMPULSE strength, and the mill's entire input plane
+measures only the impulse. The frozen generator labels every local
+zigzag extreme crossed by a session displacement as an independent
+barrier claim, so the learning rows are repeated aliases of one impulse
+path carrying no causal barrier term. Sol's page maps all nine
+load-bearing observations onto this one mechanism (its section A table)
+and states the falsifier: first-approach events at causally known
+previously defended zones, barrier memory added to the impulse estimate,
+falsified only if both the discrimination and matched-cash improvements
+have non-positive 95 percent upper bounds on both deciding assets,
+powered. The candidate answer is YES, formation, not availability: the
+universe holds ample hindsight cash, and a differently FORMED universe
+(pre-touch level collisions) should materially raise the pass
+probability, while more candidates from the present generator would not.
+Verdict stamps filled per its charge C: sweeps 17, 18, 20 KILL (the
+MAGNITUDE-ONLY finding retained as information), sweep 19 FAST KILL and
+SLOW UNRESOLVED (12 rows each), sweep 21 unstamped pending its receipt.
+The path adopted with its exact letters and bounds: Unit 0 judge the
+placement oracle when it lands (it licenses at most ONE post-touch line
+for F19); Unit 1 F19-LEVELCOLLISION (pre-touch zones from prior-day
+high, low, close, cached value edges, or same-day zones with resolved
+history; one candidate per first approach; fold-trained resting limit
+inside the zone with a cancel; frozen magnitude channel as the impulse
+term; the level cache as the barrier term; a preregistered MONOTONE
+selector in the barrier-to-impulse relation, no model-family search;
+matched control with level features permuted in-fold; letters LIVE /
+UNRESOLVED / KILL with the rung, MDD, cap, and max-stat bounds written
+in the page). Unit 2 freeze, Unit 3 the 2021 kill-only screen, Unit 4
+one HOLD read. Priors: 25 percent to a joint EXPLORE live line, 10
+percent through 2021 and HOLD. Successor on kill, pre-named:
+F20-STRUCTBREAK-PULLBACK (ask the porous level to confirm continuation
+after a causal breach). The sub-minute grain law stays untouched, with
+the page's own evidence bar for ever revisiting it. Parent adoption
+note: the F19 spec must preregister the exact monotone functional
+(a fold-trained threshold on the barrier score against the scaled
+impulse score) before dispatch, per rule 4 of the formation law. F19
+dispatch waits only for the sweep-21 receipt per Unit 0 sequencing.
+
+The level-memory plane is BUILT (`tools/mill/levels.py`,
+`build_levels.py`, cache at artifacts/cache/mill_levels/, report
+`.audit/mill-levels-build.json`). 591 cells, 1.61M rows, 24 columns
+across same-day memory, prior-day and prior-session memory, value edges,
+and location; selftest 7/7, touch_reads_current_bar mutant red, 20 of 20
+hand recounts exact, worst source-minus-stamp -949 ns strictly prior.
+Two real causality defects caught and handled in the build (bar_series
+clamps pre-first-trusted-row bars to row 0, those bars are marked
+unsourced; on 9 asset-days the prior session closes after the current
+open, prior-day columns are served only after that close). Definition
+fixes recorded in the module: band centred on the reading bar's mid,
+touch outcomes anchored on the touched price with symmetric band-edge
+resolution, and the intraday prior session is the prior EXPLORE session
+because the split makes every immediately prior locked day a HOLD day
+(day-level prior-day levels still come from the true prior day). The
+plane waits for the unit the pinpoint page names; nothing is fit on it
+yet.
+
+Sweep 20 LANDED (F17-MAGASYM, Sol's own G-section unit, receipt
+`.audit/mill-sweep20.json`, 39 log rows, selftest 25/25, minute-OHLC
+mutant red, gate exact, coarse universe matches sweep 15 exactly).
+Letter MAGNITUDE-ONLY with the ASYM-KILL disjunct ALSO holding, recorded
+unsoftened. Ratios first: best hash-side replay mean minus 2 SE over
+rung is -0.031 NKD and -0.058 SI. What survived: the size signal is
+real under the cleaner no-wall cell-balanced label, NKD R2 0.098-0.118
+and SI 0.023-0.037 across horizons, adjusted p 0.005 (caveat recorded:
+the day-block null lands so far negative that the 0.02 floor, not the
+p, does the discriminating). What died: the direction-free coin
+expectation is negative at 46 of 48 horizon-stop cells, negative in
+EVERY year and EVERY phase on all three assets, no selected-minus-
+control line better than p 0.60, chop near zero so the loss is not
+double-stopping, and every binding MDD ledger fails by 10 to 26 times.
+Sol's martingale arithmetic is confirmed by measurement: predicted size
+without direction cannot be cashed by a symmetric stop. The simple
+ATR-stop monetization shape is closed; no entry-model development, no
+HOLD. Verdict stamps still wait on the pinpoint page (Sol was told to
+fold this receipt in if it landed mid-read, and it has landed).
+
+The pinpoint consult (USER-ordered, 2026-08-28). The USER's charge: the
+parent's problem statement drifted four times tonight (side-calling,
+argfirst, noise premium, size-without-direction), so the bottom-level
+diagnosis goes to Sol independently. Brief at
+`.audit/briefs/mill-pinpoint-sol.md`, out expected at
+`mill-pinpoint-sol-out.md`. Charges: one falsifiable root cause in
+mechanism terms covering all nine load-bearing observations or an
+explicit minimal split; the candidate question answered yes or no (would
+a differently FORMED universe raise the pass probability, with the
+formation rule, decisive test, and kill condition if yes); verdict
+stamps for sweeps 17-21; the shortest path to NKD 1500 + SI 1500 with
+per-unit kill conditions and updated priors. Standing rule for this
+stretch: the parent stamps nothing and dispatches nothing new until the
+page reconciles. Failing 13 recorded in memory: diagnoses are layers
+until independently confirmed; label them with what would falsify them.
+
+Sweep 19 LANDED (F16-CONT, receipt `.audit/mill-sweep19.json`, 24 log
+rows, selftest 27/27, retest_hold_reads_future mutant red, gate exact).
+Letter CONT-PARTIAL, no CONT-LIVE. Best deciding line SLOW/size/SI at
++215.4 usd/day, 0.144 of the rung. Facts for the reconciliation: (1) the
+SLOW lane beats the lateness-matched control on all nine lines, C1 p
+0.000-0.007, the first clean CASH control beat of the program; waiting
+for the specific retest that holds is better than waiting the same time
+at random. (2) Nothing survives the 24-line max-stat adjustment, best
+adjusted p 0.441; and per-line "first bound failed" is printed rather
+than letting PARTIAL fire silently (the sweep-15 enumeration lesson
+carried forward). (3) The FAST lane is dead, fails C1 on ten of twelve
+lines and C2 on all twelve; its paired C2 fade numbers (+400 to +655
+usd/day) are near-tautological, cells with fast displacement away from
+the extreme are cells where the fade already paid, selected by a
+POST-occurrence event, not a causal fade policy. (4) The carrying
+diagnostic: 74 to 94 percent of slow-lane entries later retrace through
+the very extreme the setup was built on. Observing one hold buys an
+entry, not a lasting hold; extremes on these assets at this grain are
+porous. This sharpens sweeps 15/17: the state knows size, and even an
+observed hold does not certify the level. It raises the value of the
+level-memory plane (grading the rare level that truly holds, the refill
+paper's 25-to-63-percent gradient) and names the chop risk sweep 20
+must price (both-sides-stop fraction). Verdict stamps wait for the
+consolidated Sol pass when sweep 20 lands.
+
+Sweep 17 LANDED (F14-CONDSIGN, receipt `.audit/mill-sweep17.json`, 76 log
+rows, selftest 28/28, mutant red, gate exact, flipped-side certs verified
+against outcome() to 0.0 usd). Letters CONDSIGN and ANTIFADE fired;
+CONDSIGN-strict is FALSE everywhere (no cell beats the majority class;
+the registered accuracy criterion was carried by the low base rate, the
+defensible parts are the AUC and one cash cell). The findings, ranked:
+(1) THE INVERSION, the night's most consequential measurement. Hold rate
+falls monotonically with predicted move size on both deciding assets,
+P(Y>0) 0.4946 to 0.3718 across NKD deciles (spearman -0.72), 0.4368 to
+0.2934 on SI (spearman -0.87), non-overlapping Wilson bands d1 vs d10.
+When a big move is predicted, the extreme BREAKS. The USER's composition
+inverted at stage one, and the inversion is direct evidence for the
+USER's own continuation reframe (sweep 19) and the magnitude-asymmetry
+route (sweep 20). Nuance recorded: part of the falling hold rate is
+wall-censoring of volatile fades (Y is wall-capped); the priced units
+with explicit stops disambiguate. (2) Conditioning flips NKD sign
+information, pooled AUC 0.4667 (z -6.5) to 0.5446 (z +5.0) top-quartile,
+0.5696 decile; SI is reliably ANTI-predictive inside the subset (z -8);
+HG nothing. (3) The absorption features add +1070 usd/day in exactly one
+cell, NKD quartile ridge24 -68.5 to +1001.9, cash p_adj 0.0050, not
+surviving at the decile, absent on SI/HG, unpriced (about 36 entries/day,
+no occupancy). The discrete cut runs OPPOSITE the deck direction on our
+minute data, absorption-present rows hold LESS (NKD 0.333 vs 0.366, SI
+0.280 vs 0.337). (4) ANTIFADE: continue-side on SI quartile posts +16663
+usd/day (p_adj 0.013) but the matched null collects +12407 of it, day
+drift, selection excess +4257; NKD negative; unpriced, about 100
+concurrent entries/day, no seats or MDD. Verdict stamps for sweeps 17,
+18, 19, 20 wait for ONE consolidated Sol consult when 19 and 20 land.
+
+Sweep 18 LANDED (F15-EPISODE, receipt `.audit/mill-sweep18.json`, 16 log
+rows, selftest 71/71, mutant red, gate exact). Letter NONE, powered
+(R6 n 279 NKD, 77 SI, both past the 30 floor). The ordered six-gate
+ladder does nothing on either deciding asset (NKD -78.30 usd/day, SI
+-137.95 at the full ladder, adjusted p 1.0000 throughout, lateness
+control not beaten). On report-only HG the grammar builds monotonically
+(-27 to +344 mean Y, adjusted p 0.0005, the ORDER itself worth +280
+against the unordered AND, lateness beaten) BUT the sweep-16 cross-price
+kills the comfort: under the 1800-second hold HG's +344 becomes -59, so
+the ladder on HG collects session-scale drift, the same size effect, not
+a local absorption edge. Three instrument facts for the reconciliation:
+(1) the median post-effort adverse excursion at minute grain is 0.0
+ticks (p90 1.0), so the library's 18-tick flush is a sub-minute object
+our lawful input grain does not resolve; either the micro-episode is
+absent on HG/NKD/SI or it is invisible at one minute, and the
+distinction goes to Sol; (2) G5 repeat fires on 93.3 percent of rows in
+this stream, saturated, no discrimination, contrasting sweep 13's
+matched design; (3) coverage ceiling 0.89 by construction (scoring days
+reach 123/120/117 of certifiable cells). Verdict fill waits on the Sol
+reconciliation with sweeps 16 and 17.
+
+Sweep 16 LANDED (F13-FIXHOLD, receipt `.audit/mill-sweep16.json`, 19 log
+rows, selftest 22/22, mutant red, stream gate exact, sweep-15 cross-check
+matches to 0.001). Pre-registered letter DEAD, all four horizons, all
+assets. The facts: sign R2 negative at every hold on every asset (best
+deciding-asset signed R2 -0.032 at 1800 s); the magnitude channel SHRINKS
+as the hold shortens (NKD 0.126 to-close falls to 0.087 at 1800 s, HG
+0.119 falls to -0.005), so the size knowledge lives at session scale, not
+the next half hour; SECOND minus FIRST cash negative at every horizon
+(every adjusted p 1.0), so the sweep-13 timing mechanism does not monetize
+under fixed holds either; BELOW-P5 clustering on 21 of 24
+asset-horizon-grain cells, reproducing sweep 15 at every horizon; every
+predicted-magnitude top-decile mean Y_h negative against a 625-833 usd
+per-trade requirement at 0.6 coverage; MDD not reliably compressed
+(HG 0.57-0.65x, SI expands to 1.04-1.78x and the only positive to-close
+total flips negative). Parent acceptance of the letter is PENDING the Sol
+fixhold page per standing law; verdict column fill waits for that
+reconciliation. Budget note: the build ran 55 minutes against a 35-minute
+budget absorbing the mid-flight sweep-15 additions after the registered
+spec was complete. The Sol
+design pass on the whole complex is dispatched
+(`.audit/briefs/mill-fixhold-sol.md`, out at `mill-fixhold-sol-out.md`):
+design errors, capacity honesty, the development ladder under 467 adaptive
+EXPLORE rows, MDD accounting for sequential entries, the entries-not-exits
+framing judged, the noise toolbox ranking, the magnitude route judged with
+priority, blunt priors per route. No sweep-16 verdict before that page
+reconciles. HOLD, 2025H2, and the 2021 kill-only license remain unspent.
+
+## Sol's closure ruling after sweep 14 (received 2026-08-27, reconciliation
+pending sweep 15)
+
+`.audit/briefs/mill-sweep14-sol-out.md`. Sol rules: close the
+side-resolution mill on the current input plane. No sequence learner (385
+effective sequences cannot settle that class and a result either way
+decides nothing), no meta-layer (no measured competence signal exists for
+it to use; the hindsight phase gate tops at $97/day), no 2021 read (the
+kill-only license stays unspent until a genuine survivor exists), no HOLD
+read (no survivor to read; spending it on development destroys its role).
+Its closure statement is scoped: the tested policy classes on these
+frozen inputs do not identify paying occurrences; the closure does not
+claim the oracle is causal, that full-history functions are impossible,
+or that a different generator or exit law would fail.
+
+Its ranking of the USER's controls: the EXIT LAW is the single change
+with the highest probability of reopening the conclusion, because sweep
+13's ordinal mechanism (extension cut against matched lateness, adjusted
+p 0.030, both deciding assets) is the night's only surviving causal
+evidence and it is a TIMING effect the wall-or-phase-close payoff cannot
+monetize. Generator change ranks second (a formation rule suppressing
+ambiguous repeats, not more candidates). Rung or MDD changes alone fix
+nothing (cash is negative per trade). Sol notes explicitly this is not
+authorization: the USER has ruled no exits.
+
+Parent status: adopted as the standing ruling PENDING sweep 15's
+noise-ceiling decomposition, which decides how the closure reads (real
+structure missed by methods, or oracle premium that was never a target).
+The final reconciled position issues when sweep 15 lands.
+
 ## Standing law: Sol reviews every design decision (USER, 2026-08-27)
 
 USER order, unconditional. Every design decision gets a Sol pass. That

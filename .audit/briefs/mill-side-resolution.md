@@ -783,6 +783,38 @@ plane (per-price defence history across phases and days, value-area
 position) is named as the missing family the mill has never been given and
 stands as the next unit after the in-flight three, pending the Sol pass.
 
+THE POWER PLAN, ADOPTED, F22 DISPATCHED (Fable, 2026-08-28 dawn,
+reconciling `.audit/briefs/mill-powerplan-sol-out.md`). Sol's rulings,
+all adopted: no SI break-close rescue unit (the p 0.0545 line is close
+on discrimination only, seated SI +28.8 usd/day with NKD -223.6 and MDD
+21,170; the power arithmetic needs 100-127 independent shared dates and
+EXPLORE holds 64 here, so a repeat returns the same evidence, and NKD's
+opposite sign is the preplanned heterogeneity fact, not a nuisance);
+the lawful-versus-lottery table for growing books is recorded (one
+preregistered wider selector preferred, cluster-aware date-level
+inference mandatory, no event pseudoreplication, no post-hoc family
+shrinking, no new calendar bytes); the one-minute information ranking
+is fixed (the full component-level fixed-zone plane first, cross-day
+zone genealogy second, magnitude for SEATING priority third and
+conditional, schedule last and never alone); the BREAKCLOSE replication
+letters are written for a future independent book only. Program priors
+revised and adopted: 25 percent overall (from 35), 10 percent within
+current laws (from 20). No USER-owned law has a measured case for
+change; sweep 26 rejects the grain exception directly, and 24-25 fail
+on selection and cash, not on the outcome law or the universe. Sweep 27
+(F22-FIXEDZONE-RANK) dispatched to Sol's spec verbatim: sweep 25's
+3,790 break candidates, lane-A break-close timing fixed (the USER's
+event), the SEPARATE fixed-zone fields as a per-asset ridge ranker on
+within-day cert percentiles (lambda 1, no search), top-four per
+asset-day by rank with top-three and top-five as non-letter neighbors,
+the complete level vector permuted in-fold as the matched control, one
+two-line maxT family, full seat replay, ledgers, stresses, letters
+LEVELMEMORY-LIVE / KILL / UNRESOLVED with the no-coverage-tuning rule
+on UNRESOLVED. Sol's unit priors: 12 percent for F22 to a joint live
+line, 8 percent F23-ZONE-GENEALOGY conditional, F24-SIZE-SEAT gated on
+a licensed entry rule. The night's records are complete through commit
+821f860; this page and F22 are the open items.
+
 Sweep 26 LANDED, THE GRAIN LEVER IS DEAD, THE TREE IS COMPLETE (Fable,
 2026-08-28 dawn). Receipt `.audit/mill-sweep26.json`, 54 rows stamped
 KILL, selftest 31/31, both mutants red by named roster, both parent

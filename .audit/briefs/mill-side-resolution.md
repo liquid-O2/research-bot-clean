@@ -815,8 +815,10 @@ mutant are written into its spec). Priors revised and adopted: program
 15 percent (from 25), within current laws 2 percent (from 10),
 judgments not stop rules. The loop cron is cancelled, records pushed,
 HOLD 131/129/127 asset-days, 2021 kill-only, and 2025H2 all sealed and
-unspent. The log closes at 1,007 rows, 731 KILL, 178 UNRESOLVED
-[recount at open], every verdict traceable to a receipt.
+unspent. The log closes at 1,006 data rows: 831 KILL, 144 UNRESOLVED,
+and 31 deliberately unstamped (sweep 23, the refused-lineage build held
+unjudged per the zone-miscentering refusal ruling). Every stamp and
+every hold is traceable to a receipt and a ruling.
 
 Sweep 28 LANDED, THE FIRST POSITIVE INCREMENT, F24 LICENSED AND
 DISPATCHED (Fable, 2026-08-28). Receipts `.audit/mill-sweep28.json` and

@@ -783,6 +783,41 @@ plane (per-price defence history across phases and days, value-area
 position) is named as the missing family the mill has never been given and
 stands as the next unit after the in-flight three, pending the Sol pass.
 
+Sweep 26 LANDED, THE GRAIN LEVER IS DEAD, THE TREE IS COMPLETE (Fable,
+2026-08-28 dawn). Receipt `.audit/mill-sweep26.json`, 54 rows stamped
+KILL, selftest 31/31, both mutants red by named roster, both parent
+universes reproduced under refuse-on-mismatch, 4.46 million raw trades
+read, 11,636 executable entries with zero causality violations. FAMILY
+LETTER ORDER-POOR under BOTH dedupe readings (the builder registered a
+primary overlap-dedupe and the literal key as a sensitivity because the
+literal key deletes 12,351 of the approaches it was ordered to
+reproduce; both agree). The findings: no within-minute order class
+reaches half a deciding rung (best P4 on SI 0.357x with NKD -0.246x;
+best joint class P1 at 0.062x/0.181x), every binding MDD 7.5x to 222x
+over the bound, the classes POWERED at 157-1918 entries per decider.
+Every minute twin's upper bound is positive (250-581 usd/day) and
+several twins beat their tick parents outright. Minute collapse is real
+but small, 1.9 percent overall, concentrated in the break atoms (P5
+17.4, P3 5.6 percent), and the orders it hides are not worth money at
+either grain. BOTH halves of Sol's grain evidence bar fail
+independently. The grain lever is closed with a receipt; the grain law
+stands and no case exists to ask the USER to change it. With this,
+every branch of the pinpoint tree has a valid zone-anchored receipt:
+F19 K3, F20 K3 all three lanes, F21 ORDER-POOR. The night ends with no
+survivor, the collision mechanism unfalsified (cash-dead selectors,
+controls unpowered, discrimination never non-positive), the two real
+signals standing (session-scale size; timing as filter, with the SI
+break-close near-miss at maxT p 0.0545 the closest causal line), and
+the formation-to-selection gap as the named object of the next session
+(ceilings 9x-55x, causal reach at most 0.36x). The final Sol consult is
+dispatched (`.audit/briefs/mill-powerplan-sol.md`, out at
+mill-powerplan-sol-out.md): the power arithmetic, the SI near-miss
+unit, the ranked untested decision-information sources at one-minute
+grain (the zone-anchored level-memory plane first among candidates),
+and the next-session charter with revised priors. Nothing further
+dispatches tonight; that page opens the next session. HOLD, 2025H2, and
+the 2021 kill-only license remain sealed and unspent.
+
 Sweep 25 LANDED, THE VALID STRUCTBREAK KILL, F21 DISPATCHED (Fable,
 2026-08-28). Receipt `.audit/mill-sweep25.json`, 51 rows stamped KILL,
 selftest 77/77, both mutants red by NAMED roster (a contract upgrade the

@@ -1,0 +1,238 @@
+{
+  "accessor_code_sha": "fc9f275b3219ef3d473c393ecd1dedcc4971c95ea43b81958c5eddd76c7c8101",
+  "audit": {
+    "counters": {
+      "candidates_formed": 3790,
+      "current_day_events": 0,
+      "events_returned": 805934,
+      "generations_max": 13,
+      "generations_mean": 3.7333333333333334,
+      "identity_contains_price": 300,
+      "identity_key_drifted": 0,
+      "identity_key_stable": 300,
+      "identity_price_outside": 0,
+      "queries": 300,
+      "strata": 18,
+      "strict_time_ok": 300,
+      "strict_time_violations": 0,
+      "with_any_event": 277,
+      "with_any_flip": 264,
+      "with_multiple_generations": 232
+    },
+    "worst": {
+      "latest_event_stamp_minus_decision_ns": -176820000000000,
+      "max_event_d8_minus_decision_d8": -3
+    }
+  },
+  "build": {
+    "counters": {
+      "bands_touched": 162,
+      "broke": 106976,
+      "flip": 6980,
+      "held": 110649,
+      "sessions": 195,
+      "sessions_absent": 0,
+      "touch": 267432,
+      "unresolved": 49807
+    },
+    "elapsed_s": 41.9,
+    "per_asset": {
+      "HG": {
+        "atr_ref_mid2": 218953086.1160822,
+        "band_half_width_mid2": 43790617.223216444,
+        "band_step_mid2": 87581234.44643289,
+        "bands": 38,
+        "bands_with_multiple_sessions": 33,
+        "broke": 33447,
+        "checkpoints_verified": {
+          "bands": 38,
+          "checkpoints": 209,
+          "events": 159100,
+          "mismatched": 0
+        },
+        "events": 159100,
+        "flip": 1851,
+        "held": 33958,
+        "max_events_in_one_band": 9699,
+        "median_events_per_band": 3802.0,
+        "session_closes_increasing": true,
+        "sessions": 66,
+        "sessions_absent": 0,
+        "touch": 89844,
+        "unresolved": 22439
+      },
+      "NKD": {
+        "atr_ref_mid2": 1035109031575.6189,
+        "band_half_width_mid2": 207021806315.12378,
+        "band_step_mid2": 414043612630.24756,
+        "bands": 62,
+        "bands_with_multiple_sessions": 45,
+        "broke": 36319,
+        "checkpoints_verified": {
+          "bands": 62,
+          "checkpoints": 281,
+          "events": 169519,
+          "mismatched": 0
+        },
+        "events": 169519,
+        "flip": 2796,
+        "held": 40890,
+        "max_events_in_one_band": 12994,
+        "median_events_per_band": 1808.5,
+        "session_closes_increasing": true,
+        "sessions": 65,
+        "sessions_absent": 0,
+        "touch": 89514,
+        "unresolved": 12305
+      },
+      "SI": {
+        "atr_ref_mid2": 1272521058.7020538,
+        "band_half_width_mid2": 254504211.74041077,
+        "band_step_mid2": 509008423.48082155,
+        "bands": 62,
+        "bands_with_multiple_sessions": 54,
+        "broke": 37210,
+        "checkpoints_verified": {
+          "bands": 62,
+          "checkpoints": 261,
+          "events": 163418,
+          "mismatched": 0
+        },
+        "events": 163418,
+        "flip": 2333,
+        "held": 35801,
+        "max_events_in_one_band": 13107,
+        "median_events_per_band": 2174.0,
+        "session_closes_increasing": true,
+        "sessions": 64,
+        "sessions_absent": 0,
+        "touch": 88074,
+        "unresolved": 15063
+      }
+    }
+  },
+  "code_sha": "311e048333288f9b0119c16b287a9859b31ad0da4f652dae8bb69feb79a6a6db",
+  "law": {
+    "atr_ref": "the MEDIAN prior-day ATR14 over the asset's first 25 EXPLORE sessions - the ranker's own warmup, never scored and never out-of-fold - so the grid is fixed before the first scored session",
+    "band_mult_note": "0.40 = 2 x BAND_MULTS[DEFAULT_MULT_INDEX], so one genealogy band is exactly one default levels-cache band wide and the anchored outcome law runs at the same half width",
+    "derived_fields": [
+      "generations",
+      "touches",
+      "held",
+      "broke",
+      "held_rate",
+      "broke_rate",
+      "role_flips",
+      "events_since_last_flip",
+      "sessions_since_last_event",
+      "events",
+      "sessions_eligible"
+    ],
+    "events": [
+      "TOUCH",
+      "HELD",
+      "BROKE",
+      "ROLE-FLIP"
+    ],
+    "hold": "SEALED: the session list is sweep1._explore_days and nothing else",
+    "key": "(asset, floor(price / step)) with step = 0.4 * atr_ref",
+    "mirror": "side -1 is the exact mirror (held and broke swap), proved in the selftest, so one reading side records both",
+    "outcome": "levels.outcome_bars at the band's half width, the one definition levels_zone.outcome_pair itself calls; membership is at the FIXED band, the verdict stays anchored on the TOUCHED price",
+    "reading_side": 1,
+    "role_flip": "a resolved defence pointing OPPOSITE to the last resolved defence at that band: support has become resistance, or the reverse.  The first resolved defence at a band is never a flip",
+    "strict_time": "a session serves only when its calendar day is strictly earlier AND its last bar closed strictly before the decision stamp - levels_zone's licensed prior-session law, generalized from one session to all of them"
+  },
+  "mutant": "",
+  "mutants": {
+    "flip_ignores_order": [
+      "THE ROLE FLIP IS ORDERED AND THERE IS EXACTLY ONE: support held twice, then resistance took the band, and the second break is not a second flip",
+      "the derived flip count equals the number of ROLE-FLIP events actually emitted into the ordered history"
+    ],
+    "genealogy_reads_current_day": [
+      "A STRICT-TIME CHECK: a query made DURING session C is served only by sessions A and B, and never by C's own events",
+      "every served event's own stamp is strictly before the decision stamp",
+      "the FIRST session has no genealogy at all: there is nothing earlier to serve it, and that is an empty history rather than a zero",
+      "the eligible session count grows by one per elapsed session",
+      "THE LICENSED PRIOR-SESSION LAW: an earlier session whose last bar closed at or after the decision stamp is NOT served, exactly as levels_zone refuses it"
+    ]
+  },
+  "planted_fixture": {
+    "paths": {
+      "20220101": [
+        110.0,
+        105.0,
+        130.0,
+        90.0
+      ],
+      "20220102": [
+        110.0,
+        95.0,
+        130.0
+      ],
+      "20220103": [
+        115.0,
+        98.0,
+        140.0
+      ]
+    },
+    "returned_derived": {
+      "broke": 2.0,
+      "broke_rate": 0.5,
+      "events_since_last_flip": 2.0,
+      "generations": 3,
+      "held": 2.0,
+      "held_rate": 0.5,
+      "role_flips": 1.0,
+      "sessions_eligible": 3,
+      "sessions_since_last_event": 1.0,
+      "touches": 4.0
+    },
+    "returned_order": [
+      "TOUCH",
+      "HELD",
+      "TOUCH",
+      "HELD",
+      "TOUCH",
+      "BROKE",
+      "ROLE-FLIP",
+      "TOUCH",
+      "BROKE"
+    ],
+    "world": {
+      "band": 5,
+      "broke": 2.0,
+      "broke_rate": 0.5,
+      "decision_d8": 20220104,
+      "decision_stamp_ns": 1715552000000000000,
+      "events_since_last_flip": 2.0,
+      "generations": 3,
+      "half_width": 10.0,
+      "held": 2.0,
+      "held_rate": 0.5,
+      "order": [
+        "TOUCH",
+        "HELD",
+        "TOUCH",
+        "HELD",
+        "TOUCH",
+        "BROKE",
+        "ROLE-FLIP",
+        "TOUCH",
+        "BROKE"
+      ],
+      "role_flips": 1.0,
+      "sessions": [
+        20220101,
+        20220102,
+        20220103
+      ],
+      "sessions_since_last_event": 1.0,
+      "step": 20.0,
+      "touches": 4.0,
+      "unordered_flips": 2.0
+    }
+  },
+  "schema": "QRE2MILLZONEHISTORY1",
+  "seed": 20260827,
+  "split_sha": "b6d2decb1f3d6495e003a1a29a229195f4d4c1bdc0134d4195a1cc2c1c38f08f"
+}

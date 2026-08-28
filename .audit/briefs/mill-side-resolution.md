@@ -783,6 +783,40 @@ plane (per-price defence history across phases and days, value-area
 position) is named as the missing family the mill has never been given and
 stands as the next unit after the in-flight three, pending the Sol pass.
 
+Sweep 28 LANDED, THE FIRST POSITIVE INCREMENT, F24 LICENSED AND
+DISPATCHED (Fable, 2026-08-28). Receipts `.audit/mill-sweep28.json` and
+`.audit/mill-zone-history-build.json`, 40 rows stamped UNRESOLVED,
+selftest 116/116, three surgical mutants red by measured roster, store
+gates 3790/3790 on identity, key stability, and strict time. Letter
+GENEALOGY-UNRESOLVED clause U1, receipt frozen. The facts: the
+genealogy INCREMENT is positive on BOTH deciders, NKD +96.97 usd/date
+(adjusted p 0.393) and SI +204.66 (adjusted p 0.066, two-line c95
+1.922), upper bounds +322 and +420, so neither kill clause fires and
+the ordered cross-day history is the first information source of the
+program to post a positive increment on both deciding assets at once.
+Attributability is exact, R_BASE reproduces sweep 27 bit for bit, so
+the paired difference is the ordered history and nothing else. R_GEN
+lifts out-of-fold rank rho on all three assets (NKD from negative to
+positive), cuts binding MDD 35 percent (33,970 to 22,046), turns the
+spread-stress NKD line positive, and posts NKD +170.42 usd/day at the
+point (0.114x rung) with minus-2SE still negative and SI -17.81. The
+signal lives in the RATE pair and the FLIP count, not depth;
+gen_generations is negative. Judgment calls registered by the builder
+before outcomes: the genealogy grid is a partition while the accessor
+band is closed on both edges (2 edge bars reassigned, measured
+exactly); LIVE outranks K1 in the letter precedence (a policy clearing
+every live bound cannot be killed by its increment's poverty, that is a
+licensing question). F24 LICENSING: LICENSED, both deltas positive and
+about a third of selections lost to occupancy (153 of 461 seated).
+Sweep 29 (F24-SIZE-SEAT) dispatched to Sol's row-3 spec: the R_GEN
+selection set FROZEN, chronological seating (must reproduce sweep 28
+exactly) against causal magnitude-priority seating (higher I_break wins
+simultaneous seats, below-median arrivals declined under a trained
+threshold with no future peeking), paired by date, Sol's kill clauses
+(non-positive paired upper bound on either decider, or S2 MDD not
+under 1000), residual registered, neighbor thresholds reported. Sol's
+conditional prior: 20 percent.
+
 Sweep 27 LANDED, UNRESOLVED U1, F23 DISPATCHED (Fable, 2026-08-28).
 Receipt `.audit/mill-sweep27.json`, 21 rows stamped UNRESOLVED, selftest
 80/80, both mutants red by named roster, formation and reads exact.
